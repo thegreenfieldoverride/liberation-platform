@@ -1,0 +1,63 @@
+{
+  "name": "@thegreenfieldoverride/real-hourly-wage",
+  "version": "1.0.0",
+  "description": "Shatter the salary illusion - calculate what you're really being paid per hour",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./core": {
+      "import": "./dist/core/index.js",
+      "require": "./dist/core/index.js"
+    },
+    "./react": {
+      "import": "./dist/react/index.js",
+      "require": "./dist/react/index.js"
+    },
+    "./vanilla": "./dist/vanilla/real-hourly-wage.min.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "build:vanilla": "rollup -c rollup.config.js",
+    "dev": "tsc --watch",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@thegreenfieldoverride/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "react": "^18.0.0",
+    "typescript": "^5.0.0",
+    "rollup": "^4.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@rollup/plugin-terser": "^0.4.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "salary-reality",
+    "hourly-wage-calculator",
+    "financial-truth",
+    "burnout-recovery",
+    "liberation-tools",
+    "privacy-first",
+    "react",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thegreenfieldoverride/liberation-platform.git"
+  },
+  "license": "Liberation-1.0"
+}

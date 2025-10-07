@@ -1,0 +1,42 @@
+{
+  "name": "@thegreenfieldoverride/liberation-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered liberation tools and platform for breaking free from corporate exploitation",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "pnpm -r run build",
+    "dev": "pnpm --filter greenfield-override-web run dev",
+    "test": "pnpm -r run test",
+    "lint": "pnpm -r run lint",
+    "publish:runway": "pnpm --filter @thegreenfieldoverride/runway-calculator publish",
+    "publish:hourly-wage": "pnpm --filter @thegreenfieldoverride/real-hourly-wage publish",
+    "publish:ai-copilot": "pnpm --filter @thegreenfieldoverride/ai-copilot publish",
+    "publish:cognitive-debt": "pnpm --filter @thegreenfieldoverride/cognitive-debt-assessment publish",
+    "publish:types": "pnpm --filter @thegreenfieldoverride/types publish",
+    "publish:all": "pnpm publish:types && pnpm publish:runway && pnpm publish:hourly-wage && pnpm publish:ai-copilot && pnpm publish:cognitive-debt"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "financial-freedom",
+    "burnout-recovery",
+    "liberation-tools",
+    "privacy-first"
+  ],
+  "author": "The Greenfield Override",
+  "license": "Liberation-1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thegreenfieldoverride/liberation-platform.git"
+  },
+  "homepage": "https://github.com/thegreenfieldoverride/liberation-platform#readme",
+  "bugs": {
+    "url": "https://github.com/thegreenfieldoverride/liberation-platform/issues"
+  }
+}

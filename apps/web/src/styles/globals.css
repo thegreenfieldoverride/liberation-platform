@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-gray-200;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+/* Custom styling for The Greenfield Override */
+.runway-calculator {
+  @apply text-gray-800;
+}
+
+.runway-calculator input:focus {
+  @apply ring-2 ring-blue-500 ring-offset-2 border-transparent;
+}
+
+.runway-calculator button:hover {
+  @apply transition-colors duration-200;
+}
