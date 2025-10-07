@@ -1,6 +1,6 @@
 {
   "name": "@thegreenfieldoverride/ai-copilot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Liberation AI Co-Pilot - Your Personal Chief of Staff for Freedom",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

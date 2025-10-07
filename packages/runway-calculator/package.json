@@ -1,6 +1,6 @@
 {
   "name": "@thegreenfieldoverride/runway-calculator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Transform financial anxiety into clarity - calculate your runway to freedom",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

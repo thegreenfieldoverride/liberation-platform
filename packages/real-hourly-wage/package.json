@@ -1,6 +1,6 @@
 {
   "name": "@thegreenfieldoverride/real-hourly-wage",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shatter the salary illusion - calculate what you're really being paid per hour",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
