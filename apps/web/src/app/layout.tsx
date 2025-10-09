@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import '../styles/globals.css';
 import { Navigation } from '../components/Navigation';
 import { Footer } from '../components/Footer';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 
 export const metadata: Metadata = {
   title: 'The Greenfield Override - Tools for Liberation',
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  viewport: 'width=device-width, initial-scale=1',
+
 };
 
 export default function RootLayout({
@@ -51,11 +52,13 @@ export default function RootLayout({
         }} />
       </head>
       <body className="font-sans antialiased min-h-screen flex flex-col">
-        <Navigation />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
+        <ErrorBoundary>
+          <Navigation />
+          <main className="flex-1 relative">
+            {children}
+          </main>
+          <Footer />
+        </ErrorBoundary>
       </body>
     </html>
   );

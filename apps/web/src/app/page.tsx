@@ -2,86 +2,89 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { LibIcon } from '../components/icons/LiberationIcons';
 
 export default function HomePage() {
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
+    let ticking = false;
+    let lastUpdate = 0;
+    
+    const handleScroll = () => {
+      const now = performance.now();
+      
+      if (!ticking && now - lastUpdate > 32) { // Limit to ~30fps for smoother gradient transitions
+        requestAnimationFrame(() => {
+          setScrollY(window.scrollY);
+          lastUpdate = now;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Calculate immersive background and overlay based on scroll position
   const getBackgroundStyle = () => {
     if (typeof window === 'undefined') {
       return { 
-        backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        backgroundColor: 'rgb(102, 126, 234)'
+        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%)'
       };
     }
     
-    const scrollPercentage = scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+    const scrollPercentage = Math.min(scrollY / (document.documentElement.scrollHeight - window.innerHeight), 1);
     
-    if (scrollPercentage < 0.2) {
-      // Corporate stress - dark, oppressive
-      return {
-        backgroundImage: `
-          linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)),
-          url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23333" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="%23111"/><rect width="100" height="100" fill="url(%23grid)"/></svg>')
-        `,
-        backgroundColor: '#1a1a1a'
-      };
-    } else if (scrollPercentage < 0.4) {
-      // Recognition phase - warm, understanding
-      return {
-        backgroundImage: `
-          linear-gradient(rgba(255, 183, 77, 0.1), rgba(255, 206, 84, 0.2)),
-          radial-gradient(circle at 30% 50%, rgba(255, 183, 77, 0.3) 0%, transparent 50%)
-        `,
-        backgroundColor: '#2d1b0e'
-      };
-    } else if (scrollPercentage < 0.6) {
-      // Understanding phase - soft blues
-      return {
-        backgroundImage: `
-          linear-gradient(rgba(59, 130, 246, 0.1), rgba(147, 197, 253, 0.2)),
-          radial-gradient(ellipse at 70% 30%, rgba(59, 130, 246, 0.2) 0%, transparent 70%)
-        `,
-        backgroundColor: '#0f172a'
-      };
-    } else if (scrollPercentage < 0.8) {
-      // Tools phase - calming greens
-      return {
-        backgroundImage: `
-          linear-gradient(rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.2)),
-          radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.3) 0%, transparent 60%)
-        `,
-        backgroundColor: '#064e3b'
-      };
-    } else {
-      // Liberation phase - serene sanctuary
-      return {
-        backgroundImage: `
-          linear-gradient(rgba(134, 239, 172, 0.2), rgba(187, 247, 208, 0.3)),
-          radial-gradient(ellipse at 50% 50%, rgba(134, 239, 172, 0.4) 0%, transparent 80%)
-        `,
-        backgroundColor: '#052e16'
-      };
-    }
+    // Single, continuously evolving gradient from deep blue-purple to soft teal
+    // Creates a soothing journey from darkness to light
+    const progress = scrollPercentage;
+    
+    // Start: Deep blue-purple (darkness/corporate stress)
+    // End: Soft teal-blue (clarity/liberation)
+    
+    // Primary color (top-left)
+    const hue1 = 220 + (progress * 40); // 220 (deep blue) → 260 (blue-purple) → 180 (teal)
+    const sat1 = 40 + (progress * 20); // Gradually increase saturation
+    const light1 = 8 + (progress * 12); // Gradually lighten
+    
+    // Secondary color (bottom-right)  
+    const hue2 = 240 + (progress * 30); // 240 (purple) → 270 (violet) → 200 (blue-green)
+    const sat2 = 30 + (progress * 25); // Increase saturation
+    const light2 = 12 + (progress * 18); // Increase lightness
+    
+    // Tertiary color for more complex gradient
+    const hue3 = 200 + (progress * 50); // 200 (blue) → 250 (purple) → 160 (teal)
+    const sat3 = 35 + (progress * 20);
+    const light3 = 10 + (progress * 15);
+    
+    return {
+      background: `linear-gradient(135deg, 
+        hsl(${hue1}, ${sat1}%, ${light1}%) 0%, 
+        hsl(${hue3}, ${sat3}%, ${light3}%) 50%,
+        hsl(${hue2}, ${sat2}%, ${light2}%) 100%
+      )`
+    };
   };
 
   return (
     <div 
-      className="min-h-screen transition-all duration-2000 ease-out"
+      className="min-h-screen smooth-bg-transition"
       style={getBackgroundStyle()}
     >
-      {/* Hero Section - Magazine Takeover Style */}
-      <section className="min-h-screen flex items-center justify-center px-8 relative overflow-hidden">
-        <div className="max-w-5xl mx-auto text-left relative z-10">
+      {/* 1. The Hero Section: The Declaration */}
+      <section className="min-h-screen flex items-center justify-center px-8 relative overflow-hidden pt-20">
+        <div 
+          className="max-w-5xl mx-auto text-left relative z-10"
+          style={{
+            transform: `translateY(${scrollY * 0.15}px)`
+          }}
+        >
           <div className="mb-8">
             <div className="text-sm font-display uppercase tracking-widest text-white/70 mb-4">
-              The Greenfield Override • Special Investigation
+              The Greenfield Override
             </div>
             <div className="w-16 h-1 bg-white/30 mb-8"></div>
           </div>
@@ -114,242 +117,278 @@ export default function HomePage() {
               </p>
             </div>
             
-            <div className="space-y-6">
-              <p className="text-white/70 font-sans text-lg mb-8">Ready to begin your investigation?</p>
-              <p className="text-white/50 text-sm mb-12 font-sans uppercase tracking-wide">Move forward at your own pace.</p>
+            <div className="text-center">
+              <p className="text-white/70 font-sans text-lg mb-8">
+                Ready to begin your liberation?
+              </p>
               
-              <div className="flex flex-col sm:flex-row gap-6 max-w-xl">
-                <Link 
-                  href="#manifesto"
-                  className="bg-white/20 backdrop-blur-sm text-white px-8 py-4 text-lg font-sans hover:bg-white/30 transition-all duration-300 rounded-xl border border-white/30"
-                >
-                  Read the Investigation
-                </Link>
-                <Link 
-                  href="/tools/runway-calculator"
-                  className="border border-white/40 text-white px-8 py-4 text-lg font-sans hover:bg-white/10 transition-all duration-300 rounded-xl backdrop-blur-sm"
-                >
-                  Skip to Tools
-                </Link>
-              </div>
+              <Link 
+                href="#sarah"
+                className="bg-white/20 backdrop-blur-sm text-white px-12 py-4 text-xl font-semibold hover:bg-white/30 transition-all duration-300 rounded-xl border border-white/30 hover-lift glow-hover inline-flex items-center gap-4"
+              >
+                <LibIcon icon="Direction" size="md" />
+                Begin Your Investigation
+                <LibIcon icon="Arrow" size="sm" />
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Part 1, Section 1: The Predator in the Tall Grass */}
-      <section className="min-h-screen flex items-center justify-center px-6 py-24" id="manifesto">
+      {/* 2. The Hook: The Story of "Sarah" */}
+      <section id="sarah" className="min-h-screen px-8 py-20 relative">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-16 text-left font-sans">
-            Section 1: The Predator in the Tall Grass
-          </h2>
-          
-          <div className="text-left space-y-8 font-serif">
-            <p className="text-xl text-white/90 leading-relaxed">
-              It starts with the feeling that you're going crazy.
-            </p>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              On paper, your life is a success. You have the job you worked for, the one that's supposed to be the culmination of your ambition. If you're one of the lucky ones who got into a big company—the kind whose name on a resume opens doors—the feeling might be even worse. Because this is what you wanted, yet you can feel yourself cracking from the inside.
-            </p>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              You're stressed all the time. You go home and you can't think, can't function. You're a zombie until you decompress. Or you're one of those who never puts work down, driven by a relentless pressure to just work, and work, and work.
-            </p>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              Your rational mind tells you everything is fine. Your body, however, is screaming that you're in constant danger. To understand this conflict, let's reframe the situation.
-            </p>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              Imagine you're a wildebeest. Your life has a simple, natural rhythm: eat, find water, procreate, socialize. But there's always the threat of something lingering behind the thicket of grass, a predator lurking in the shadows. Your body is wired with the same ancient alarm system.
-            </p>
-            
-            <p className="text-lg text-white/90 leading-relaxed font-medium">
-              Here is the fundamental truth of our modern work life: <strong>That threat is real. It's just not going to eat you outright anymore.</strong>
-            </p>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              The predator isn't a lion; it's the possibility of a layoff, a bad performance review, an angry email from a VP, or just the silent dread of not being productive enough. Your nervous system, however, doesn't know the difference. The same alarms that were designed to save you from a tiger are now firing all day long in response to your inbox.
-            </p>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              So what is this modern predator? It's the constant, gnawing fear of loss.
-            </p>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              At a practical level, it's the fear of losing your job, your money, and the comfort you've built for yourself. But it runs deeper, into the core of your identity. It's the fear of losing the security that comes when people think you've succeeded. That parent who never said they were proud of you? They are now. That kid who bullied you in middle school? Your success is the ultimate rebuttal.
-            </p>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              The Scarcity Mindset whispers two constant lies in your ear: that you always need more to be truly secure, and that at any moment, the things you have can be taken away.
-            </p>
-            
-            <p className="text-lg text-white/90 leading-relaxed">
-              This feeling—the ancient alarm system firing in response to a modern, relentless fear of loss—is the very definition of the Scarcity Mindset. It is the invisible cage we have been trained to live in.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Part 1, Section 2: Your Brain's Panic Button */}
-      <section className="min-h-screen flex items-center justify-center px-6 py-24">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-16 text-left font-sans">
-            Section 2: Your Brain's Panic Button
-          </h2>
-          
-          <div className="text-left space-y-8 font-serif">
-            <p className="text-xl text-white/90 leading-relaxed">
-              To understand why a looming deadline can feel like a tiger in the bushes, you need to meet your brain's ancient security guard: the <strong>amygdala</strong>.
-            </p>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              The amygdala is not the smart, rational part of your brain. It's the primitive, lightning-fast panic button. Its only job is to constantly scan your environment for threats, and when it senses one, it slams the alarm. This isn't a suggestion; it's a takeover. The amygdala hijacks the controls from your slower, more logical brain (the prefrontal cortex) and triggers a purely instinctual, physical response to keep you alive.
-            </p>
-            
-            <p className="text-lg text-white/90 leading-relaxed">
-              This "amygdala hijack" is the source of that overwhelming feeling when everything at work feels like an emergency, even when logically you know it's not.
-            </p>
-            
-            <div className="bg-white/10 backdrop-blur-sm border-l-4 border-orange-400/60 p-6 my-8 rounded-r-lg">
-              <p className="text-lg text-orange-200 leading-relaxed italic">
-                Your ancient brain doesn't understand the difference between a saber-toothed tiger and a passive-aggressive email from your manager. Both trigger the exact same survival response.
-              </p>
-            </div>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              When this system is chronically activated—which is the reality for most knowledge workers—your body stays in a constant state of fight-or-flight. Your cortisol levels remain elevated. Your immune system becomes suppressed. Your ability to think clearly, be creative, or form deep relationships deteriorates.
-            </p>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              This is not a character flaw. This is not weakness. This is your nervous system doing exactly what it was designed to do, in an environment it was never designed for.
-            </p>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              But understanding this mechanism is the first step toward reclaiming control. When you can recognize the amygdala hijack for what it is—an ancient system misfiring in a modern context—you can begin to respond rather than react.
-            </p>
-            
-            <p className="text-lg text-white/90 leading-relaxed font-medium">
-              The goal isn't to eliminate stress entirely. It's to distinguish between real threats and the phantom predators that corporate life trains you to fear.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Transition to Action */}
-      <section className="min-h-screen flex items-center justify-center px-6 py-24">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-16 text-left font-sans">
-            Breaking Free from the Cage
-          </h2>
-          
-          <div className="text-left space-y-8 font-serif">
-            <p className="text-xl text-white/90 leading-relaxed">
-              Now that you understand what's happening to you—that you're not broken, that this is a predictable response to an unnatural environment—the question becomes: what do you do about it?
-            </p>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              The first step is data. You cannot escape what you cannot see clearly. The tools below are designed to replace your vague anxiety with hard, undeniable numbers about your situation.
-            </p>
-            
-            <p className="text-lg text-white/80 leading-relaxed">
-              This is not about optimizing your way back into the hamster wheel. This is about gathering the intelligence you need to build your escape route.
-            </p>
-            
-            <div className="bg-white/10 backdrop-blur-sm border-l-4 border-green-400/60 p-6 my-8 rounded-r-lg">
-              <p className="text-lg text-green-200 leading-relaxed">
-                <strong>Remember:</strong> Your data is yours. These tools work entirely in your browser. We don't store, track, or share anything. This is your sanctuary.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Tools Section - Clean Integration */}
-      <section className="py-32">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-8 text-left font-sans">
-              Begin Your Liberation
+          <div className="mb-16">
+            <h2 className="text-5xl md:text-6xl font-bold leading-tight mb-8 text-white">
+              The Story of Sarah
             </h2>
-            <p className="text-xl text-white/80 max-w-3xl leading-relaxed font-serif">
-              Replace your vague anxiety with hard data. These diagnostic tools will show you exactly where you stand, 
-              so you can begin planning your path to freedom.
-            </p>
+            <div className="w-24 h-1 bg-white/30 mb-8"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
-            {/* Runway Calculator */}
-            <div className="text-center group">
-              <div className="p-10 border border-white/20 hover:border-white/40 transition-all duration-300 rounded-3xl hover:shadow-xl bg-white/5 backdrop-blur-sm">
-                <div className="text-4xl mb-6">🛣️</div>
-                <h3 className="text-xl font-light text-white mb-4 font-sans">Runway Calculator</h3>
-                <p className="text-white/80 mb-6 leading-relaxed text-base font-serif">
-                  Transform anxiety into clarity: exactly how long your savings will sustain you.
-                </p>
-                <Link 
-                  href="/tools/runway-calculator"
-                  className="inline-block bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-light hover:bg-white/30 transition-all duration-300 border border-white/30 font-sans text-sm"
-                >
-                  Calculate →
-                </Link>
-              </div>
+          <div className="space-y-8 text-white/90">
+            <p className="text-2xl md:text-3xl leading-relaxed text-white font-light">
+              Sarah sits in her car in the company parking lot, hands gripping the steering wheel. 
+              She's been doing this for ten minutes every morning, trying to summon the energy to face another day. 
+              Her LinkedIn says she's "passionate about innovation." Inside, she feels like she's disappearing.
+            </p>
+
+            <p className="text-lg leading-relaxed">
+              Sarah is not alone. This isn't a personal failing. It's a systemic problem. You are not lazy, ungrateful, 
+              or lacking in grit. You are being ground down by design.
+            </p>
+
+            <div className="bg-white/5 border-l-4 border-white/30 pl-8 py-8 my-12">
+              <h3 className="text-2xl font-bold mb-6 text-white">The Symptoms:</h3>
+              <ul className="space-y-4 text-lg text-white/80">
+                <li>• A creeping sense that your real self is vanishing</li>
+                <li>• Projects that feel increasingly meaningless</li>
+                <li>• Financial golden handcuffs that feel tighter each year</li>
+                <li>• A constant, low-grade anxiety that starts long before Monday morning</li>
+              </ul>
             </div>
 
-            {/* Real Hourly Wage */}
-            <div className="text-center group">
-              <div className="p-10 border border-white/20 hover:border-white/40 transition-all duration-300 rounded-3xl hover:shadow-xl bg-white/5 backdrop-blur-sm">
-                <div className="text-4xl mb-6">💊</div>
-                <h3 className="text-xl font-light text-white mb-4 font-sans">Real Hourly Wage</h3>
-                <p className="text-white/80 mb-6 leading-relaxed text-base font-serif">
-                  Expose the hidden costs: what you're actually paid per hour of your life.
-                </p>
-                <Link 
-                  href="/real-hourly-wage"
-                  className="inline-block border border-white/40 text-white px-6 py-3 rounded-xl font-light hover:bg-white/10 transition-all duration-300 backdrop-blur-sm font-sans text-sm"
-                >
-                  Discover →
-                </Link>
-              </div>
-            </div>
-
-            {/* Cognitive Debt Assessment */}
-            <div className="text-center group md:col-span-2 lg:col-span-1">
-              <div className="p-10 border border-white/20 hover:border-white/40 transition-all duration-300 rounded-3xl hover:shadow-xl bg-white/5 backdrop-blur-sm">
-                <div className="text-4xl mb-6">🧠</div>
-                <h3 className="text-xl font-light text-white mb-4 font-sans">Cognitive Debt Assessment</h3>
-                <p className="text-white/80 mb-6 leading-relaxed text-base font-serif">
-                  Measure the hidden mental costs of corporate burnout on your mind and soul.
-                </p>
-                <Link 
-                  href="/cognitive-debt-assessment"
-                  className="inline-block bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-light hover:bg-white/30 transition-all duration-300 border border-white/30 font-sans text-sm"
-                >
-                  Assess →
-                </Link>
-              </div>
+            <div className="text-center mt-16">
+              <p className="text-white/70 text-lg mb-8">
+                Sound familiar? Let's dig deeper into what's really happening.
+              </p>
+              <Link 
+                href="#diagnosis"
+                className="bg-white/20 backdrop-blur-sm text-white px-8 py-4 text-lg hover:bg-white/30 transition-all duration-300 rounded-xl border border-white/30 hover-lift inline-flex items-center gap-3"
+              >
+                <LibIcon icon="Direction" size="sm" />
+                Understand the Three Stages
+                <LibIcon icon="Arrow" size="sm" />
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Final Sanctuary */}
-      <section className="py-32">
-        <div className="max-w-3xl mx-auto px-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-12 text-left font-sans">
-            Welcome to the Sanctuary
-          </h2>
-          <p className="text-xl text-white/80 mb-16 leading-relaxed font-serif">
-            You've taken the first step. The path ahead is yours to walk, 
-            at your own pace, with tools that respect your privacy and dignity.
-          </p>
-          <Link 
-            href="/tools"
-            className="bg-white/20 backdrop-blur-sm text-white px-12 py-5 text-lg font-light hover:bg-white/30 transition-all duration-300 rounded-2xl shadow-sm hover:shadow-md border border-white/30 font-sans"
-          >
-            Begin Your Journey
-          </Link>
+      {/* 3. The Diagnosis: The Three Stages of Burndown */}
+      <section id="diagnosis" className="min-h-screen px-8 py-20 relative">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-16 text-center">
+            <h2 className="text-5xl md:text-6xl font-bold leading-tight mb-8 text-white">
+              The Three Stages of Burndown
+            </h2>
+            <div className="w-24 h-1 bg-white/30 mb-8 mx-auto"></div>
+            <p className="text-xl text-white/70 leading-relaxed max-w-3xl mx-auto">
+              Here we use a simple framework to understand how the system breaks you down, 
+              with each stage linking to deeper insights from our complete manifesto.
+            </p>
+          </div>
+
+          <div className="space-y-16">
+            {/* Stage 1 */}
+            <div className="bg-gradient-to-r from-white/10 to-white/5 rounded-2xl p-8 border border-white/20">
+              <h3 className="text-3xl font-bold mb-6 text-white">Stage 1: The Boiling Frog</h3>
+              <p className="text-lg text-white/90 mb-6 leading-relaxed">
+                It starts gradually. Longer hours, more urgent projects, higher expectations. You adapt because you're capable, 
+                but each adaptation moves you further from your authentic self. You feel like you're being hunted by a predator you can't see.
+              </p>
+              <div className="bg-white/10 rounded-lg p-4 mb-6">
+                <p className="text-white/80">
+                  <strong>This is the Scarcity Mindset at work.</strong> It's your ancient survival chemistry being hijacked by the modern world.
+                </p>
+              </div>
+              <Link 
+                href="/manifesto#predator"
+                className="text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-2"
+              >
+                Read More: "The Predator in the Tall Grass" <LibIcon icon="Arrow" size="sm" />
+              </Link>
+            </div>
+
+            {/* Stage 2 */}
+            <div className="bg-gradient-to-r from-white/10 to-white/5 rounded-2xl p-8 border border-white/20">
+              <h3 className="text-3xl font-bold mb-6 text-white">Stage 2: The Golden Handcuffs</h3>
+              <p className="text-lg text-white/90 mb-6 leading-relaxed">
+                Your lifestyle inflates to match your income. The house, the car, the commitments. The system rewards you 
+                for your compliance, but the price is your freedom. Now you're not just tired—you're trapped by the very success you worked for.
+              </p>
+              <div className="bg-white/10 rounded-lg p-4 mb-6">
+                <p className="text-white/80">
+                  <strong>This is the Attention Economy and the Hamster Wheel in action.</strong> Your anxiety has become a key performance 
+                  indicator for some of the largest companies in the world.
+                </p>
+              </div>
+              <Link 
+                href="/manifesto#architects"
+                className="text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-2"
+              >
+                Read More: "The Architects of Your Anxiety" <LibIcon icon="Arrow" size="sm" />
+              </Link>
+            </div>
+
+            {/* Stage 3 */}
+            <div className="bg-gradient-to-r from-white/10 to-white/5 rounded-2xl p-8 border border-white/20">
+              <h3 className="text-3xl font-bold mb-6 text-white">Stage 3: The Existential Crisis</h3>
+              <p className="text-lg text-white/90 mb-6 leading-relaxed">
+                You realize you've been trading your life energy for money, but the math doesn't add up. 
+                The spark that made you who you are is almost gone. You're left wondering, "Is this all there is?"
+              </p>
+              <div className="bg-white/10 rounded-lg p-4 mb-6">
+                <p className="text-white/80">
+                  <strong>This is the moment for the Conscious Override.</strong> It's the point where you recognize the system is broken, 
+                  and give yourself permission to save yourself.
+                </p>
+              </div>
+              <Link 
+                href="/manifesto#override"
+                className="text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-2"
+              >
+                Read More: "The Conscious Override" <LibIcon icon="Arrow" size="sm" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="text-center mt-16">
+            <p className="text-white/70 text-lg mb-8">
+              Ready to take action? Let's start with concrete steps.
+            </p>
+            <Link 
+              href="#toolkit"
+              className="bg-white/20 backdrop-blur-sm text-white px-8 py-4 text-lg hover:bg-white/30 transition-all duration-300 rounded-xl border border-white/30 hover-lift inline-flex items-center gap-3"
+            >
+              <LibIcon icon="RunwayCalculator" size="sm" />
+              See Your Liberation Toolkit
+              <LibIcon icon="Arrow" size="sm" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. The Toolkit: Your First Steps to Liberation */}
+      <section id="toolkit" className="min-h-screen px-8 py-20 relative">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-16 text-center">
+            <h2 className="text-5xl md:text-6xl font-bold leading-tight mb-8 text-white">
+              Your First Steps to Liberation
+            </h2>
+            <div className="w-24 h-1 bg-white/30 mb-8 mx-auto"></div>
+            <p className="text-xl text-white/70 leading-relaxed max-w-3xl mx-auto">
+              You can't escape what you can't measure. The first step is to replace vague anxiety with concrete data. 
+              We've built simple, private, client-side tools to help you do just that.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-2xl p-8 text-center group hover:bg-white/15 transition-all duration-300">
+              <LibIcon icon="RunwayCalculator" size="xl" className="mb-6 mx-auto group-hover:scale-110 transition-transform text-white" />
+              <h3 className="text-2xl font-bold mb-4 text-white">The Runway Calculator</h3>
+              <p className="text-white/80 mb-6 leading-relaxed">
+                Find out how many months of freedom you can actually afford. Transform overwhelming financial anxiety 
+                into a clear, actionable number.
+              </p>
+              <Link 
+                href="/tools/runway-calculator"
+                className="bg-blue-600/80 backdrop-blur-sm text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-all duration-300 inline-flex items-center gap-3"
+              >
+                <LibIcon icon="RunwayCalculator" size="sm" />
+                Calculate Your Runway
+              </Link>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-2xl p-8 text-center group hover:bg-white/15 transition-all duration-300">
+              <LibIcon icon="WageAnalysis" size="xl" className="mb-6 mx-auto group-hover:scale-110 transition-transform text-white" />
+              <h3 className="text-2xl font-bold mb-4 text-white">Real Hourly Wage Calculator</h3>
+              <p className="text-white/80 mb-6 leading-relaxed">
+                Discover the true cost of your job and what you're really being paid per hour of your life, 
+                after accounting for hidden costs and real working time.
+              </p>
+              <Link 
+                href="/real-hourly-wage"
+                className="bg-red-600/80 backdrop-blur-sm text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-all duration-300 inline-flex items-center gap-3"
+              >
+                <LibIcon icon="WageAnalysis" size="sm" />
+                Calculate Real Wage
+              </Link>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <Link 
+              href="/tools"
+              className="bg-white/20 backdrop-blur-sm text-white px-8 py-4 text-lg hover:bg-white/30 transition-all duration-300 rounded-xl border border-white/30 hover-lift inline-flex items-center gap-3"
+            >
+              <LibIcon icon="Direction" size="sm" />
+              Go to the Tools
+              <LibIcon icon="Arrow" size="sm" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. The Mission: A Call to Action */}
+      <section id="mission" className="min-h-screen px-8 py-20 relative">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="mb-16">
+            <h2 className="text-5xl md:text-6xl font-bold leading-tight mb-8 text-white">
+              Join the Override
+            </h2>
+            <div className="w-24 h-1 bg-white/30 mb-8 mx-auto"></div>
+          </div>
+
+          <div className="space-y-8 text-white/90 mb-16">
+            <p className="text-2xl md:text-3xl leading-relaxed text-white font-light">
+              Rising from the ashes is not something you have to do alone.
+            </p>
+
+            <p className="text-lg leading-relaxed max-w-3xl mx-auto">
+              The Greenfield Override is a movement to build a new world—one where the builders own the pyramids. 
+              We are a community of sovereign professionals, artists, and creators who are done with the old way of doing things.
+            </p>
+
+            <div className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-2xl p-8 my-12 max-w-3xl mx-auto">
+              <p className="text-xl font-bold text-white mb-4">
+                The tools exist. The community is growing.
+              </p>
+              <p className="text-xl text-white">
+                The only question is: are you ready to begin?
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <Link 
+              href="/tools"
+              className="bg-white/20 backdrop-blur-sm text-white px-12 py-4 text-xl font-semibold hover:bg-white/30 transition-all duration-300 rounded-xl border border-white/30 hover-lift glow-hover inline-flex items-center gap-4"
+            >
+              <LibIcon icon="Direction" size="md" />
+              Join the Override
+              <LibIcon icon="Arrow" size="sm" />
+            </Link>
+
+            <div className="text-white/50 text-sm">
+              <Link href="/manifesto" className="hover:text-white/70 transition-colors">
+                Read the Complete Manifesto
+              </Link>
+              <span className="mx-2">•</span>
+              <Link href="/about" className="hover:text-white/70 transition-colors">
+                Learn About Our Mission
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </div>

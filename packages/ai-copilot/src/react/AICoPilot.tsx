@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import type { LiberationContext, LiberationPlan, LiberationPhase, AIStatus } from '@greenfield/types';
+import type { LiberationContext, LiberationPlan, LiberationPhase, AIStatus } from '@thegreenfieldoverride/types';
 import { sovereignAI } from '../sovereign-ai';
 
 export interface AICoPilotProps {

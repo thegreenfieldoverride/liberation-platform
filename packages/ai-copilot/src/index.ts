@@ -1,5 +1,6 @@
 // AI Co-Pilot main exports
 export { AICoPilot } from './react/AICoPilot';
+export { LiberationDashboard } from './react/LiberationDashboard';
 
 // Modern factory-based API (recommended)
 export { aiEngineFactory, AIEngineFactory } from './engines/ai-engine-factory';

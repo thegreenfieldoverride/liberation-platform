@@ -1,61 +1,58 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', // Enable static export for easy deployment
-  trailingSlash: true,
-  images: {
-    unoptimized: true, // Required for static export
-  },
-  // Enable experimental features for better performance
-  experimental: {
-    // optimizeCss: true, // Disabled due to critters dependency issue
-    optimizePackageImports: ['@greenfield/runway-calculator', '@greenfield/real-hourly-wage', '@greenfield/cognitive-debt-assessment', '@greenfield/ai-copilot'],
-    turbo: {
-      rules: {
-        // Handle .node files by ignoring them in browser builds
-        '*.node': {
-          loaders: ['ignore-loader'],
-          as: '*.js'
-        }
-      },
-      // resolveAlias handled by webpack fallback
-      resolveAlias: {},
-      resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
+  // Use standalone for Docker, static export for CDN deployments
+  ...(process.env.DEPLOYMENT_TARGET === 'docker' && {
+    output: 'standalone',
+  }),
+  ...(process.env.DEPLOYMENT_TARGET === 'static' && {
+    output: 'export',
+    trailingSlash: true,
+    images: {
+      unoptimized: true,
     },
-  },
-  // Optimize for the liberation mission
+  }),
+  
   poweredByHeader: false,
   reactStrictMode: true,
+  swcMinify: true,
+  
   // Transpile workspace packages
   transpilePackages: [
-    '@greenfield/runway-calculator', 
-    '@greenfield/real-hourly-wage',
-    '@greenfield/cognitive-debt-assessment',
-    '@greenfield/ai-copilot',
-    '@greenfield/types'
+    '@thegreenfieldoverride/runway-calculator', 
+    '@thegreenfieldoverride/real-hourly-wage',
+    '@thegreenfieldoverride/cognitive-debt-assessment',
+    '@thegreenfieldoverride/ai-copilot',
+    '@thegreenfieldoverride/types',
+    '@thegreenfieldoverride/user-context',
+    '@thegreenfieldoverride/small-bets-portfolio',
+    '@thegreenfieldoverride/values-vocation-matcher'
   ],
   
-  // Minimal webpack config as fallback (when not using Turbopack)
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      // Basic fallbacks for browser builds
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        path: false,
-        os: false,
-        crypto: false,
-      };
-      
-      // Simple aliases for problematic modules
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'onnxruntime-node': false,
-        'sharp': false,
-        'canvas': false,
-      };
-    }
-    
-    return config;
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+        ],
+      },
+    ];
   },
 };
 

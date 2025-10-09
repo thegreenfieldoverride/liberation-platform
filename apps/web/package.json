@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo -p 3333",
+    "dev": "next dev -p 3333",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -13,8 +13,12 @@
     "@thegreenfieldoverride/cognitive-debt-assessment": "workspace:*",
     "@thegreenfieldoverride/real-hourly-wage": "workspace:*",
     "@thegreenfieldoverride/runway-calculator": "workspace:*",
-    "@thegreenfieldoverride/types": "workspace:*",
-    "next": "14.2.33",
+
+    "@thegreenfieldoverride/values-vocation-matcher": "workspace:*",
+    "@thegreenfieldoverride/user-context": "workspace:*",
+    "@thegreenfieldoverride/small-bets-portfolio": "workspace:*",
+    "lucide-react": "^0.545.0",
+    "next": "14.2.18",
     "react": "^18",
     "react-dom": "^18"
   },

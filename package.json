@@ -16,8 +16,11 @@
     "publish:hourly-wage": "pnpm --filter @thegreenfieldoverride/real-hourly-wage publish",
     "publish:ai-copilot": "pnpm --filter @thegreenfieldoverride/ai-copilot publish",
     "publish:cognitive-debt": "pnpm --filter @thegreenfieldoverride/cognitive-debt-assessment publish",
-    "publish:types": "pnpm --filter @thegreenfieldoverride/types publish",
-    "publish:all": "pnpm publish:types && pnpm publish:runway && pnpm publish:hourly-wage && pnpm publish:ai-copilot && pnpm publish:cognitive-debt"
+    "publish:values-matcher": "pnpm --filter @thegreenfieldoverride/values-vocation-matcher publish",
+    "publish:user-context": "pnpm --filter @thegreenfieldoverride/user-context publish",
+    "publish:small-bets": "pnpm --filter @thegreenfieldoverride/small-bets-portfolio publish",
+    "publish:types": "pnpm --filter @thegreenfieldoverride/shared-types publish",
+    "publish:all": "pnpm publish:types && pnpm publish:user-context && pnpm publish:runway && pnpm publish:hourly-wage && pnpm publish:ai-copilot && pnpm publish:cognitive-debt && pnpm publish:values-matcher && pnpm publish:small-bets"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

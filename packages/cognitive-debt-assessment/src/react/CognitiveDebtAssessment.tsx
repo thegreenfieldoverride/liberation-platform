@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import type { CognitiveDebtResponse, CognitiveDebtResult, CognitiveDebtQuestion } from '@greenfield/types';
+import type { CognitiveDebtResponse, CognitiveDebtResult, CognitiveDebtQuestion } from '@thegreenfieldoverride/types';
 import { 
   createAssessmentQuestions, 
   calculateCognitiveDebt, 
@@ -39,6 +39,23 @@ export function CognitiveDebtAssessment({ onResult, className = '' }: CognitiveD
       setResult(finalResult);
       setIsComplete(true);
       onResult?.(finalResult);
+
+      // Broadcast data for liberation dashboard integration
+      if (typeof window !== 'undefined') {
+        const liberationData = {
+          type: 'cognitive-debt-assessment',
+          timestamp: new Date().toISOString(),
+          data: {
+            result: finalResult,
+            responses: updatedResponses,
+            isComplete: true
+          }
+        };
+
+        window.dispatchEvent(new CustomEvent('liberation-data-update', {
+          detail: liberationData
+        }));
+      }
     }
   }, [currentQuestion, responses, currentQuestionIndex, questions.length, onResult]);
 
@@ -91,34 +108,128 @@ export function CognitiveDebtAssessment({ onResult, className = '' }: CognitiveD
           </div>
         </div>
 
+        {/* Visual Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="text-center">
+            <div className="relative inline-block">
+              <svg className="w-24 h-24 transform -rotate-90">
+                <circle
+                  cx="48"
+                  cy="48"
+                  r="40"
+                  stroke="#e5e7eb"
+                  strokeWidth="8"
+                  fill="none"
+                />
+                <circle
+                  cx="48"
+                  cy="48"
+                  r="40"
+                  stroke={
+                    result.riskLevel === 'critical' ? '#dc2626' :
+                    result.riskLevel === 'high' ? '#ea580c' :
+                    result.riskLevel === 'moderate' ? '#d97706' : '#16a34a'
+                  }
+                  strokeWidth="8"
+                  fill="none"
+                  strokeDasharray={`${result.percentageScore * 2.51} 251`}
+                  className="transition-all duration-1000"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-lg font-bold text-gray-800">
+                  {result.percentageScore.toFixed(0)}%
+                </span>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mt-2">Overall Cognitive Debt</p>
+          </div>
+          
+          <div className="text-center">
+            <div className="text-3xl mb-2">
+              {result.riskLevel === 'critical' ? '🚨' :
+               result.riskLevel === 'high' ? '⚠️' :
+               result.riskLevel === 'moderate' ? '⚡' : '✅'}
+            </div>
+            <div className={`text-lg font-semibold capitalize ${getRiskLevelColor(result.riskLevel)}`}>
+              {result.riskLevel} Risk
+            </div>
+            <p className="text-sm text-gray-600 mt-1">
+              {result.riskLevel === 'critical' ? 'Immediate attention needed' :
+               result.riskLevel === 'high' ? 'Serious intervention required' :
+               result.riskLevel === 'moderate' ? 'Monitor and improve' : 'Healthy levels'}
+            </p>
+          </div>
+          
+          <div className="text-center">
+            <div className="text-3xl mb-2">
+              {result.primaryConcerns.length === 0 ? '💚' :
+               result.primaryConcerns.length <= 2 ? '💛' : '❤️‍🩹'}
+            </div>
+            <div className="text-lg font-semibold text-gray-800">
+              {result.primaryConcerns.length}
+            </div>
+            <p className="text-sm text-gray-600 mt-1">
+              Primary concerns to address
+            </p>
+          </div>
+        </div>
+
         <div className={`p-6 rounded-lg border-2 ${getRiskLevelBg(result.riskLevel)}`}>
           <p className="text-lg leading-relaxed text-gray-800">
             {result.message}
           </p>
         </div>
 
-        {result.primaryConcerns.length > 0 && (
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-gray-900">Primary Areas of Concern</h3>
-            <div className="grid gap-4">
-              {result.primaryConcerns.map(concern => (
-                <div key={concern} className="p-4 bg-gray-50 rounded-lg border">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-medium text-gray-900">
-                      {getCategoryDisplayName(concern)}
-                    </h4>
-                    <span className="text-sm font-medium text-gray-600">
-                      {result.categoryScores[concern].percentage.toFixed(1)}%
+        {/* Category Breakdown Visualization */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-gray-900">Cognitive Debt Breakdown</h3>
+          <div className="grid gap-4">
+            {Object.entries(result.categoryScores).map(([category, data]) => (
+              <div key={category} className="p-4 bg-white rounded-lg border">
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="font-medium text-gray-900">
+                    {getCategoryDisplayName(category as any)}
+                  </h4>
+                  <span className={`text-sm font-medium px-2 py-1 rounded ${
+                    data.percentage >= 75 ? 'bg-red-100 text-red-700' :
+                    data.percentage >= 50 ? 'bg-orange-100 text-orange-700' :
+                    data.percentage >= 25 ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-green-100 text-green-700'
+                  }`}>
+                    {data.percentage.toFixed(1)}%
+                  </span>
+                </div>
+                
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all duration-700 ${
+                      data.percentage >= 75 ? 'bg-red-500' :
+                      data.percentage >= 50 ? 'bg-orange-500' :
+                      data.percentage >= 25 ? 'bg-yellow-500' :
+                      'bg-green-500'
+                    }`}
+                    style={{ width: `${data.percentage}%` }}
+                  />
+                </div>
+                
+                <p className="text-sm text-gray-600">
+                  {getCategoryDescription(category as any)}
+                </p>
+                
+                {/* Primary concern badge */}
+                {result.primaryConcerns.includes(category as any) && (
+                  <div className="mt-2">
+                    <span className="inline-block px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">
+                      ⚠️ Primary Concern
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    {getCategoryDescription(concern)}
-                  </p>
-                </div>
-              ))}
-            </div>
+                )}
+              </div>
+            ))}
           </div>
-        )}
+        </div>
 
         {result.recommendations.length > 0 && (
           <div className="space-y-4">

@@ -1,0 +1,56 @@
+{
+  "name": "@thegreenfieldoverride/liberation-tracker",
+  "version": "1.0.0",
+  "description": "Track your journey from corporate burnout to liberation - progress monitoring and goal achievement",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js",
+      "require": "./dist/core/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.js",
+      "require": "./dist/react/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@thegreenfieldoverride/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "liberation-tracking",
+    "progress-monitoring",
+    "goal-achievement", 
+    "burnout-recovery",
+    "career-transition",
+    "privacy-first",
+    "self-improvement"
+  ],
+  "license": "Liberation-1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thegreenfieldoverride/liberation-platform.git"
+  }
+}

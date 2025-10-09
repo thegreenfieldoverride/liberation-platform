@@ -1,6 +1,6 @@
 // Vanilla JavaScript wrapper for embedding
 import { calculateRunway, createDefaultExpenses, updateExpenseAmount, addExpenseCategory, removeExpenseCategory } from '../core/calculator';
-import type { ExpenseCategory } from '@greenfield/types';
+import type { ExpenseCategory } from '@thegreenfieldoverride/types';
 
 interface RunwayCalculatorOptions {
   containerId: string;

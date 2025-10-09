@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LibIcon } from '../../components/icons/LiberationIcons';
 
 export default function ToolsPage() {
   return (
@@ -18,7 +19,7 @@ export default function ToolsPage() {
         <div className="mb-16">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">🪞</span>
+              <LibIcon icon="Focus" size="xl" className="text-blue-600" />
             </div>
             <h2 className="text-2xl font-light text-gray-900 mb-2">
               Tier 1: The Mirror
@@ -33,7 +34,7 @@ export default function ToolsPage() {
             <div className="bg-white rounded-xl shadow-sm p-8 hover:shadow-md transition-shadow">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                  <span className="text-2xl">🛣️</span>
+                  <LibIcon icon="Direction" size="lg" className="text-blue-600" />
                 </div>
                 <div>
                   <h3 className="text-xl font-medium text-gray-800">Runway Calculator</h3>
@@ -70,7 +71,7 @@ export default function ToolsPage() {
             <div className="bg-white rounded-xl shadow-sm p-8 hover:shadow-md transition-shadow">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
-                  <span className="text-2xl">💊</span>
+                  <LibIcon icon="WageAnalysis" size="lg" className="text-red-600" />
                 </div>
                 <div>
                   <h3 className="text-xl font-medium text-gray-800">Real Hourly Wage Calculator</h3>
@@ -114,7 +115,7 @@ export default function ToolsPage() {
             {/* Tier 2: The Toolkit */}
             <div className="bg-white rounded-xl shadow-sm p-6 opacity-75">
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🛠️</span>
+                <LibIcon icon="Settings" size="lg" className="text-green-600" />
               </div>
               <h3 className="text-lg font-medium text-gray-800 mb-2">The Toolkit</h3>
               <p className="text-sm text-gray-600 mb-4">
@@ -130,7 +131,7 @@ export default function ToolsPage() {
             {/* Tier 3: The Colony */}
             <div className="bg-white rounded-xl shadow-sm p-6 opacity-75">
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🌱</span>
+                <LibIcon icon="Growth" size="lg" className="text-purple-600" />
               </div>
               <h3 className="text-lg font-medium text-gray-800 mb-2">The Colony</h3>
               <p className="text-sm text-gray-600 mb-4">
@@ -148,7 +149,7 @@ export default function ToolsPage() {
             <div className="bg-white rounded-xl shadow-sm p-8 hover:shadow-md transition-shadow">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-                  <span className="text-2xl">🧠</span>
+                  <LibIcon icon="Mind" size="lg" className="text-purple-600" />
                 </div>
                 <div>
                   <h3 className="text-xl font-medium text-gray-800">Cognitive Debt Assessment</h3>
@@ -180,6 +181,145 @@ export default function ToolsPage() {
                 Begin Assessment →
               </Link>
             </div>
+          </div>
+        </div>
+
+        {/* Tier 2: The Toolkit */}
+        <div className="mb-16">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <LibIcon icon="Direction" size="xl" className="text-green-600" />
+            </div>
+            <h2 className="text-2xl font-light text-gray-900 mb-2">
+              Tier 2: The Toolkit
+            </h2>
+            <p className="text-gray-600">
+              Tools for taking action and building your path to liberation
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Values-to-Vocation Matcher */}
+            <div className="bg-white rounded-xl shadow-sm p-8 hover:shadow-md transition-shadow">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                  <LibIcon icon="Direction" size="lg" className="text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-medium text-gray-800">Values-to-Vocation Matcher</h3>
+                  <p className="text-sm text-gray-600">Find work that honors your values</p>
+                </div>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Discover meaningful career paths that align with your authentic values. Move beyond skills 
+                and personality to find work opportunities that honor what truly matters to you.
+              </p>
+              <div className="mb-6">
+                <div className="flex items-center text-sm text-gray-500 mb-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Comprehensive values assessment
+                </div>
+                <div className="flex items-center text-sm text-gray-500 mb-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Liberation-focused career database
+                </div>
+                <div className="flex items-center text-sm text-gray-500">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Concrete transition roadmaps
+                </div>
+              </div>
+              <Link 
+                href="/values-vocation-matcher"
+                className="inline-flex items-center bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Find Your Path →
+              </Link>
+            </div>
+
+            {/* AI Co-Pilot */}
+            <div className="bg-white rounded-xl shadow-sm p-8 hover:shadow-md transition-shadow">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center mr-4">
+                  <LibIcon icon="Mind" size="lg" className="text-teal-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-medium text-gray-800">AI-Powered Co-Pilot</h3>
+                  <p className="text-sm text-gray-600">Personalized liberation strategy</p>
+                </div>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Get personalized, AI-powered guidance for your liberation journey. Combines your financial data, 
+                cognitive debt assessment, and values to create a custom escape plan.
+              </p>
+              <div className="mb-6">
+                <div className="flex items-center text-sm text-gray-500 mb-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Real AI models (privacy-first)
+                </div>
+                <div className="flex items-center text-sm text-gray-500 mb-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Personalized action plans
+                </div>
+                <div className="flex items-center text-sm text-gray-500">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Strategic phase planning
+                </div>
+              </div>
+              <Link 
+                href="/ai-copilot"
+                className="inline-flex items-center bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors"
+              >
+                Get AI Guidance →
+              </Link>
+            </div>
+
+            {/* Small Bets Portfolio Builder */}
+            <div className="bg-white rounded-xl shadow-sm p-8 hover:shadow-md transition-shadow">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                  <LibIcon icon="Progress" size="lg" className="text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-medium text-gray-800">Small Bets Portfolio Builder</h3>
+                  <p className="text-sm text-gray-600">Track liberation-focused income streams</p>
+                </div>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Build and manage a portfolio of small bets - low-risk experiments to generate income 
+                outside traditional employment. Track performance, get insights, and optimize your path to freedom.
+              </p>
+              <div className="mb-6">
+                <div className="flex items-center text-sm text-gray-500 mb-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Performance tracking & analytics
+                </div>
+                <div className="flex items-center text-sm text-gray-500 mb-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Values alignment scoring
+                </div>
+                <div className="flex items-center text-sm text-gray-500">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Smart portfolio recommendations
+                </div>
+              </div>
+              <Link 
+                href="/small-bets-portfolio"
+                className="inline-flex items-center bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Build Portfolio →
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Coming Soon Section */}
+        <div className="text-center py-12 border-t border-gray-200">
+          <h3 className="text-xl font-light text-gray-900 mb-4">More Tools Coming Soon</h3>
+          <p className="text-gray-600 mb-6">
+            Skills Marketplace • Liberation Community Platform • Peer Learning Network
+          </p>
+          <div className="text-sm text-gray-500">
+            Building the future of authentic, sustainable work - one tool at a time.
           </div>
         </div>
     </div>

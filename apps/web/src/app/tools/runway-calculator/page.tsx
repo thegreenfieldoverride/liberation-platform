@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import type { ExpenseCategory, RunwayCalculation } from '@greenfield/types';
+import type { ExpenseCategory, RunwayCalculation } from '@thegreenfieldoverride/types';
 import Link from 'next/link';
+import { LibIcon } from '../../../components/icons/LiberationIcons';
 
 // Inline calculator for better performance
 function RunwayCalculator() {
@@ -81,9 +82,10 @@ function RunwayCalculator() {
     <div className="runway-calculator">
       {/* Privacy Statement */}
       <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
-        <p className="text-sm text-green-800">
-          🔒 <strong>Your data is yours.</strong> Everything stays in your browser. 
-          We don't store, track, or share anything.
+        <p className="text-sm text-green-800 flex items-center gap-2">
+          <LibIcon icon="Privacy" size="sm" className="text-green-600" />
+          <span><strong>Your data is yours.</strong> Everything stays in your browser. 
+          We don't store, track, or share anything.</span>
         </p>
       </div>
 
@@ -168,7 +170,7 @@ export default function RunwayCalculatorPage() {
 
         <div className="text-center mb-12">
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-2xl">🛣️</span>
+            <LibIcon icon="Direction" size="xl" className="text-blue-600" />
           </div>
           <h1 className="text-4xl font-light text-gray-900 mb-4">
             Runway Calculator

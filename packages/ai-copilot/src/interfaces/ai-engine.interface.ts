@@ -6,7 +6,15 @@
  * not corporate optimization. Corporate use violates human dignity.
  */
 
-import type { LiberationContext, LiberationPlan, LiberationPhase } from '@greenfield/types';
+import type { LiberationContext, LiberationPlan, LiberationPhase } from '@thegreenfieldoverride/types';
+
+export interface AIResponse {
+  content: string;
+  confidence: number;
+  sources: string[];
+  type: 'guidance' | 'analysis' | 'plan' | 'support';
+  metadata?: Record<string, any>;
+}
 
 export interface AIStatus {
   initialized: boolean;

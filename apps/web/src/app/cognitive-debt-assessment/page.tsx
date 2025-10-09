@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { CognitiveDebtAssessmentDark } from '../../components/CognitiveDebtAssessmentDark';
-import type { CognitiveDebtResult } from '@greenfield/types';
+import type { CognitiveDebtResult } from '@thegreenfieldoverride/types';
 
 export default function CognitiveDebtAssessmentPage() {
   const handleResult = (result: CognitiveDebtResult) => {
@@ -28,7 +28,7 @@ export default function CognitiveDebtAssessmentPage() {
 
       <div className="relative z-10">
         {/* Header */}
-        <header className="px-6 py-12 text-center">
+        <header className="px-6 py-12 pt-32 text-center">
           <div className="max-w-4xl mx-auto">
             <div className="mb-6">
               <div className="text-sm font-display uppercase tracking-widest text-white/60 mb-4">

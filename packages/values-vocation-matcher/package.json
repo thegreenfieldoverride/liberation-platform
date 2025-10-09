@@ -1,0 +1,61 @@
+{
+  "name": "@thegreenfieldoverride/values-vocation-matcher",
+  "version": "1.0.0",
+  "description": "Values-to-Vocation Matcher - Align your core values with meaningful work and career paths",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js",
+      "require": "./dist/core/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.js",
+      "require": "./dist/react/index.js"
+    },
+    "./vanilla": {
+      "types": "./dist/vanilla/index.d.ts",
+      "import": "./dist/vanilla/index.js",
+      "require": "./dist/vanilla/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "dependencies": {
+    "@thegreenfieldoverride/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "rollup": "^4.0.0",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "values-assessment",
+    "career-alignment", 
+    "purpose-driven-work",
+    "vocation-matching",
+    "greenfield-override"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thegreenfieldoverride/liberation-platform.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "Liberation-1.0"
+}

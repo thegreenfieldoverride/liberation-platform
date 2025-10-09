@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import type { CognitiveDebtResponse, CognitiveDebtResult, CognitiveDebtQuestion } from '@greenfield/types';
+import type { CognitiveDebtResponse, CognitiveDebtResult, CognitiveDebtQuestion } from '@thegreenfieldoverride/types';
 import { 
   createAssessmentQuestions, 
   calculateCognitiveDebt, 
   getCategoryDisplayName,
   getCategoryDescription
-} from '@greenfield/cognitive-debt-assessment/core';
+} from '@thegreenfieldoverride/cognitive-debt-assessment/core';
+import { LibIcon } from './icons/LiberationIcons';
 
 export interface CognitiveDebtAssessmentDarkProps {
   onResult?: (result: CognitiveDebtResult) => void;
@@ -76,25 +77,25 @@ export function CognitiveDebtAssessmentDark({ onResult, className = '' }: Cognit
     }
   };
 
-  const getRiskLevelIcon = (level: string): string => {
+  const RiskLevelIcon = ({ level }: { level: string }) => {
     switch (level) {
-      case 'low': return '🌱'; // Growing/healthy
-      case 'moderate': return '⚠️'; // Warning
-      case 'high': return '🚨'; // Alert
-      case 'critical': return '🆘'; // Emergency
-      default: return '🧠';
+      case 'low': return <LibIcon icon="Growth" size="xl" className="text-green-400" />;
+      case 'moderate': return <LibIcon icon="Warning" size="xl" className="text-yellow-400" />;
+      case 'high': return <LibIcon icon="Alert" size="xl" className="text-orange-400" />;
+      case 'critical': return <LibIcon icon="Error" size="xl" className="text-red-400" />;
+      default: return <LibIcon icon="Mind" size="xl" className="text-gray-400" />;
     }
   };
 
-  const getCategoryIcon = (category: string): string => {
+  const CategoryIcon = ({ category }: { category: string }) => {
     switch (category) {
-      case 'mental_fog': return '🌫️';
-      case 'emotional_exhaustion': return '😔';
-      case 'creative_shutdown': return '🎨';
-      case 'relationship_decay': return '💔';
-      case 'physical_symptoms': return '🏥';
-      case 'identity_erosion': return '👤';
-      default: return '🧠';
+      case 'mental_fog': return <LibIcon icon="Mind" size="lg" className="text-blue-400" />;
+      case 'emotional_exhaustion': return <LibIcon icon="Wellbeing" size="lg" className="text-purple-400" />;
+      case 'creative_shutdown': return <LibIcon icon="Energy" size="lg" className="text-orange-400" />;
+      case 'relationship_decay': return <LibIcon icon="Wellbeing" size="lg" className="text-pink-400" />;
+      case 'physical_symptoms': return <LibIcon icon="Alert" size="lg" className="text-red-400" />;
+      case 'identity_erosion': return <LibIcon icon="Focus" size="lg" className="text-gray-400" />;
+      default: return <LibIcon icon="Mind" size="lg" className="text-gray-400" />;
     }
   };
 
@@ -107,7 +108,7 @@ export function CognitiveDebtAssessmentDark({ onResult, className = '' }: Cognit
           </h2>
           <div className={`inline-block px-6 py-3 rounded-lg border-2 ${getRiskLevelBg(result.riskLevel)}`}>
             <div className="flex items-center justify-center gap-3 mb-2">
-              <span className="text-2xl">{getRiskLevelIcon(result.riskLevel)}</span>
+              <RiskLevelIcon level={result.riskLevel} />
               <span className={`text-lg font-semibold capitalize ${getRiskLevelColor(result.riskLevel)}`}>
                 {result.riskLevel} Risk Level
               </span>
@@ -132,7 +133,7 @@ export function CognitiveDebtAssessmentDark({ onResult, className = '' }: Cognit
                 <div key={concern} className="p-4 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
                   <div className="flex justify-between items-center mb-2">
                     <div className="flex items-center gap-3">
-                      <span className="text-xl">{getCategoryIcon(concern)}</span>
+                      <CategoryIcon category={concern} />
                       <h4 className="font-medium text-white">
                         {getCategoryDisplayName(concern)}
                       </h4>
@@ -153,7 +154,7 @@ export function CognitiveDebtAssessmentDark({ onResult, className = '' }: Cognit
         {result.recommendations.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <span className="text-xl">💡</span>
+              <LibIcon icon="Energy" size="lg" className="text-yellow-400" />
               <h3 className="text-xl font-semibold text-white">Recommendations</h3>
             </div>
             <ul className="space-y-3">
@@ -186,7 +187,7 @@ export function CognitiveDebtAssessmentDark({ onResult, className = '' }: Cognit
       <div className="space-y-2">
         <div className="flex justify-between items-center text-sm text-white/60">
           <div className="flex items-center gap-2">
-            <span className="text-base">{getCategoryIcon(currentQuestion.category)}</span>
+            <CategoryIcon category={currentQuestion.category} />
             <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
           </div>
           <span>{Math.round(progress)}% complete</span>
@@ -219,14 +220,14 @@ export function CognitiveDebtAssessmentDark({ onResult, className = '' }: Cognit
           </p>
           <div className="grid gap-3">
             {[0, 1, 2, 3, 4].map((score) => {
-              const getScoreIcon = (s: number): string => {
+              const ScoreIcon = ({ s }: { s: number }) => {
                 switch (s) {
-                  case 0: return '✅'; // Never
-                  case 1: return '🟢'; // Rarely  
-                  case 2: return '🟡'; // Sometimes
-                  case 3: return '🟠'; // Often
-                  case 4: return '🔴'; // Always
-                  default: return '⚪';
+                  case 0: return <LibIcon icon="Success" size="sm" className="text-green-400" />; // Never
+                  case 1: return <div className="w-3 h-3 bg-green-400 rounded-full"></div>; // Rarely  
+                  case 2: return <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>; // Sometimes
+                  case 3: return <div className="w-3 h-3 bg-orange-400 rounded-full"></div>; // Often
+                  case 4: return <LibIcon icon="Error" size="sm" className="text-red-400" />; // Always
+                  default: return <div className="w-3 h-3 bg-gray-400 rounded-full"></div>;
                 }
               };
 
@@ -238,7 +239,7 @@ export function CognitiveDebtAssessmentDark({ onResult, className = '' }: Cognit
                 >
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                      <span className="text-lg">{getScoreIcon(score)}</span>
+                      <ScoreIcon s={score} />
                       <span className="font-medium text-white group-hover:text-blue-200">
                         {getScoreLabel(score)}
                       </span>

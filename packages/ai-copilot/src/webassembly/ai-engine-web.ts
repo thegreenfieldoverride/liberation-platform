@@ -6,7 +6,7 @@
  * not corporate optimization. Corporate use violates human dignity.
  */
 
-import type { LiberationContext, LiberationPlan, LiberationPhase } from '@greenfield/types';
+import type { LiberationContext, LiberationPlan, LiberationPhase } from '@thegreenfieldoverride/types';
 
 // Dynamic import to avoid bundling issues
 let transformersLoaded = false;

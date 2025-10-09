@@ -27,7 +27,7 @@ export interface AIModelConfig {
   temperature?: number;
 }
 
-import type { LiberationContext, LiberationPlan, LiberationPhase } from '@greenfield/types';
+import type { LiberationContext, LiberationPlan, LiberationPhase } from '@thegreenfieldoverride/types';
 
 export class SovereignAI {
   private models: Map<string, any> = new Map();

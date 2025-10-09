@@ -1,5 +1,6 @@
-import { RealHourlyWageCalculator } from '@greenfield/real-hourly-wage/react';
+import { RealHourlyWageCalculator } from '@thegreenfieldoverride/real-hourly-wage/react';
 import Link from 'next/link';
+import { LibIcon } from '../../components/icons/LiberationIcons';
 
 export default function RealHourlyWagePage() {
   return (
@@ -14,7 +15,7 @@ export default function RealHourlyWagePage() {
 
         <div className="text-center mb-12">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-2xl">💊</span>
+            <LibIcon icon="WageAnalysis" size="xl" className="text-red-600" />
           </div>
           <h1 className="text-4xl font-light text-gray-900 mb-4">
             Real Hourly Wage Calculator
