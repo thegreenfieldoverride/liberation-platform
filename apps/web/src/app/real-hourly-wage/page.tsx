@@ -1,8 +1,19 @@
+'use client';
+
+import { useEffect } from 'react';
 import { RealHourlyWageCalculator } from '@thegreenfieldoverride/real-hourly-wage/react';
 import Link from 'next/link';
 import { LibIcon } from '../../components/icons/LiberationIcons';
+import { useAnalytics } from '../../hooks/useAnalytics';
 
 export default function RealHourlyWagePage() {
+  const { trackRealHourlyWage } = useAnalytics();
+
+  useEffect(() => {
+    // Track tool usage when page loads
+    trackRealHourlyWage();
+  }, [trackRealHourlyWage]);
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

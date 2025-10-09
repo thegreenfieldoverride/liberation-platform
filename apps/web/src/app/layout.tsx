@@ -3,6 +3,7 @@ import '../styles/globals.css';
 import { Navigation } from '../components/Navigation';
 import { Footer } from '../components/Footer';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { FathomAnalytics } from '../components/analytics/FathomAnalytics';
 
 export const metadata: Metadata = {
   title: 'The Greenfield Override - Tools for Liberation',
@@ -59,6 +60,7 @@ export default function RootLayout({
           </main>
           <Footer />
         </ErrorBoundary>
+        <FathomAnalytics />
       </body>
     </html>
   );
