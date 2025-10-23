@@ -1,6 +1,6 @@
 {
   "name": "@greenfieldoverride/user-context",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "User context and data persistence system for liberation tools",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,7 @@
     "test": "echo \"Tests not yet implemented\""
   },
   "dependencies": {
-    "@greenfieldoverride/types": "workspace:*"
+    "@greenfieldoverride/types": "^1.0.1"
   },
   "peerDependencies": {
     "react": "^18.0.0"
