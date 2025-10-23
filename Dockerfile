@@ -2,7 +2,7 @@
 # Multi-stage build for optimal production image
 
 # Stage 1: Dependencies
-FROM node:18-alpine AS deps
+FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
@@ -18,16 +18,19 @@ COPY apps/web/package.json ./apps/web/
 RUN pnpm install --frozen-lockfile --production=false
 
 # Stage 2: Build
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Install pnpm
 RUN npm install -g pnpm
 
-# Copy dependencies
+# Copy dependencies and source
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/packages ./packages
 COPY . .
+
+# Fresh install to ensure all workspace deps are available
+RUN pnpm install --frozen-lockfile
 
 # Build packages first
 RUN pnpm run build
@@ -41,7 +44,7 @@ WORKDIR /app/apps/web
 RUN pnpm build
 
 # Stage 3: Production runner
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
