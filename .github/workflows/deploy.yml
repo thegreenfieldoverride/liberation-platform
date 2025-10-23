@@ -92,6 +92,8 @@ jobs:
             if [ -d ".git" ]; then
               git pull origin main
             else
+              # Clean directory if it exists but isn't a git repo
+              rm -rf * .* 2>/dev/null || true
               git clone https://github.com/thegreenfieldoverride/liberation-platform.git .
             fi
             
