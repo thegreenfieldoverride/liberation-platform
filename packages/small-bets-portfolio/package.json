@@ -1,6 +1,7 @@
 {
   "name": "@thegreenfieldoverride/small-bets-portfolio",
   "version": "1.0.0",
+  "type": "module",
   "description": "Small Bets Portfolio Builder - Track and manage liberation-focused income streams",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
