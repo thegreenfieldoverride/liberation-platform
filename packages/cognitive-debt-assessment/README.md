@@ -21,13 +21,13 @@ Just like technical debt slows down software, cognitive debt accumulates when wo
 ### Installation
 
 ```bash
-npm install @thegreenfieldoverride/cognitive-debt-assessment
+npm install @greenfieldoverride/cognitive-debt-assessment
 ```
 
 ### React Component
 
 ```jsx
-import { CognitiveDebtAssessment } from '@thegreenfieldoverride/cognitive-debt-assessment/react';
+import { CognitiveDebtAssessment } from '@greenfieldoverride/cognitive-debt-assessment/react';
 
 function MyApp() {
   return (
@@ -43,7 +43,7 @@ function MyApp() {
 
 ```html
 <div id="cognitive-assessment"></div>
-<script src="https://unpkg.com/@thegreenfieldoverride/cognitive-debt-assessment/vanilla"></script>
+<script src="https://unpkg.com/@greenfieldoverride/cognitive-debt-assessment/vanilla"></script>
 <script>
   new VanillaCognitiveAssessment({
     containerId: 'cognitive-assessment'
@@ -54,7 +54,7 @@ function MyApp() {
 ### Core Logic Only
 
 ```javascript
-import { assessCognitiveDebt } from '@thegreenfieldoverride/cognitive-debt-assessment/core';
+import { assessCognitiveDebt } from '@greenfieldoverride/cognitive-debt-assessment/core';
 
 const result = assessCognitiveDebt({
   cognitiveLoad: {

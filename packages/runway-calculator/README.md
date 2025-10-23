@@ -21,13 +21,13 @@ Stop wondering "How long could I survive without my job?" and start knowing. The
 ### Installation
 
 ```bash
-npm install @thegreenfieldoverride/runway-calculator
+npm install @greenfieldoverride/runway-calculator
 ```
 
 ### React Component
 
 ```jsx
-import { RunwayCalculator } from '@thegreenfieldoverride/runway-calculator/react';
+import { RunwayCalculator } from '@greenfieldoverride/runway-calculator/react';
 
 function MyApp() {
   return (
@@ -43,7 +43,7 @@ function MyApp() {
 
 ```html
 <div id="runway-calculator"></div>
-<script src="https://unpkg.com/@thegreenfieldoverride/runway-calculator/vanilla"></script>
+<script src="https://unpkg.com/@greenfieldoverride/runway-calculator/vanilla"></script>
 <script>
   new VanillaRunwayCalculator({
     containerId: 'runway-calculator'
@@ -54,7 +54,7 @@ function MyApp() {
 ### Core Logic Only
 
 ```javascript
-import { calculateRunway } from '@thegreenfieldoverride/runway-calculator/core';
+import { calculateRunway } from '@greenfieldoverride/runway-calculator/core';
 
 const result = calculateRunway({
   savings: 50000,

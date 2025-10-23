@@ -7,7 +7,7 @@
  * not corporate optimization. Corporate use violates human dignity.
  */
 
-import type { LiberationContext, LiberationPlan, LiberationPhase } from '@thegreenfieldoverride/types';
+import type { LiberationContext, LiberationPlan, LiberationPhase } from '@greenfieldoverride/types';
 
 export interface AIStatus {
   initialized: boolean;

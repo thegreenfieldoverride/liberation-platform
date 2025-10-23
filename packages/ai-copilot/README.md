@@ -21,13 +21,13 @@ The AI Co-Pilot is your intelligent companion for planning and executing your es
 ### Installation
 
 ```bash
-npm install @thegreenfieldoverride/ai-copilot
+npm install @greenfieldoverride/ai-copilot
 ```
 
 ### React Usage
 
 ```jsx
-import { LiberationCoPilot } from '@thegreenfieldoverride/ai-copilot/react';
+import { LiberationCoPilot } from '@greenfieldoverride/ai-copilot/react';
 
 function MyApp() {
   return (
@@ -42,7 +42,7 @@ function MyApp() {
 ### Core AI Engine
 
 ```javascript
-import { AIEngineFactory } from '@thegreenfieldoverride/ai-copilot/core';
+import { AIEngineFactory } from '@greenfieldoverride/ai-copilot/core';
 
 // Initialize AI with automatic fallbacks
 const ai = await AIEngineFactory.create('transformers-cdn');

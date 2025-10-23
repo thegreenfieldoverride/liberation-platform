@@ -3,7 +3,7 @@
  * Core logic for managing income stream portfolios
  */
 
-import { SmallBet, SmallBetsPortfolio, CoreValue } from '@thegreenfieldoverride/types';
+import { SmallBet, SmallBetsPortfolio, CoreValue } from '@greenfieldoverride/types';
 
 export interface BetAnalysis {
   profitability: {

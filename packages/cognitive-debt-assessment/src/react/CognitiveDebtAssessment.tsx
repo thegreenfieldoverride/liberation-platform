@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import type { CognitiveDebtResponse, CognitiveDebtResult, CognitiveDebtQuestion } from '@thegreenfieldoverride/types';
+import type { CognitiveDebtResponse, CognitiveDebtResult, CognitiveDebtQuestion } from '@greenfieldoverride/types';
 import { 
   createAssessmentQuestions, 
   calculateCognitiveDebt, 

@@ -9,7 +9,7 @@ import {
   StorageConfig, 
   UserContextEvent,
   UserDataExport
-} from '@thegreenfieldoverride/types';
+} from '@greenfieldoverride/types';
 
 export class UserContextStorage {
   private dbName: string;

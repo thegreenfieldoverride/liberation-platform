@@ -14,7 +14,7 @@ import type {
   VocationMatchingResult,
   VocationMatch,
   WorkArrangement
-} from '@thegreenfieldoverride/types';
+} from '@greenfieldoverride/types';
 
 import { 
   getAssessmentQuestions,

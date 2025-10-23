@@ -15,7 +15,7 @@ import type {
   AIEngineConfig,
   PersonalizationContext
 } from '../interfaces/ai-engine.interface';
-import type { LiberationContext, LiberationPlan, LiberationPhase } from '@thegreenfieldoverride/types';
+import type { LiberationContext, LiberationPlan, LiberationPhase } from '@greenfieldoverride/types';
 import { BrowserPersonalizationEngine } from './personalization.engine';
 
 export class TransformersCDNEngine implements ISovereignAI {

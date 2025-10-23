@@ -18,4 +18,4 @@ export type {
   UserContextEvent,
   StorageConfig,
   UserDataExport
-} from '@thegreenfieldoverride/types';
+} from '@greenfieldoverride/types';

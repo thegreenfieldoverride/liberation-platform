@@ -1,5 +1,5 @@
 {
-  "name": "@thegreenfieldoverride/liberation-tracker",
+  "name": "@greenfieldoverride/liberation-tracker",
   "version": "1.0.0",
   "description": "Track your journey from corporate burnout to liberation - progress monitoring and goal achievement",
   "main": "dist/index.js",
@@ -27,7 +27,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@thegreenfieldoverride/types": "workspace:*"
+    "@greenfieldoverride/types": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

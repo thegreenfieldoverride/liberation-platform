@@ -13,7 +13,7 @@ import type {
   VocationMatchingResult, 
   CoreValue,
   WorkArrangement
-} from '@thegreenfieldoverride/types';
+} from '@greenfieldoverride/types';
 
 import { VOCATION_DATABASE } from './vocation-database';
 import { generateValueInsights } from './values-assessment';

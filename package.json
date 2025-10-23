@@ -1,5 +1,5 @@
 {
-  "name": "@thegreenfieldoverride/liberation-platform",
+  "name": "@greenfieldoverride/liberation-platform",
   "version": "1.0.0",
   "private": true,
   "description": "AI-powered liberation tools and platform for breaking free from corporate exploitation",
@@ -8,18 +8,18 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "pnpm --filter @thegreenfieldoverride/types run build && pnpm --filter @thegreenfieldoverride/user-context run build && pnpm --filter @thegreenfieldoverride/ai-copilot run build && pnpm --filter @thegreenfieldoverride/liberation-tracker run build && pnpm --filter @thegreenfieldoverride/real-hourly-wage run build && pnpm --filter @thegreenfieldoverride/runway-calculator run build && pnpm --filter greenfield-override-web run build",
+    "build": "pnpm --filter @greenfieldoverride/types run build && pnpm --filter @greenfieldoverride/user-context run build && pnpm --filter @greenfieldoverride/ai-copilot run build && pnpm --filter @greenfieldoverride/liberation-tracker run build && pnpm --filter @greenfieldoverride/real-hourly-wage run build && pnpm --filter @greenfieldoverride/runway-calculator run build && pnpm --filter greenfield-override-web run build",
     "dev": "pnpm --filter greenfield-override-web run dev",
     "test": "pnpm -r run test",
     "lint": "pnpm -r run lint",
-    "publish:runway": "pnpm --filter @thegreenfieldoverride/runway-calculator publish",
-    "publish:hourly-wage": "pnpm --filter @thegreenfieldoverride/real-hourly-wage publish",
-    "publish:ai-copilot": "pnpm --filter @thegreenfieldoverride/ai-copilot publish",
-    "publish:cognitive-debt": "pnpm --filter @thegreenfieldoverride/cognitive-debt-assessment publish",
-    "publish:values-matcher": "pnpm --filter @thegreenfieldoverride/values-vocation-matcher publish",
-    "publish:user-context": "pnpm --filter @thegreenfieldoverride/user-context publish",
-    "publish:small-bets": "pnpm --filter @thegreenfieldoverride/small-bets-portfolio publish",
-    "publish:types": "pnpm --filter @thegreenfieldoverride/shared-types publish",
+    "publish:runway": "pnpm --filter @greenfieldoverride/runway-calculator publish",
+    "publish:hourly-wage": "pnpm --filter @greenfieldoverride/real-hourly-wage publish",
+    "publish:ai-copilot": "pnpm --filter @greenfieldoverride/ai-copilot publish",
+    "publish:cognitive-debt": "pnpm --filter @greenfieldoverride/cognitive-debt-assessment publish",
+    "publish:values-matcher": "pnpm --filter @greenfieldoverride/values-vocation-matcher publish",
+    "publish:user-context": "pnpm --filter @greenfieldoverride/user-context publish",
+    "publish:small-bets": "pnpm --filter @greenfieldoverride/small-bets-portfolio publish",
+    "publish:types": "pnpm --filter @greenfieldoverride/shared-types publish",
     "publish:all": "pnpm publish:types && pnpm publish:user-context && pnpm publish:runway && pnpm publish:hourly-wage && pnpm publish:ai-copilot && pnpm publish:cognitive-debt && pnpm publish:values-matcher && pnpm publish:small-bets"
   },
   "devDependencies": {

@@ -20,7 +20,7 @@ Common TypeScript types, interfaces, and enums shared across all Liberation Plat
 ### Installation
 
 ```bash
-npm install @thegreenfieldoverride/types
+npm install @greenfieldoverride/types
 ```
 
 ### Basic Usage
@@ -31,7 +31,7 @@ import {
   CognitiveDebtScore,
   LiberationPlan,
   AIResponse
-} from '@thegreenfieldoverride/types';
+} from '@greenfieldoverride/types';
 
 // Type-safe financial calculations
 const runwayData: FinancialData = {
@@ -210,7 +210,7 @@ enum LiberationStage {
 
 ### Runway Calculator
 ```typescript
-import { FinancialData, RunwayResult } from '@thegreenfieldoverride/types';
+import { FinancialData, RunwayResult } from '@greenfieldoverride/types';
 
 function calculateRunway(data: FinancialData): RunwayResult {
   // Implementation uses shared types for consistency
@@ -219,7 +219,7 @@ function calculateRunway(data: FinancialData): RunwayResult {
 
 ### AI Co-Pilot
 ```typescript
-import { AIResponse, LiberationPlan, UserProfile } from '@thegreenfieldoverride/types';
+import { AIResponse, LiberationPlan, UserProfile } from '@greenfieldoverride/types';
 
 function generatePlan(profile: UserProfile): Promise<LiberationPlan> {
   // AI uses shared types for structured responses
@@ -228,7 +228,7 @@ function generatePlan(profile: UserProfile): Promise<LiberationPlan> {
 
 ### Cognitive Assessment
 ```typescript
-import { CognitiveDebtAssessment, CognitiveDebtScore } from '@thegreenfieldoverride/types';
+import { CognitiveDebtAssessment, CognitiveDebtScore } from '@greenfieldoverride/types';
 
 function assessCognitive(assessment: CognitiveDebtAssessment): CognitiveDebtScore {
   // Assessment uses shared scoring types

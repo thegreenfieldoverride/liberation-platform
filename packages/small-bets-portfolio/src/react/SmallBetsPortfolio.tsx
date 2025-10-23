@@ -4,8 +4,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useUserContext } from '@thegreenfieldoverride/user-context';
-import { SmallBet, CoreValue } from '@thegreenfieldoverride/types';
+import { useUserContext } from '@greenfieldoverride/user-context';
+import { SmallBet, CoreValue } from '@greenfieldoverride/types';
 import { PortfolioEngine, BetAnalysis, PortfolioInsights } from '../core';
 
 interface SmallBetsPortfolioProps {

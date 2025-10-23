@@ -6,7 +6,7 @@
 'use client';
 
 import React from 'react';
-import { SmallBetsPortfolio } from '@thegreenfieldoverride/small-bets-portfolio';
+import { SmallBetsPortfolio } from '@greenfieldoverride/small-bets-portfolio';
 
 export default function SmallBetsPortfolioPage() {
   return (

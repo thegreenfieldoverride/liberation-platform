@@ -6,7 +6,7 @@
  * not corporate optimization. Corporate use violates human dignity.
  */
 
-import type { WorkHours, WorkCosts, RealWageCalculation } from '@thegreenfieldoverride/types';
+import type { WorkHours, WorkCosts, RealWageCalculation } from '@greenfieldoverride/types';
 
 /**
  * Real Hourly Wage calculation logic - the "red pill" for salary illusions

@@ -1,5 +1,5 @@
 {
-  "name": "@thegreenfieldoverride/runway-calculator",
+  "name": "@greenfieldoverride/runway-calculator",
   "version": "1.0.1",
   "description": "Transform financial anxiety into clarity - calculate your runway to freedom",
   "main": "dist/index.js",
@@ -29,7 +29,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@thegreenfieldoverride/types": "workspace:*"
+    "@greenfieldoverride/types": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

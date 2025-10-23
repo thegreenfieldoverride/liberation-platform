@@ -58,17 +58,17 @@ Visit the [Liberation Platform](https://liberation-platform.vercel.app) to start
 
 ```bash
 # Install individual packages
-npm install @thegreenfieldoverride/runway-calculator
-npm install @thegreenfieldoverride/real-hourly-wage  
-npm install @thegreenfieldoverride/ai-copilot
-npm install @thegreenfieldoverride/cognitive-debt-assessment
+npm install @greenfieldoverride/runway-calculator
+npm install @greenfieldoverride/real-hourly-wage  
+npm install @greenfieldoverride/ai-copilot
+npm install @greenfieldoverride/cognitive-debt-assessment
 ```
 
 ### Usage Examples
 
 **🚀 Runway Calculator:**
 ```jsx
-import { RunwayCalculator } from '@thegreenfieldoverride/runway-calculator/react';
+import { RunwayCalculator } from '@greenfieldoverride/runway-calculator/react';
 
 function MyApp() {
   return <RunwayCalculator />;
@@ -77,7 +77,7 @@ function MyApp() {
 
 **🤖 AI Co-Pilot:**
 ```jsx
-import { LiberationCoPilot } from '@thegreenfieldoverride/ai-copilot/react';
+import { LiberationCoPilot } from '@greenfieldoverride/ai-copilot/react';
 
 function MyApp() {
   return <LiberationCoPilot />;
@@ -86,8 +86,8 @@ function MyApp() {
 
 **Core Logic (Framework Agnostic):**
 ```js
-import { calculateRunway } from '@thegreenfieldoverride/runway-calculator/core';
-import { LiberationAI } from '@thegreenfieldoverride/ai-copilot/core';
+import { calculateRunway } from '@greenfieldoverride/runway-calculator/core';
+import { LiberationAI } from '@greenfieldoverride/ai-copilot/core';
 
 // Calculate financial runway
 const runway = calculateRunway({
@@ -105,11 +105,11 @@ const advice = await ai.generateEscapePlan(runway);
 ```
 liberation-platform/
 ├── packages/                                      # Liberation modules
-│   ├── ai-copilot/                              # @thegreenfieldoverride/ai-copilot
-│   ├── runway-calculator/                       # @thegreenfieldoverride/runway-calculator  
-│   ├── real-hourly-wage/                        # @thegreenfieldoverride/real-hourly-wage
-│   ├── cognitive-debt-assessment/               # @thegreenfieldoverride/cognitive-debt-assessment
-│   └── shared-types/                            # @thegreenfieldoverride/types
+│   ├── ai-copilot/                              # @greenfieldoverride/ai-copilot
+│   ├── runway-calculator/                       # @greenfieldoverride/runway-calculator  
+│   ├── real-hourly-wage/                        # @greenfieldoverride/real-hourly-wage
+│   ├── cognitive-debt-assessment/               # @greenfieldoverride/cognitive-debt-assessment
+│   └── shared-types/                            # @greenfieldoverride/types
 ├── apps/
 │   └── web/                                     # Liberation Platform (Next.js + AI)
 ├── LICENSE                                      # Liberation License v1.0

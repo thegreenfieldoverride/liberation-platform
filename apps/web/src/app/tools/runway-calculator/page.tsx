@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import type { ExpenseCategory, RunwayCalculation } from '@thegreenfieldoverride/types';
+import type { ExpenseCategory, RunwayCalculation } from '@greenfieldoverride/types';
 import Link from 'next/link';
 import { LibIcon } from '../../../components/icons/LiberationIcons';
 

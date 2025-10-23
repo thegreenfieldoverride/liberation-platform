@@ -6,7 +6,7 @@
  * not corporate optimization. Corporate use violates human dignity.
  */
 
-import type { VocationMatchingResult } from '@thegreenfieldoverride/types';
+import type { VocationMatchingResult } from '@greenfieldoverride/types';
 import { 
   getAssessmentQuestions,
   calculateValueProfile,

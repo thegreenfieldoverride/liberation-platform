@@ -9,14 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@thegreenfieldoverride/ai-copilot": "workspace:*",
-    "@thegreenfieldoverride/cognitive-debt-assessment": "workspace:*",
-    "@thegreenfieldoverride/real-hourly-wage": "workspace:*",
-    "@thegreenfieldoverride/runway-calculator": "workspace:*",
+    "@greenfieldoverride/ai-copilot": "workspace:*",
+    "@greenfieldoverride/cognitive-debt-assessment": "workspace:*",
+    "@greenfieldoverride/real-hourly-wage": "workspace:*",
+    "@greenfieldoverride/runway-calculator": "workspace:*",
 
-    "@thegreenfieldoverride/values-vocation-matcher": "workspace:*",
-    "@thegreenfieldoverride/user-context": "workspace:*",
-    "@thegreenfieldoverride/small-bets-portfolio": "workspace:*",
+    "@greenfieldoverride/values-vocation-matcher": "workspace:*",
+    "@greenfieldoverride/user-context": "workspace:*",
+    "@greenfieldoverride/small-bets-portfolio": "workspace:*",
     "lucide-react": "^0.545.0",
     "next": "14.2.18",
     "react": "^18",

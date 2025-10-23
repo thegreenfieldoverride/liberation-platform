@@ -1,7 +1,7 @@
 'use client';
 
-import { AICoPilot, LiberationDashboard, LiberationDataCollector } from '@thegreenfieldoverride/ai-copilot/react';
-import type { LiberationPlan } from '@thegreenfieldoverride/types';
+import { AICoPilot, LiberationDashboard, LiberationDataCollector } from '@greenfieldoverride/ai-copilot/react';
+import type { LiberationPlan } from '@greenfieldoverride/types';
 import { useState } from 'react';
 import { LibIcon } from '../../components/icons/LiberationIcons';
 

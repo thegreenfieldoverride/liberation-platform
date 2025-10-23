@@ -12,7 +12,7 @@ import type {
   CognitiveDebtResult, 
   CognitiveDebtCategory,
   CognitiveDebtResponse 
-} from '@thegreenfieldoverride/types';
+} from '@greenfieldoverride/types';
 
 /**
  * Cognitive Debt Assessment - The "red pill" for mental health costs

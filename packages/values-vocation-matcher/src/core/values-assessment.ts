@@ -12,7 +12,7 @@ import type {
   ValueResponse, 
   ValueAssessmentInputs, 
   ValueProfile 
-} from '@thegreenfieldoverride/types';
+} from '@greenfieldoverride/types';
 
 /**
  * Comprehensive values assessment questions designed to surface authentic priorities

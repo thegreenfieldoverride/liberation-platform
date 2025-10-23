@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import type { CognitiveDebtResponse, CognitiveDebtResult, CognitiveDebtQuestion } from '@thegreenfieldoverride/types';
+import type { CognitiveDebtResponse, CognitiveDebtResult, CognitiveDebtQuestion } from '@greenfieldoverride/types';
 import { 
   createAssessmentQuestions, 
   calculateCognitiveDebt, 
   getCategoryDisplayName,
   getCategoryDescription
-} from '@thegreenfieldoverride/cognitive-debt-assessment/core';
+} from '@greenfieldoverride/cognitive-debt-assessment/core';
 import { LibIcon } from './icons/LiberationIcons';
 
 export interface CognitiveDebtAssessmentDarkProps {

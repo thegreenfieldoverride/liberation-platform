@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import type { VocationMatchingResult } from '@thegreenfieldoverride/types';
-import { ValuesVocationMatcher } from '@thegreenfieldoverride/values-vocation-matcher/react';
+import type { VocationMatchingResult } from '@greenfieldoverride/types';
+import { ValuesVocationMatcher } from '@greenfieldoverride/values-vocation-matcher/react';
 
 export default function ValuesVocationMatcherPage() {
   const [result, setResult] = useState<VocationMatchingResult | null>(null);

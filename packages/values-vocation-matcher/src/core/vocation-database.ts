@@ -6,7 +6,7 @@
  * not corporate optimization. Corporate use violates human dignity.
  */
 
-import type { VocationOption, CoreValue, WorkArrangement, VocationCategory } from '@thegreenfieldoverride/types';
+import type { VocationOption, CoreValue, WorkArrangement, VocationCategory } from '@greenfieldoverride/types';
 
 /**
  * Comprehensive database of vocation options optimized for freedom and values alignment

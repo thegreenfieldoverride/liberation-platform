@@ -1,5 +1,5 @@
 {
-  "name": "@thegreenfieldoverride/real-hourly-wage",
+  "name": "@greenfieldoverride/real-hourly-wage",
   "version": "1.0.1",
   "description": "Shatter the salary illusion - calculate what you're really being paid per hour",
   "main": "dist/index.js",
@@ -29,7 +29,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@thegreenfieldoverride/types": "workspace:*"
+    "@greenfieldoverride/types": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

@@ -10,7 +10,7 @@ import {
   type RunwayScenario,
   type StressTestScenario
 } from '../core/calculator';
-import type { ExpenseCategory, RunwayCalculation } from '@thegreenfieldoverride/types';
+import type { ExpenseCategory, RunwayCalculation } from '@greenfieldoverride/types';
 
 interface RunwayCalculatorProps {
   className?: string;

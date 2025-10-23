@@ -1,5 +1,5 @@
 {
-  "name": "@thegreenfieldoverride/small-bets-portfolio",
+  "name": "@greenfieldoverride/small-bets-portfolio",
   "version": "1.0.0",
   "type": "module",
   "description": "Small Bets Portfolio Builder - Track and manage liberation-focused income streams",
@@ -12,8 +12,8 @@
     "test": "echo \"Tests not yet implemented\""
   },
   "dependencies": {
-    "@thegreenfieldoverride/types": "workspace:*",
-    "@thegreenfieldoverride/user-context": "workspace:*"
+    "@greenfieldoverride/types": "workspace:*",
+    "@greenfieldoverride/user-context": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.0.0",

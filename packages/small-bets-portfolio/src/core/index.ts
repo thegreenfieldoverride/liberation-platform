@@ -11,4 +11,4 @@ export type {
   SmallBet,
   SmallBetsPortfolio as SmallBetsPortfolioType,
   UserContext
-} from '@thegreenfieldoverride/types';
+} from '@greenfieldoverride/types';

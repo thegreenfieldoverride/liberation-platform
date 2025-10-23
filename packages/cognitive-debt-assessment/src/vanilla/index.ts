@@ -1,4 +1,4 @@
-import type { CognitiveDebtResponse, CognitiveDebtResult } from '@thegreenfieldoverride/types';
+import type { CognitiveDebtResponse, CognitiveDebtResult } from '@greenfieldoverride/types';
 import { 
   createAssessmentQuestions, 
   calculateCognitiveDebt, 

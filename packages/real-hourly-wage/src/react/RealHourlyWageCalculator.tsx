@@ -13,7 +13,7 @@ import {
   type RealWageInputs,
   type WageLiberation
 } from '../core/calculator';
-import type { WorkHours, WorkCosts, RealWageCalculation } from '@thegreenfieldoverride/types';
+import type { WorkHours, WorkCosts, RealWageCalculation } from '@greenfieldoverride/types';
 
 interface RealHourlyWageCalculatorProps {
   className?: string;

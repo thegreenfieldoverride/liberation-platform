@@ -21,13 +21,13 @@ That $80k salary sounds impressive until you calculate the **real** hourly wage 
 ### Installation
 
 ```bash
-npm install @thegreenfieldoverride/real-hourly-wage
+npm install @greenfieldoverride/real-hourly-wage
 ```
 
 ### React Component
 
 ```jsx
-import { RealHourlyWageCalculator } from '@thegreenfieldoverride/real-hourly-wage/react';
+import { RealHourlyWageCalculator } from '@greenfieldoverride/real-hourly-wage/react';
 
 function MyApp() {
   return (
@@ -42,7 +42,7 @@ function MyApp() {
 ### Core Logic Only
 
 ```javascript
-import { calculateRealHourlyWage } from '@thegreenfieldoverride/real-hourly-wage/core';
+import { calculateRealHourlyWage } from '@greenfieldoverride/real-hourly-wage/core';
 
 const result = calculateRealHourlyWage({
   annualSalary: 80000,

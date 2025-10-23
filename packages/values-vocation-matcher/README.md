@@ -29,7 +29,7 @@ Your skills can be learned. Your personality can adapt. But your core values - w
 ## Installation
 
 ```bash
-npm install @thegreenfieldoverride/values-vocation-matcher
+npm install @greenfieldoverride/values-vocation-matcher
 ```
 
 ## Quick Start
@@ -37,7 +37,7 @@ npm install @thegreenfieldoverride/values-vocation-matcher
 ### React Component
 
 ```jsx
-import { ValuesVocationMatcher } from '@thegreenfieldoverride/values-vocation-matcher/react';
+import { ValuesVocationMatcher } from '@greenfieldoverride/values-vocation-matcher/react';
 
 function App() {
   const handleComplete = (result) => {
@@ -61,7 +61,7 @@ import {
   getAssessmentQuestions,
   calculateValueProfile,
   matchVocationsToValues 
-} from '@thegreenfieldoverride/values-vocation-matcher/core';
+} from '@greenfieldoverride/values-vocation-matcher/core';
 
 // Get the assessment questions
 const questions = getAssessmentQuestions();
@@ -96,7 +96,7 @@ console.log('Top 3 matches:', matches.topMatches.slice(0, 3));
 <div id="values-matcher"></div>
 
 <script type="module">
-  import { ValuesVocationMatcherVanilla } from '@thegreenfieldoverride/values-vocation-matcher/vanilla';
+  import { ValuesVocationMatcherVanilla } from '@greenfieldoverride/values-vocation-matcher/vanilla';
   
   // Initialize the matcher
   new ValuesVocationMatcherVanilla('values-matcher');
@@ -238,7 +238,7 @@ interface VocationMatch {
 ### Custom Vocation Database
 
 ```typescript
-import { VOCATION_DATABASE } from '@thegreenfieldoverride/values-vocation-matcher/core';
+import { VOCATION_DATABASE } from '@greenfieldoverride/values-vocation-matcher/core';
 
 // Add custom vocations to the database
 const customVocation = {
@@ -257,8 +257,8 @@ const customDatabase = [...VOCATION_DATABASE, customVocation];
 ### Integration with AI Co-Pilot
 
 ```typescript
-import { ValuesVocationMatcher } from '@thegreenfieldoverride/values-vocation-matcher';
-import { LiberationDataCollector } from '@thegreenfieldoverride/ai-copilot';
+import { ValuesVocationMatcher } from '@greenfieldoverride/values-vocation-matcher';
+import { LiberationDataCollector } from '@greenfieldoverride/ai-copilot';
 
 // Combine values assessment with AI-powered liberation planning
 const handleValuesComplete = (valuesResult) => {

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { CognitiveDebtAssessmentDark } from '../../components/CognitiveDebtAssessmentDark';
-import type { CognitiveDebtResult } from '@thegreenfieldoverride/types';
+import type { CognitiveDebtResult } from '@greenfieldoverride/types';
 
 export default function CognitiveDebtAssessmentPage() {
   const handleResult = (result: CognitiveDebtResult) => {

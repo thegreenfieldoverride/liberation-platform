@@ -1,5 +1,5 @@
 {
-  "name": "@thegreenfieldoverride/cognitive-debt-assessment",
+  "name": "@greenfieldoverride/cognitive-debt-assessment",
   "version": "1.0.1",
   "type": "module",
   "description": "Cognitive Debt Assessment - Measure the hidden mental costs of corporate burnout",
@@ -36,7 +36,7 @@
     "react": "^18.0.0"
   },
   "dependencies": {
-    "@thegreenfieldoverride/types": "workspace:*"
+    "@greenfieldoverride/types": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

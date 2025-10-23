@@ -6,8 +6,8 @@ const external = [
   'react', 
   'react-dom', 
   'react/jsx-runtime',
-  '@thegreenfieldoverride/types',
-  '@thegreenfieldoverride/user-context'
+  '@greenfieldoverride/types',
+  '@greenfieldoverride/user-context'
 ];
 
 export default [
@@ -23,7 +23,7 @@ export default [
     plugins: [
       resolve({
         preferBuiltins: true,
-        skip: ['@thegreenfieldoverride/types', '@thegreenfieldoverride/user-context']
+        skip: ['@greenfieldoverride/types', '@greenfieldoverride/user-context']
       }),
       commonjs(),
       typescript({
@@ -44,7 +44,7 @@ export default [
     plugins: [
       resolve({
         preferBuiltins: true,
-        skip: ['@thegreenfieldoverride/types', '@thegreenfieldoverride/user-context']
+        skip: ['@greenfieldoverride/types', '@greenfieldoverride/user-context']
       }),
       commonjs(),
       typescript({
@@ -64,7 +64,7 @@ export default [
     plugins: [
       resolve({
         preferBuiltins: true,
-        skip: ['@thegreenfieldoverride/types', '@thegreenfieldoverride/user-context']
+        skip: ['@greenfieldoverride/types', '@greenfieldoverride/user-context']
       }),
       commonjs(),
       typescript({

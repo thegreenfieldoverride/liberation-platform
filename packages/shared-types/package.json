@@ -1,5 +1,5 @@
 {
-  "name": "@thegreenfieldoverride/types",
+  "name": "@greenfieldoverride/types",
   "version": "1.0.1",
   "description": "Shared TypeScript types for Greenfield Override tools",
   "main": "dist/index.js",

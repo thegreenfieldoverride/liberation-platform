@@ -7,7 +7,7 @@
  */
 
 import type { IPersonalizationEngine } from '../interfaces/ai-engine.interface';
-import type { LiberationContext } from '@thegreenfieldoverride/types';
+import type { LiberationContext } from '@greenfieldoverride/types';
 
 export interface PersonalDocument {
   id: string;

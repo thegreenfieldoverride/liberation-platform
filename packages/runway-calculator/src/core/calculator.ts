@@ -6,7 +6,7 @@
  * not corporate optimization. Corporate use violates human dignity.
  */
 
-import type { ExpenseCategory, RunwayCalculation, RunwayInputs } from '@thegreenfieldoverride/types';
+import type { ExpenseCategory, RunwayCalculation, RunwayInputs } from '@greenfieldoverride/types';
 
 /**
  * Core runway calculation logic - framework agnostic

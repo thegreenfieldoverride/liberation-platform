@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { RealHourlyWageCalculator } from '@thegreenfieldoverride/real-hourly-wage/react';
+import { RealHourlyWageCalculator } from '@greenfieldoverride/real-hourly-wage/react';
 import Link from 'next/link';
 import { LibIcon } from '../../components/icons/LiberationIcons';
 import { useAnalytics } from '../../hooks/useAnalytics';

@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { UserContext, UserContextEvent } from '@thegreenfieldoverride/types';
+import { UserContext, UserContextEvent } from '@greenfieldoverride/types';
 import { UserContextStorage } from '../storage/user-storage';
 
 interface UseUserContextReturn {
