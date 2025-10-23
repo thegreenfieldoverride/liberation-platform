@@ -22,11 +22,6 @@ export function FathomAnalytics({
       return;
     }
 
-    // Check if Fathom is already loaded
-    if (window.fathom) {
-      return;
-    }
-
     // Load Fathom script
     const script = document.createElement('script');
     script.src = src;
@@ -35,8 +30,8 @@ export function FathomAnalytics({
     script.async = true;
 
     // Set up the global fathom function before script loads
-    window.fathom = window.fathom || function(...args: any[]) {
-      (window.fathom.q = window.fathom.q || []).push(args);
+    (window as any).fathom = (window as any).fathom || function(...args: any[]) {
+      ((window as any).fathom.q = (window as any).fathom.q || []).push(args);
     };
 
     document.head.appendChild(script);
@@ -58,8 +53,8 @@ export function FathomAnalytics({
  * Usage: trackEvent('Newsletter Signup')
  */
 export function trackEvent(eventName: string, value?: number) {
-  if (typeof window !== 'undefined' && window.fathom) {
-    window.fathom('trackGoal', eventName, value || 0);
+  if (typeof window !== 'undefined' && (window as any).fathom) {
+    (window as any).fathom('trackGoal', eventName, value || 0);
   }
 }
 
@@ -68,19 +63,9 @@ export function trackEvent(eventName: string, value?: number) {
  * Usually not needed with Next.js as Fathom auto-tracks
  */
 export function trackPageView(url?: string) {
-  if (typeof window !== 'undefined' && window.fathom) {
-    window.fathom('trackPageview', {
+  if (typeof window !== 'undefined' && (window as any).fathom) {
+    (window as any).fathom('trackPageview', {
       url: url || window.location.pathname + window.location.search
     });
-  }
-}
-
-// Type declarations for Fathom
-declare global {
-  interface Window {
-    fathom: {
-      (...args: any[]): void;
-      q?: any[];
-    };
   }
 }

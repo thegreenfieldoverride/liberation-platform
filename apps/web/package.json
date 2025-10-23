@@ -13,7 +13,7 @@
     "@greenfieldoverride/cognitive-debt-assessment": "workspace:*",
     "@greenfieldoverride/real-hourly-wage": "workspace:*",
     "@greenfieldoverride/runway-calculator": "workspace:*",
-
+    "@greenfieldoverride/types": "workspace:*",
     "@greenfieldoverride/values-vocation-matcher": "workspace:*",
     "@greenfieldoverride/user-context": "workspace:*",
     "@greenfieldoverride/small-bets-portfolio": "workspace:*",

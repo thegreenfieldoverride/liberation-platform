@@ -40,6 +40,9 @@ importers:
       '@greenfieldoverride/small-bets-portfolio':
         specifier: workspace:*
         version: link:../../packages/small-bets-portfolio
+      '@greenfieldoverride/types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       '@greenfieldoverride/user-context':
         specifier: workspace:*
         version: link:../../packages/user-context
