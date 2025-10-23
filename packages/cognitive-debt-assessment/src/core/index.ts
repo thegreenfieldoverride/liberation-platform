@@ -11,4 +11,4 @@ export type {
   CognitiveDebtResult,
   CognitiveDebtCategory,
   CognitiveDebtResponse
-} from '@greenfield/types';
+} from '@thegreenfieldoverride/types';

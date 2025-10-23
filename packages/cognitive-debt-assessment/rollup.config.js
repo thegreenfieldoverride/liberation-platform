@@ -16,7 +16,7 @@ export default [
         useTsconfigDeclarationDir: true
       })
     ],
-    external: ['react', '@greenfield/types']
+    external: ['react', '@thegreenfieldoverride/types']
   },
   {
     input: 'src/core/index.ts',
@@ -33,7 +33,7 @@ export default [
         useTsconfigDeclarationDir: true
       })
     ],
-    external: ['@greenfield/types']
+    external: ['@thegreenfieldoverride/types']
   },
   {
     input: 'src/react/index.ts',
@@ -50,7 +50,7 @@ export default [
         useTsconfigDeclarationDir: true
       })
     ],
-    external: ['react', '@greenfield/types']
+    external: ['react', '@thegreenfieldoverride/types']
   },
   {
     input: 'src/vanilla/index.ts',
@@ -67,6 +67,6 @@ export default [
         useTsconfigDeclarationDir: true
       })
     ],
-    external: ['@greenfield/types']
+    external: ['@thegreenfieldoverride/types']
   }
 ];
