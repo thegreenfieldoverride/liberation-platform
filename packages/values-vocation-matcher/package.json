@@ -1,6 +1,7 @@
 {
   "name": "@thegreenfieldoverride/values-vocation-matcher",
   "version": "1.0.0",
+  "type": "module",
   "description": "Values-to-Vocation Matcher - Align your core values with meaningful work and career paths",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
