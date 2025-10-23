@@ -55,8 +55,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 liberation
 RUN adduser --system --uid 1001 liberation
 
-# Copy built application
-COPY --from=builder /app/apps/web/public ./public
+# Create public directory and copy static assets
+RUN mkdir -p ./public
 COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/.next/static ./.next/static
 
