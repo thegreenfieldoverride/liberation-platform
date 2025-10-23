@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: thegreenfieldoverride/liberation-platform
+  IMAGE_NAME: greenfieldoverride/liberation-platform
 
 jobs:
   # Test and build
