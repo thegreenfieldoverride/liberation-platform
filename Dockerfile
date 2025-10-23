@@ -55,10 +55,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 liberation
 RUN adduser --system --uid 1001 liberation
 
-# Create public directory and copy static assets
-RUN mkdir -p ./public
+# Copy standalone build and static assets
 COPY --from=builder /app/apps/web/.next/standalone ./
-COPY --from=builder /app/apps/web/.next/static ./.next/static
+COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder /app/apps/web/public ./apps/web/public
 
 # Set permissions
 USER liberation
@@ -72,4 +72,4 @@ ENV HOSTNAME="0.0.0.0"
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node healthcheck.js
 
-CMD ["node", "server.js"]
+CMD ["node", "apps/web/server.js"]
