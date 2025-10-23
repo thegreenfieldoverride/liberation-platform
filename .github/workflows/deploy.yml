@@ -52,64 +52,16 @@ jobs:
       - name: Run tests
         run: pnpm run test || echo "Tests skipped - no test script found"
 
-  # Build and push Docker image
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production'
-    outputs:
-      image: ${{ steps.image.outputs.image }}
-      digest: ${{ steps.build.outputs.digest }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Build and push Docker image
-        id: build
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/amd64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            DEPLOYMENT_TARGET=docker
-
-      - name: Output image
-        id: image
-        run: echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-${{ github.sha }}" >> $GITHUB_OUTPUT
+  # No separate build job needed - we'll build on the server
 
   # Deploy to Hetzner VPS
   deploy:
-    needs: [test, build]
+    needs: [test]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production'
     environment: 
       name: ${{ github.ref == 'refs/heads/production' && 'production' || 'staging' }}
-      url: ${{ github.ref == 'refs/heads/production' && 'https://thegreenfieldoverride.com' || 'https://staging.thegreenfieldoverride.com' }}
+      url: ${{ github.ref == 'refs/heads/production' && 'https://greenfieldoverride.com' || 'https://staging.greenfieldoverride.com' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -127,17 +79,24 @@ jobs:
         env:
           HOST: ${{ secrets.HETZNER_HOST }}
           USER: ${{ secrets.HETZNER_USER }}
-          IMAGE: ${{ needs.build.outputs.image }}
           ENVIRONMENT: ${{ github.ref == 'refs/heads/production' && 'production' || 'staging' }}
         run: |
           ssh $USER@$HOST << 'EOF'
             set -e
             
-            # Login to GitHub Container Registry
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            # Create deployment directory
+            mkdir -p /opt/liberation-platform
+            cd /opt/liberation-platform
             
-            # Pull new image
-            docker pull ${{ needs.build.outputs.image }}
+            # Pull latest code
+            if [ -d ".git" ]; then
+              git pull origin main
+            else
+              git clone https://github.com/thegreenfieldoverride/liberation-platform.git .
+            fi
+            
+            # Build Docker image on server
+            docker build -t liberation-platform:latest --build-arg DEPLOYMENT_TARGET=docker .
             
             # Stop existing container
             docker stop liberation-platform-${{ env.ENVIRONMENT }} || true
@@ -154,9 +113,9 @@ jobs:
               --health-interval=30s \
               --health-timeout=3s \
               --health-retries=3 \
-              ${{ needs.build.outputs.image }}
+              liberation-platform:latest
             
-            # Clean up old images
+            # Clean up old images (keep last 2)
             docker image prune -f
           EOF
 
