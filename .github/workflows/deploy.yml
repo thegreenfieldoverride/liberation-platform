@@ -85,7 +85,8 @@ jobs:
             set -e
             
             # Create deployment directory
-            mkdir -p /opt/liberation-platform
+            sudo mkdir -p /opt/liberation-platform
+            sudo chown deploy-bot:deploy-bot /opt/liberation-platform
             cd /opt/liberation-platform
             
             # Pull latest code
