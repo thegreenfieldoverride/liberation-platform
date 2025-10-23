@@ -28,7 +28,7 @@
     }
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "tsc",
     "dev": "rollup -c -w",
     "clean": "rm -rf dist"
   },

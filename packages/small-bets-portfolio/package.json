@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "rollup -c",
+    "build": "tsc",
     "dev": "rollup -c --watch",
     "clean": "rm -rf dist",
     "test": "echo \"Tests not yet implemented\""
