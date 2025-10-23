@@ -97,52 +97,11 @@ export default function ToolsPage() {
                 </div>
               </div>
               <Link 
-                href="/tools/real-hourly-wage"
+                href="/real-hourly-wage"
                 className="inline-flex items-center bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
               >
                 Take the Red Pill →
               </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Coming Soon */}
-        <div className="text-center">
-          <h2 className="text-2xl font-light text-gray-900 mb-8">
-            More Tools Coming Soon
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Tier 2: The Toolkit */}
-            <div className="bg-white rounded-xl shadow-sm p-6 opacity-75">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <LibIcon icon="Settings" size="lg" className="text-green-600" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-800 mb-2">The Toolkit</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                AI-powered tools to build your escape route and design your new life
-              </p>
-               <ul className="text-sm text-gray-500 space-y-1">
-                 <li>• AI Co-Pilot for personalized planning</li>
-                 <li>• Small Bets Portfolio Builder</li>
-                 <li>• Exit Strategy Planner</li>
-               </ul>
-            </div>
-
-            {/* Tier 3: The Colony */}
-            <div className="bg-white rounded-xl shadow-sm p-6 opacity-75">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <LibIcon icon="Growth" size="lg" className="text-purple-600" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-800 mb-2">The Colony</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Community platform for collaboration and mutual support
-              </p>
-              <ul className="text-sm text-gray-500 space-y-1">
-                <li>• Skills Barter System</li>
-                <li>• Sovereign Circles</li>
-                <li>• Liberation Community</li>
-              </ul>
-            </div>
             </div>
 
             {/* Cognitive Debt Assessment */}
@@ -312,7 +271,48 @@ export default function ToolsPage() {
           </div>
         </div>
 
-        {/* Coming Soon Section */}
+
+        {/* Coming Soon */}
+        <div className="text-center">
+          <h2 className="text-2xl font-light text-gray-900 mb-8">
+            More Tools Coming Soon
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Tier 2: The Toolkit */}
+            <div className="bg-white rounded-xl shadow-sm p-6 opacity-75">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <LibIcon icon="Settings" size="lg" className="text-green-600" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-800 mb-2">The Toolkit</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                AI-powered tools to build your escape route and design your new life
+              </p>
+               <ul className="text-sm text-gray-500 space-y-1">
+                 <li>• AI Co-Pilot for personalized planning</li>
+                 <li>• Small Bets Portfolio Builder</li>
+                 <li>• Exit Strategy Planner</li>
+               </ul>
+            </div>
+
+            {/* Tier 3: The Colony */}
+            <div className="bg-white rounded-xl shadow-sm p-6 opacity-75">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <LibIcon icon="Growth" size="lg" className="text-purple-600" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-800 mb-2">The Colony</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Community platform for collaboration and mutual support
+              </p>
+              <ul className="text-sm text-gray-500 space-y-1">
+                <li>• Skills Barter System</li>
+                <li>• Sovereign Circles</li>
+                <li>• Liberation Community</li>
+              </ul>
+            </div>
+            </div>
+          </div>
+        </div>
+
         <div className="text-center py-12 border-t border-gray-200">
           <h3 className="text-xl font-light text-gray-900 mb-4">More Tools Coming Soon</h3>
           <p className="text-gray-600 mb-6">
