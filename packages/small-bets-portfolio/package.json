@@ -12,8 +12,8 @@
     "test": "echo \"Tests not yet implemented\""
   },
   "dependencies": {
-    "@greenfieldoverride/types": "workspace:*",
-    "@greenfieldoverride/user-context": "workspace:*"
+    "@greenfieldoverride/types": "^1.0.1",
+    "@greenfieldoverride/user-context": "^1.0.1"
   },
   "peerDependencies": {
     "react": "^18.0.0",

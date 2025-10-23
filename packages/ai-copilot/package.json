@@ -32,7 +32,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@greenfieldoverride/types": "workspace:*",
+    "@greenfieldoverride/types": "^1.0.1",
     "@xenova/transformers": "^2.17.2"
   },
   "devDependencies": {

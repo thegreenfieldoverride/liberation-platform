@@ -36,7 +36,7 @@
     "react": "^18.0.0"
   },
   "dependencies": {
-    "@greenfieldoverride/types": "workspace:*"
+    "@greenfieldoverride/types": "^1.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

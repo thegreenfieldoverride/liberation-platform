@@ -93,8 +93,8 @@ importers:
   packages/ai-copilot:
     dependencies:
       '@greenfieldoverride/types':
-        specifier: workspace:*
-        version: link:../shared-types
+        specifier: ^1.0.1
+        version: 1.0.1
       '@xenova/transformers':
         specifier: ^2.17.2
         version: 2.17.2
@@ -112,8 +112,8 @@ importers:
   packages/cognitive-debt-assessment:
     dependencies:
       '@greenfieldoverride/types':
-        specifier: workspace:*
-        version: link:../shared-types
+        specifier: ^1.0.1
+        version: 1.0.1
       react:
         specifier: ^18.0.0
         version: 18.3.1
@@ -134,8 +134,8 @@ importers:
   packages/liberation-tracker:
     dependencies:
       '@greenfieldoverride/types':
-        specifier: workspace:*
-        version: link:../shared-types
+        specifier: ^1.0.1
+        version: 1.0.1
       react:
         specifier: ^18.0.0
         version: 18.3.1
@@ -150,8 +150,8 @@ importers:
   packages/real-hourly-wage:
     dependencies:
       '@greenfieldoverride/types':
-        specifier: workspace:*
-        version: link:../shared-types
+        specifier: ^1.0.1
+        version: 1.0.1
     devDependencies:
       '@rollup/plugin-terser':
         specifier: ^0.4.0
@@ -175,8 +175,8 @@ importers:
   packages/runway-calculator:
     dependencies:
       '@greenfieldoverride/types':
-        specifier: workspace:*
-        version: link:../shared-types
+        specifier: ^1.0.1
+        version: 1.0.1
     devDependencies:
       '@rollup/plugin-terser':
         specifier: ^0.4.0
@@ -206,11 +206,11 @@ importers:
   packages/small-bets-portfolio:
     dependencies:
       '@greenfieldoverride/types':
-        specifier: workspace:*
-        version: link:../shared-types
+        specifier: ^1.0.1
+        version: 1.0.1
       '@greenfieldoverride/user-context':
-        specifier: workspace:*
-        version: link:../user-context
+        specifier: ^1.0.1
+        version: 1.0.1(react@18.3.1)
       react:
         specifier: ^18.0.0
         version: 18.3.1
@@ -262,8 +262,8 @@ importers:
   packages/values-vocation-matcher:
     dependencies:
       '@greenfieldoverride/types':
-        specifier: workspace:*
-        version: link:../shared-types
+        specifier: ^1.0.1
+        version: 1.0.1
       react:
         specifier: ^18.0.0
         version: 18.3.1
@@ -316,6 +316,11 @@ packages:
 
   '@greenfieldoverride/types@1.0.1':
     resolution: {integrity: sha512-q/UWBBgnt6cTAsXxo05MwW+t3+gCuxXo4v8ZoSiqUnIAYe+xjk8jrtlFWW1N0EoEaBT9leSK6b9R/XL0R4adlg==}
+
+  '@greenfieldoverride/user-context@1.0.1':
+    resolution: {integrity: sha512-zMhKLf78mRiGmgFt0VqDHTgIxthch9gIrFbhvTmuMQmpZftQIutNmQCGovXaIuS1y7rXgBkV3OpYzlp80kx3aw==}
+    peerDependencies:
+      react: ^18.0.0
 
   '@huggingface/jinja@0.2.2':
     resolution: {integrity: sha512-/KPde26khDUIPkTGU82jdtTW9UAuvUTumCAbFs/7giR0SxsvZC4hru51PBvpijH6BVkHcROcvZM/lpy5h1jRRA==}
@@ -2696,6 +2701,11 @@ snapshots:
   '@eslint/js@8.57.1': {}
 
   '@greenfieldoverride/types@1.0.1': {}
+
+  '@greenfieldoverride/user-context@1.0.1(react@18.3.1)':
+    dependencies:
+      '@greenfieldoverride/types': 1.0.1
+      react: 18.3.1
 
   '@huggingface/jinja@0.2.2': {}
 
