@@ -39,8 +39,9 @@ RUN pnpm run build
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Build the web app
+# Build the web app with Docker deployment target
 WORKDIR /app/apps/web
+ENV DEPLOYMENT_TARGET=docker
 RUN pnpm build
 
 # Stage 3: Production runner

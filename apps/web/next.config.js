@@ -18,14 +18,14 @@ const nextConfig = {
   
   // Transpile workspace packages
   transpilePackages: [
-    '@thegreenfieldoverride/runway-calculator', 
-    '@thegreenfieldoverride/real-hourly-wage',
-    '@thegreenfieldoverride/cognitive-debt-assessment',
-    '@thegreenfieldoverride/ai-copilot',
-    '@thegreenfieldoverride/types',
-    '@thegreenfieldoverride/user-context',
-    '@thegreenfieldoverride/small-bets-portfolio',
-    '@thegreenfieldoverride/values-vocation-matcher'
+    '@greenfieldoverride/runway-calculator', 
+    '@greenfieldoverride/real-hourly-wage',
+    '@greenfieldoverride/cognitive-debt-assessment',
+    '@greenfieldoverride/ai-copilot',
+    '@greenfieldoverride/types',
+    '@greenfieldoverride/user-context',
+    '@greenfieldoverride/small-bets-portfolio',
+    '@greenfieldoverride/values-vocation-matcher'
   ],
   
   // Security headers
