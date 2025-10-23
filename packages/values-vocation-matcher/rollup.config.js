@@ -16,7 +16,7 @@ export default [
         useTsconfigDeclarationDir: true
       })
     ],
-    external: (id) => id.includes("react") || id.includes("@greenfieldoverride")
+    external: (id) => id.startsWith("react") || id.startsWith("@greenfieldoverride")
   },
   {
     input: 'src/core/index.ts',
@@ -33,7 +33,7 @@ export default [
         useTsconfigDeclarationDir: true
       })
     ],
-    external: (id) => id.includes("react") || id.includes("@greenfieldoverride")
+    external: (id) => id.startsWith("react") || id.startsWith("@greenfieldoverride")
   },
   {
     input: 'src/react/index.ts',
@@ -50,7 +50,7 @@ export default [
         useTsconfigDeclarationDir: true
       })
     ],
-    external: (id) => id.includes("react") || id.includes("@greenfieldoverride")
+    external: (id) => id.startsWith("react") || id.startsWith("@greenfieldoverride")
   },
   {
     input: 'src/vanilla/index.ts',
@@ -67,6 +67,6 @@ export default [
         useTsconfigDeclarationDir: true
       })
     ],
-    external: (id) => id.includes("react") || id.includes("@greenfieldoverride")
+    external: (id) => id.startsWith("react") || id.startsWith("@greenfieldoverride")
   }
 ];
