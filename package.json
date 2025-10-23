@@ -8,7 +8,7 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "pnpm -r run build",
+    "build": "pnpm --filter @thegreenfieldoverride/shared-types run build && pnpm --filter @thegreenfieldoverride/user-context run build && pnpm -r run build",
     "dev": "pnpm --filter greenfield-override-web run dev",
     "test": "pnpm -r run test",
     "lint": "pnpm -r run lint",
