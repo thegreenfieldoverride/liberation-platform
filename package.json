@@ -8,7 +8,7 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "pnpm --filter @thegreenfieldoverride/types run build && pnpm --filter @thegreenfieldoverride/user-context run build && pnpm -r run build",
+    "build": "pnpm --filter @thegreenfieldoverride/types run build && pnpm --filter @thegreenfieldoverride/user-context run build && pnpm --filter @thegreenfieldoverride/ai-copilot run build && pnpm --filter @thegreenfieldoverride/liberation-tracker run build && pnpm --filter @thegreenfieldoverride/real-hourly-wage run build && pnpm --filter @thegreenfieldoverride/runway-calculator run build && pnpm --filter greenfield-override-web run build",
     "dev": "pnpm --filter greenfield-override-web run dev",
     "test": "pnpm -r run test",
     "lint": "pnpm -r run lint",
