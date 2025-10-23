@@ -246,8 +246,8 @@ importers:
   packages/user-context:
     dependencies:
       '@greenfieldoverride/types':
-        specifier: workspace:*
-        version: link:../shared-types
+        specifier: ^1.0.1
+        version: 1.0.1
       react:
         specifier: ^18.0.0
         version: 18.3.1
@@ -313,6 +313,9 @@ packages:
   '@eslint/js@8.57.1':
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@greenfieldoverride/types@1.0.1':
+    resolution: {integrity: sha512-q/UWBBgnt6cTAsXxo05MwW+t3+gCuxXo4v8ZoSiqUnIAYe+xjk8jrtlFWW1N0EoEaBT9leSK6b9R/XL0R4adlg==}
 
   '@huggingface/jinja@0.2.2':
     resolution: {integrity: sha512-/KPde26khDUIPkTGU82jdtTW9UAuvUTumCAbFs/7giR0SxsvZC4hru51PBvpijH6BVkHcROcvZM/lpy5h1jRRA==}
@@ -2691,6 +2694,8 @@ snapshots:
       - supports-color
 
   '@eslint/js@8.57.1': {}
+
+  '@greenfieldoverride/types@1.0.1': {}
 
   '@huggingface/jinja@0.2.2': {}
 
