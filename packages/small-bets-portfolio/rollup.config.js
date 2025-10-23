@@ -2,7 +2,13 @@ import typescript from 'rollup-plugin-typescript2';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 
-const external = ['react', 'react-dom', 'react/jsx-runtime'];
+const external = [
+  'react', 
+  'react-dom', 
+  'react/jsx-runtime',
+  '@thegreenfieldoverride/types',
+  '@thegreenfieldoverride/user-context'
+];
 
 export default [
   // Main bundle
@@ -31,7 +37,7 @@ export default [
       format: 'es',
       sourcemap: true
     },
-    external: [...external, '@thegreenfieldoverride/user-context'],
+    external,
     plugins: [
       resolve(),
       commonjs(),
