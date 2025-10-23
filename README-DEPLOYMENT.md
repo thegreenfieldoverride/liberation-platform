@@ -68,8 +68,8 @@ git push origin production
 ### 5. **Point Domain**
 ```
 DNS A Records:
-thegreenfieldoverride.com → YOUR_SERVER_IP
-staging.thegreenfieldoverride.com → YOUR_SERVER_IP
+greenfieldoverride.com → YOUR_SERVER_IP
+staging.greenfieldoverride.com → YOUR_SERVER_IP
 ```
 
 ## 🔧 **Development Workflow**

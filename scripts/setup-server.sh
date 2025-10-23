@@ -77,7 +77,7 @@ cat > /etc/caddy/Caddyfile << 'EOF'
 # Liberation Platform Caddy Configuration
 
 # Production site
-thegreenfieldoverride.com {
+greenfieldoverride.com {
     reverse_proxy localhost:3000
     
     # Security headers
@@ -100,7 +100,7 @@ thegreenfieldoverride.com {
 }
 
 # Staging site (if needed)
-staging.thegreenfieldoverride.com {
+staging.greenfieldoverride.com {
     reverse_proxy localhost:3001
     
     # Same security headers
@@ -121,8 +121,8 @@ staging.thegreenfieldoverride.com {
 }
 
 # Redirect www to non-www
-www.thegreenfieldoverride.com {
-    redir https://thegreenfieldoverride.com{uri} permanent
+www.greenfieldoverride.com {
+    redir https://greenfieldoverride.com{uri} permanent
 }
 EOF
 
@@ -243,5 +243,5 @@ echo "Caddy: $(caddy version)"
 echo "UFW: $(ufw status | head -1)"
 echo ""
 echo "🔗 Services will be available at:"
-echo "Production: https://thegreenfieldoverride.com"
-echo "Staging: https://staging.thegreenfieldoverride.com"
+echo "Production: https://greenfieldoverride.com"
+echo "Staging: https://staging.greenfieldoverride.com"

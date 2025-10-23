@@ -52,8 +52,8 @@ git push origin main
 
 1. **Point your domain to the server:**
    ```
-   A Record: thegreenfieldoverride.com → YOUR_SERVER_IP
-   A Record: staging.thegreenfieldoverride.com → YOUR_SERVER_IP
+   A Record: greenfieldoverride.com → YOUR_SERVER_IP
+   A Record: staging.greenfieldoverride.com → YOUR_SERVER_IP
    ```
 
 2. **SSL certificates are automatic** (Caddy handles this)
@@ -190,8 +190,8 @@ Use the management script for common tasks:
 
 | Branch | Environment | URL | Port |
 |--------|-------------|-----|------|
-| `main` | Staging | staging.thegreenfieldoverride.com | 3001 |
-| `production` | Production | thegreenfieldoverride.com | 3000 |
+| `main` | Staging | staging.greenfieldoverride.com | 3001 |
+| `production` | Production | greenfieldoverride.com | 3000 |
 
 ## 🛠 Troubleshooting
 
