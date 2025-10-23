@@ -21,7 +21,10 @@ export default [
     },
     external,
     plugins: [
-      resolve(),
+      resolve({
+        preferBuiltins: true,
+        skip: ['@thegreenfieldoverride/types', '@thegreenfieldoverride/user-context']
+      }),
       commonjs(),
       typescript({
         tsconfig: './tsconfig.json',
@@ -39,7 +42,10 @@ export default [
     },
     external,
     plugins: [
-      resolve(),
+      resolve({
+        preferBuiltins: true,
+        skip: ['@thegreenfieldoverride/types', '@thegreenfieldoverride/user-context']
+      }),
       commonjs(),
       typescript({
         tsconfig: './tsconfig.json'
@@ -56,7 +62,10 @@ export default [
     },
     external,
     plugins: [
-      resolve(),
+      resolve({
+        preferBuiltins: true,
+        skip: ['@thegreenfieldoverride/types', '@thegreenfieldoverride/user-context']
+      }),
       commonjs(),
       typescript({
         tsconfig: './tsconfig.json'
