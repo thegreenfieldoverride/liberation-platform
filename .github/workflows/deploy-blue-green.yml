@@ -96,7 +96,7 @@ jobs:
       - name: Set deployment variables
         run: |
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+          echo "TIMESTAMP=\$TIMESTAMP" >> $GITHUB_ENV
           
           if [ "${{ github.event.inputs.environment || 'staging' }}" = "production" ]; then
             echo "DEPLOY_PORT=3000" >> $GITHUB_ENV
@@ -134,9 +134,16 @@ jobs:
           ssh $USER@$HOST << EOF
             set -e
             
-            echo "🔄 Starting BLUE-GREEN deployment to $ENVIRONMENT..."
-            echo "📦 Deploying ref: $GIT_REF"
-            echo "⏰ Timestamp: $TIMESTAMP"
+            # Explicitly set environment variables in SSH session
+            DEPLOY_PORT="\$DEPLOY_PORT"
+            CONTAINER_NAME="\$CONTAINER_NAME"
+            ENVIRONMENT="\$ENVIRONMENT"
+            TIMESTAMP="\$TIMESTAMP"
+            GIT_REF="$GIT_REF"
+            
+            echo "🔄 Starting BLUE-GREEN deployment to \\$ENVIRONMENT..."
+            echo "📦 Deploying ref: \$GIT_REF"
+            echo "⏰ Timestamp: \\$TIMESTAMP"
             
             # Create deployment directory
             sudo mkdir -p /opt/liberation-platform
@@ -147,18 +154,18 @@ jobs:
             if [ -d ".git" ]; then
               echo "📥 Fetching latest code..."
               git fetch origin
-              git checkout $GIT_REF
-              git pull origin $GIT_REF || true
+              git checkout \$GIT_REF
+              git pull origin \$GIT_REF || true
             else
               echo "📥 Cloning repository..."
               rm -rf * .* 2>/dev/null || true
               git clone https://github.com/thegreenfieldoverride/liberation-platform.git .
-              git checkout $GIT_REF
+              git checkout \$GIT_REF
             fi
             
             # Determine current and new colors
             echo "🐛 DEBUG - Starting color detection..."
-            CURRENT_CONTAINER="$CONTAINER_NAME"
+            CURRENT_CONTAINER="\$CONTAINER_NAME"
             echo "🐛 DEBUG - CURRENT_CONTAINER set to: '$CURRENT_CONTAINER'"
             
             echo "🐛 DEBUG - Checking for existing containers..."
@@ -177,7 +184,7 @@ jobs:
             echo "🐛 DEBUG - After first check: CURRENT_COLOR='$CURRENT_COLOR', NEW_COLOR='$NEW_COLOR'"
             
             # If no existing containers, start with blue
-            if ! docker ps --format "{{.Names}}" | grep -q "$CONTAINER_NAME"; then
+            if ! docker ps --format "{{.Names}}" | grep -q "\$CONTAINER_NAME"; then
               echo "🐛 DEBUG - No containers found at all, defaulting to blue"
               CURRENT_COLOR=""
               NEW_COLOR="blue"
@@ -185,21 +192,21 @@ jobs:
             
             echo "🐛 DEBUG - Final colors: CURRENT_COLOR='$CURRENT_COLOR', NEW_COLOR='$NEW_COLOR'"
             
-            NEW_CONTAINER="$CONTAINER_NAME-$NEW_COLOR"
-            OLD_CONTAINER="$CONTAINER_NAME-$CURRENT_COLOR"
+            NEW_CONTAINER="\$CONTAINER_NAME-$NEW_COLOR"
+            OLD_CONTAINER="\$CONTAINER_NAME-$CURRENT_COLOR"
             
             echo "🎨 Current: \${CURRENT_COLOR:-none}, Deploying to: $NEW_COLOR"
             
             # Build new image with timestamp tag
             echo "🏗️ Building new Docker image..."
-            docker build -t liberation-platform:$ENVIRONMENT-$TIMESTAMP \
+            docker build -t liberation-platform:\$ENVIRONMENT-\$TIMESTAMP \
               --build-arg DEPLOYMENT_TARGET=docker \
-              --build-arg ENVIRONMENT=$ENVIRONMENT \
+              --build-arg ENVIRONMENT=\$ENVIRONMENT \
               .
             
             # Tag as latest for the new color
-            docker tag liberation-platform:$ENVIRONMENT-$TIMESTAMP \
-              liberation-platform:$ENVIRONMENT-$NEW_COLOR
+            docker tag liberation-platform:\$ENVIRONMENT-\$TIMESTAMP \
+              liberation-platform:\$ENVIRONMENT-$NEW_COLOR
             
             echo "🟢 Starting new $NEW_COLOR container..."
             
@@ -207,28 +214,28 @@ jobs:
             echo "🐛 DEBUG - Variable values:"
             echo "  NEW_COLOR: '$NEW_COLOR'"
             echo "  NEW_CONTAINER: '$NEW_CONTAINER'"
-            echo "  CONTAINER_NAME: '$CONTAINER_NAME'"
-            echo "  ENVIRONMENT: '$ENVIRONMENT'"
-            echo "  TIMESTAMP: '$TIMESTAMP'"
+            echo "  CONTAINER_NAME: '\$CONTAINER_NAME'"
+            echo "  ENVIRONMENT: '\$ENVIRONMENT'"
+            echo "  TIMESTAMP: '\$TIMESTAMP'"
             
             # Stop and remove any existing new color container
             docker stop $NEW_CONTAINER 2>/dev/null || true
             docker rm $NEW_CONTAINER 2>/dev/null || true
             
             # Start new container on temporary port first  
-            TEMP_PORT=$(($DEPLOY_PORT + 100))
+            TEMP_PORT=$((\$DEPLOY_PORT + 100))
             echo "🐛 DEBUG - About to run: docker run -d --name '$NEW_CONTAINER' --restart unless-stopped ..."
             docker run -d \
               --name $NEW_CONTAINER \
               --restart unless-stopped \
               -p $TEMP_PORT:3000 \
               -e NODE_ENV=production \
-              -e ENVIRONMENT=$ENVIRONMENT \
+              -e ENVIRONMENT=\$ENVIRONMENT \
               --health-cmd="node healthcheck.js" \
               --health-interval=10s \
               --health-timeout=3s \
               --health-retries=3 \
-              liberation-platform:$ENVIRONMENT-$NEW_COLOR
+              liberation-platform:\$ENVIRONMENT-$NEW_COLOR
             
             # Wait for new container to be healthy
             echo "⏳ Waiting for $NEW_COLOR container to be healthy..."
@@ -281,14 +288,14 @@ jobs:
             docker run -d \
               --name $NEW_CONTAINER \
               --restart unless-stopped \
-              -p $DEPLOY_PORT:3000 \
+              -p \$DEPLOY_PORT:3000 \
               -e NODE_ENV=production \
-              -e ENVIRONMENT=$ENVIRONMENT \
+              -e ENVIRONMENT=\$ENVIRONMENT \
               --health-cmd="node healthcheck.js" \
               --health-interval=30s \
               --health-timeout=3s \
               --health-retries=3 \
-              liberation-platform:$ENVIRONMENT-$NEW_COLOR
+              liberation-platform:\$ENVIRONMENT-$NEW_COLOR
             
             # Container is now running as the colored name
             # No need for additional symlink container
@@ -300,7 +307,7 @@ jobs:
             echo "🏁 Final health check on main port..."
             sleep 5
             for i in {1..10}; do
-              if curl -f -s http://localhost:$DEPLOY_PORT/api/health; then
+              if curl -f -s http://localhost:\$DEPLOY_PORT/api/health; then
                 echo "✅ $NEW_COLOR container live on main port!"
                 break
               elif [ $i -eq 10 ]; then
@@ -322,7 +329,7 @@ jobs:
             # Keep current + 1 previous image only (more aggressive cleanup)
             docker images liberation-platform --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | \
               grep -v REPOSITORY | \
-              grep "$ENVIRONMENT" | \
+              grep "\$ENVIRONMENT" | \
               sort -k2 -r | \
               tail -n +3 | \
               awk '{print $1}' | \
@@ -344,9 +351,9 @@ jobs:
             echo "🐳 Docker images:"
             docker images --format "table {{.Repository}}:{{.Tag}}\t{{.Size}}" | head -10
             
-            echo "✅ BLUE-GREEN deployment to $ENVIRONMENT complete!"
+            echo "✅ BLUE-GREEN deployment to \$ENVIRONMENT complete!"
             echo "🎨 Active color: $NEW_COLOR"
-            echo "📦 Image: liberation-platform:$ENVIRONMENT-$TIMESTAMP"
+            echo "📦 Image: liberation-platform:\$ENVIRONMENT-\$TIMESTAMP"
           EOF
 
       - name: Deploy Liberation Platform (Immediate/Rolling)
