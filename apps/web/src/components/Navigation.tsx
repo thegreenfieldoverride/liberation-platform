@@ -35,8 +35,7 @@ export function Navigation() {
               <div className={`text-2xl font-light transition-all duration-300 ${
                 scrolled ? 'text-gray-900' : 'text-white'
               } group-hover:scale-105`}>
-                <span className="font-sans">Greenfield</span>
-                <span className="text-sm opacity-60">®</span>
+                <span className="font-sans">Greenfield Override</span>
               </div>
             </Link>
           </div>
