@@ -189,12 +189,22 @@ jobs:
               liberation-platform:$ENVIRONMENT-$NEW_COLOR
             
             echo "🟢 Starting new $NEW_COLOR container..."
+            
+            # DEBUG: Print all variables before docker command
+            echo "🐛 DEBUG - Variable values:"
+            echo "  NEW_COLOR: '$NEW_COLOR'"
+            echo "  NEW_CONTAINER: '$NEW_CONTAINER'"
+            echo "  CONTAINER_NAME: '$CONTAINER_NAME'"
+            echo "  ENVIRONMENT: '$ENVIRONMENT'"
+            echo "  TIMESTAMP: '$TIMESTAMP'"
+            
             # Stop and remove any existing new color container
             docker stop $NEW_CONTAINER 2>/dev/null || true
             docker rm $NEW_CONTAINER 2>/dev/null || true
             
             # Start new container on temporary port first  
             TEMP_PORT=$(($DEPLOY_PORT + 100))
+            echo "🐛 DEBUG - About to run: docker run -d --name '$NEW_CONTAINER' --restart unless-stopped ..."
             docker run -d \
               --name $NEW_CONTAINER \
               --restart unless-stopped \
