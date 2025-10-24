@@ -307,7 +307,7 @@ jobs:
             
             echo "✅ BLUE-GREEN deployment to ${ENVIRONMENT} complete!"
             echo "🎨 Active color: ${NEW_COLOR}"
-            echo "📦 Image: liberation-platform:${ENVIRONMENT}-${{ env.TIMESTAMP }}"
+            echo "📦 Image: liberation-platform:${ENVIRONMENT}-${TIMESTAMP}"
           EOF
 
       - name: Deploy Liberation Platform (Immediate/Rolling)
