@@ -131,6 +131,7 @@ jobs:
           ENVIRONMENT: ${{ env.ENVIRONMENT }}
           TIMESTAMP: ${{ env.TIMESTAMP }}
           NEW_COLOR: "blue"
+          CURRENT_COLOR: ""
         run: |
           ssh $USER@$HOST 'bash -s' << EOF
             set -e
@@ -142,6 +143,7 @@ jobs:
             TIMESTAMP="$TIMESTAMP"
             GIT_REF="$GIT_REF"
             NEW_COLOR="$NEW_COLOR"
+            CURRENT_COLOR="$CURRENT_COLOR"
             
 
             echo "🔄 Starting BLUE-GREEN deployment to $ENVIRONMENT..."
@@ -167,15 +169,15 @@ jobs:
             fi
             
             # SIMPLIFIED: Test using GitHub Actions variable pattern
-            CURRENT_COLOR=""
-            echo "🆕 SIMPLIFIED TEST: Using GitHub Actions NEW_COLOR variable"
-            echo "🔍 DEBUG Step 1 - NEW_COLOR from GitHub Actions: '$NEW_COLOR'"
+            echo "🆕 SIMPLIFIED TEST: Using GitHub Actions variables"
+            echo "🔍 DEBUG Step 1 - NEW_COLOR: '$NEW_COLOR'"
             echo "🔍 DEBUG Step 1 - CURRENT_COLOR: '$CURRENT_COLOR'"
+            echo "🔍 DEBUG Step 1 - CONTAINER_NAME: '$CONTAINER_NAME'"
             
-            NEW_CONTAINER="$CONTAINER_NAME-$NEW_COLOR"
-            OLD_CONTAINER="$CONTAINER_NAME-$CURRENT_COLOR"
-            echo "🔍 DEBUG Step 2 - NEW_COLOR after container assignment: '$NEW_COLOR'"
-            echo "🔍 DEBUG Step 2 - NEW_CONTAINER value: '$NEW_CONTAINER'"
+            NEW_CONTAINER="${CONTAINER_NAME}-${NEW_COLOR}"
+            OLD_CONTAINER="${CONTAINER_NAME}-${CURRENT_COLOR}"
+            echo "🔍 DEBUG Step 2 - NEW_CONTAINER: '$NEW_CONTAINER'"
+            echo "🔍 DEBUG Step 2 - OLD_CONTAINER: '$OLD_CONTAINER'"
             
             echo "🎨 Current: ${CURRENT_COLOR:-none}, Deploying to: $NEW_COLOR"
             echo "🔍 DEBUG Step 3 - NEW_COLOR after echo: '$NEW_COLOR'"
