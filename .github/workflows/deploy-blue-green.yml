@@ -165,8 +165,8 @@ jobs:
             fi
             
             # SIMPLIFIED: Just use blue for now to test the deployment
-            CURRENT_COLOR=""
-            NEW_COLOR="blue"
+            export CURRENT_COLOR=""
+            export NEW_COLOR="blue"
             echo "🆕 SIMPLIFIED TEST: Deploying to blue"
             echo "🔍 DEBUG Step 1 - NEW_COLOR after assignment: '$NEW_COLOR'"
             
