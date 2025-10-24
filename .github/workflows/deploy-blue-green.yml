@@ -164,20 +164,10 @@ jobs:
               git checkout $GIT_REF
             fi
             
-            # Determine current and new colors for blue-green deployment
-            if docker ps --format "{{.Names}}" | grep -q "$CONTAINER_NAME-blue"; then
-              CURRENT_COLOR="blue"
-              NEW_COLOR="green"
-              echo "🔵 Current: blue -> Deploying: green"
-            elif docker ps --format "{{.Names}}" | grep -q "$CONTAINER_NAME-green"; then
-              CURRENT_COLOR="green"
-              NEW_COLOR="blue"
-              echo "🟢 Current: green -> Deploying: blue"
-            else
-              CURRENT_COLOR=""
-              NEW_COLOR="blue"
-              echo "🆕 No existing deployment -> Deploying: blue"
-            fi
+            # SIMPLIFIED: Just use blue for now to test the deployment
+            CURRENT_COLOR=""
+            NEW_COLOR="blue"
+            echo "🆕 SIMPLIFIED TEST: Deploying to blue"
             
             NEW_CONTAINER="$CONTAINER_NAME-$NEW_COLOR"
             OLD_CONTAINER="$CONTAINER_NAME-$CURRENT_COLOR"
