@@ -175,7 +175,7 @@ jobs:
             NEW_CONTAINER="$CONTAINER_NAME-$NEW_COLOR"
             OLD_CONTAINER="$CONTAINER_NAME-$CURRENT_COLOR"
             
-            echo "🎨 Current: ${CURRENT_COLOR:-none}, Deploying to: $NEW_COLOR"
+            echo "🎨 Current: \${CURRENT_COLOR:-none}, Deploying to: $NEW_COLOR"
             
             # Build new image with timestamp tag
             echo "🏗️ Building new Docker image..."
@@ -188,10 +188,10 @@ jobs:
             docker tag liberation-platform:$ENVIRONMENT-$TIMESTAMP \
               liberation-platform:$ENVIRONMENT-$NEW_COLOR
             
-            echo "🟢 Starting new ${NEW_COLOR} container..."
+            echo "🟢 Starting new $NEW_COLOR container..."
             # Stop and remove any existing new color container
-            docker stop ${NEW_CONTAINER} 2>/dev/null || true
-            docker rm ${NEW_CONTAINER} 2>/dev/null || true
+            docker stop $NEW_CONTAINER 2>/dev/null || true
+            docker rm $NEW_CONTAINER 2>/dev/null || true
             
             # Start new container on temporary port first  
             TEMP_PORT=$(($DEPLOY_PORT + 100))
