@@ -175,18 +175,18 @@ jobs:
             NEW_CONTAINER="$CONTAINER_NAME-$NEW_COLOR"
             OLD_CONTAINER="$CONTAINER_NAME-$CURRENT_COLOR"
             
-            echo "🎨 Current: ${CURRENT_COLOR:-none}, Deploying to: ${NEW_COLOR}"
+            echo "🎨 Current: ${CURRENT_COLOR:-none}, Deploying to: $NEW_COLOR"
             
             # Build new image with timestamp tag
             echo "🏗️ Building new Docker image..."
-            docker build -t liberation-platform:${ENVIRONMENT}-${{ env.TIMESTAMP }} \
+            docker build -t liberation-platform:$ENVIRONMENT-$TIMESTAMP \
               --build-arg DEPLOYMENT_TARGET=docker \
-              --build-arg ENVIRONMENT=${ENVIRONMENT} \
+              --build-arg ENVIRONMENT=$ENVIRONMENT \
               .
             
             # Tag as latest for the new color
-            docker tag liberation-platform:${ENVIRONMENT}-${{ env.TIMESTAMP }} \
-              liberation-platform:${ENVIRONMENT}-${NEW_COLOR}
+            docker tag liberation-platform:$ENVIRONMENT-$TIMESTAMP \
+              liberation-platform:$ENVIRONMENT-$NEW_COLOR
             
             echo "🟢 Starting new ${NEW_COLOR} container..."
             # Stop and remove any existing new color container
@@ -194,30 +194,30 @@ jobs:
             docker rm ${NEW_CONTAINER} 2>/dev/null || true
             
             # Start new container on temporary port first  
-            TEMP_PORT=$((${DEPLOY_PORT} + 100))
+            TEMP_PORT=$(($DEPLOY_PORT + 100))
             docker run -d \
-              --name ${NEW_CONTAINER} \
+              --name $NEW_CONTAINER \
               --restart unless-stopped \
-              -p ${TEMP_PORT}:3000 \
+              -p $TEMP_PORT:3000 \
               -e NODE_ENV=production \
-              -e ENVIRONMENT=${ENVIRONMENT} \
+              -e ENVIRONMENT=$ENVIRONMENT \
               --health-cmd="node healthcheck.js" \
               --health-interval=10s \
               --health-timeout=3s \
               --health-retries=3 \
-              liberation-platform:${ENVIRONMENT}-${NEW_COLOR}
+              liberation-platform:$ENVIRONMENT-$NEW_COLOR
             
             # Wait for new container to be healthy
-            echo "⏳ Waiting for ${NEW_COLOR} container to be healthy..."
+            echo "⏳ Waiting for $NEW_COLOR container to be healthy..."
             for i in {1..30}; do
-              if docker inspect ${NEW_CONTAINER} --format='{{.State.Health.Status}}' | grep -q "healthy"; then
-                echo "✅ ${NEW_COLOR} container is healthy!"
+              if docker inspect $NEW_CONTAINER --format='{{.State.Health.Status}}' | grep -q "healthy"; then
+                echo "✅ $NEW_COLOR container is healthy!"
                 break
               elif [ $i -eq 30 ]; then
-                echo "❌ ${NEW_COLOR} container failed health check"
-                docker logs ${NEW_CONTAINER} --tail 50
-                docker stop ${NEW_CONTAINER}
-                docker rm ${NEW_CONTAINER}
+                echo "❌ $NEW_COLOR container failed health check"
+                docker logs $NEW_CONTAINER --tail 50
+                docker stop $NEW_CONTAINER
+                docker rm $NEW_CONTAINER
                 exit 1
               else
                 echo "⏳ Health check $i/30: waiting..."
@@ -227,45 +227,45 @@ jobs:
             
             # Test the new container
             echo "🧪 Testing new container..."
-            if curl -f -s http://localhost:${TEMP_PORT}/api/health > /dev/null; then
+            if curl -f -s http://localhost:$TEMP_PORT/api/health > /dev/null; then
               echo "✅ New container responding correctly"
             else
               echo "❌ New container health check failed"
-              docker logs ${NEW_CONTAINER} --tail 50
-              docker stop ${NEW_CONTAINER}
-              docker rm ${NEW_CONTAINER} 
+              docker logs $NEW_CONTAINER --tail 50
+              docker stop $NEW_CONTAINER
+              docker rm $NEW_CONTAINER 
               exit 1
             fi
             
             # Switch traffic (blue-green swap)
-            echo "🔄 Switching traffic from ${CURRENT_COLOR} to ${NEW_COLOR}..."
+            echo "🔄 Switching traffic from $CURRENT_COLOR to $NEW_COLOR..."
             
             # Stop old container first to free up the port
-            if [ -n "${CURRENT_COLOR}" ]; then
-              echo "🔴 Stopping old ${CURRENT_COLOR} container..."
-              docker stop ${OLD_CONTAINER} 2>/dev/null || true
-              docker rm ${OLD_CONTAINER} 2>/dev/null || true
+            if [ -n "$CURRENT_COLOR" ]; then
+              echo "🔴 Stopping old $CURRENT_COLOR container..."
+              docker stop $OLD_CONTAINER 2>/dev/null || true
+              docker rm $OLD_CONTAINER 2>/dev/null || true
               echo "⏳ Waiting for port to be released..."
               sleep 3
             fi
             
             # Stop new container from temp port
-            docker stop ${NEW_CONTAINER}
-            docker rm ${NEW_CONTAINER}
+            docker stop $NEW_CONTAINER
+            docker rm $NEW_CONTAINER
             
             # Start new container on main port
-            echo "🟢 Starting ${NEW_COLOR} container on main port..."
+            echo "🟢 Starting $NEW_COLOR container on main port..."
             docker run -d \
-              --name ${NEW_CONTAINER} \
+              --name $NEW_CONTAINER \
               --restart unless-stopped \
-              -p ${DEPLOY_PORT}:3000 \
+              -p $DEPLOY_PORT:3000 \
               -e NODE_ENV=production \
-              -e ENVIRONMENT=${ENVIRONMENT} \
+              -e ENVIRONMENT=$ENVIRONMENT \
               --health-cmd="node healthcheck.js" \
               --health-interval=30s \
               --health-timeout=3s \
               --health-retries=3 \
-              liberation-platform:${ENVIRONMENT}-${NEW_COLOR}
+              liberation-platform:$ENVIRONMENT-$NEW_COLOR
             
             # Container is now running as the colored name
             # No need for additional symlink container
@@ -277,8 +277,8 @@ jobs:
             echo "🏁 Final health check on main port..."
             sleep 5
             for i in {1..10}; do
-              if curl -f -s http://localhost:${DEPLOY_PORT}/api/health; then
-                echo "✅ ${NEW_COLOR} container live on main port!"
+              if curl -f -s http://localhost:$DEPLOY_PORT/api/health; then
+                echo "✅ $NEW_COLOR container live on main port!"
                 break
               elif [ $i -eq 10 ]; then
                 echo "❌ Final health check failed"
@@ -290,16 +290,16 @@ jobs:
             done
             
             # Clean up old container
-            if [ -n "${CURRENT_COLOR}" ]; then
-              echo "🧹 Cleaning up old ${CURRENT_COLOR} container..."
-              docker rm ${OLD_CONTAINER} 2>/dev/null || true
+            if [ -n "$CURRENT_COLOR" ]; then
+              echo "🧹 Cleaning up old $CURRENT_COLOR container..."
+              docker rm $OLD_CONTAINER 2>/dev/null || true
             fi
             
             echo "🧹 Cleaning up old images..."
             # Keep current + 1 previous image only (more aggressive cleanup)
             docker images liberation-platform --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | \
               grep -v REPOSITORY | \
-              grep "${ENVIRONMENT}" | \
+              grep "$ENVIRONMENT" | \
               sort -k2 -r | \
               tail -n +3 | \
               awk '{print $1}' | \
@@ -321,9 +321,9 @@ jobs:
             echo "🐳 Docker images:"
             docker images --format "table {{.Repository}}:{{.Tag}}\t{{.Size}}" | head -10
             
-            echo "✅ BLUE-GREEN deployment to ${ENVIRONMENT} complete!"
-            echo "🎨 Active color: ${NEW_COLOR}"
-            echo "📦 Image: liberation-platform:${ENVIRONMENT}-${TIMESTAMP}"
+            echo "✅ BLUE-GREEN deployment to $ENVIRONMENT complete!"
+            echo "🎨 Active color: $NEW_COLOR"
+            echo "📦 Image: liberation-platform:$ENVIRONMENT-$TIMESTAMP"
           EOF
 
       - name: Deploy Liberation Platform (Immediate/Rolling)
@@ -336,7 +336,7 @@ jobs:
           ssh $USER@$HOST << 'EOF'
             set -e
             
-            echo "⚡ Starting IMMEDIATE deployment to ${ENVIRONMENT}..."
+            echo "⚡ Starting IMMEDIATE deployment to ${{ env.ENVIRONMENT }}..."
             
             # ... (same code as original workflow)
             # This is the fallback for immediate deployments
@@ -349,7 +349,7 @@ jobs:
           sleep 10
           
           for i in {1..5}; do
-            if curl -f -s http://${{ secrets.HETZNER_HOST }}:${DEPLOY_PORT}/api/health; then
+            if curl -f -s http://${{ secrets.HETZNER_HOST }}:${{ env.DEPLOY_PORT }}/api/health; then
               echo "✅ Deployment verified - site is live!"
               break
             else
@@ -373,7 +373,7 @@ jobs:
             echo "⏰ Deploy time: ${{ env.TIMESTAMP }}"
             echo "🏃‍♂️ Triggered by: ${{ github.actor }}"
           else
-            echo "💥 FAILED: Deployment to ${ENVIRONMENT} failed"
+            echo "💥 FAILED: Deployment to ${{ env.ENVIRONMENT }} failed"
             echo "🔄 No changes made to live site"
             exit 1
           fi
