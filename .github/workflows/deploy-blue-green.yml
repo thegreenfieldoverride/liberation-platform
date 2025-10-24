@@ -296,14 +296,30 @@ jobs:
             fi
             
             echo "🧹 Cleaning up old images..."
-            # Keep current + 2 previous images, remove older ones
+            # Keep current + 1 previous image only (more aggressive cleanup)
             docker images liberation-platform --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | \
               grep -v REPOSITORY | \
               grep "${ENVIRONMENT}" | \
               sort -k2 -r | \
-              tail -n +4 | \
+              tail -n +3 | \
               awk '{print $1}' | \
               xargs -r docker rmi || true
+            
+            echo "🧹 Cleaning up unused Docker resources..."
+            # Remove unused volumes and networks
+            docker volume prune -f || true
+            docker network prune -f || true
+            
+            # Remove dangling images
+            docker image prune -f || true
+            
+            echo "📊 Resource usage after cleanup:"
+            echo "💾 Disk usage:"
+            df -h / | tail -1
+            echo "🧠 Memory usage:"
+            free -h | grep Mem
+            echo "🐳 Docker images:"
+            docker images --format "table {{.Repository}}:{{.Tag}}\t{{.Size}}" | head -10
             
             echo "✅ BLUE-GREEN deployment to ${ENVIRONMENT} complete!"
             echo "🎨 Active color: ${NEW_COLOR}"
