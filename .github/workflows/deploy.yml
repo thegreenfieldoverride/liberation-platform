@@ -1,12 +1,12 @@
-name: 🚀 Liberation Platform Deploy
+name: 🚀 Liberation Platform Deploy (DISABLED)
 
 on:
-  # Auto deploy main to staging
-  push:
-    branches: [main]
+  # DISABLED - using blue-green deployment instead
+  # push:
+  #   branches: [main]
     
-  # Manual deployment to any environment
-  workflow_dispatch:
+  # DISABLED - using blue-green deployment workflow instead
+  # workflow_dispatch:
     inputs:
       environment:
         description: 'Environment to deploy to'
