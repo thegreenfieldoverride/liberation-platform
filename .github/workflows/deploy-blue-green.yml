@@ -126,17 +126,17 @@ jobs:
           HOST: ${{ secrets.HETZNER_HOST }}
           USER: ${{ secrets.HETZNER_USER }}
           GIT_REF: ${{ github.event.inputs.git_ref || github.sha }}
-          DEPLOY_PORT: ${DEPLOY_PORT}
+          DEPLOY_PORT: ${{ env.DEPLOY_PORT }}
           CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
-          ENVIRONMENT: ${ENVIRONMENT}
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
           TIMESTAMP: ${{ env.TIMESTAMP }}
         run: |
-          ssh $USER@$HOST << 'EOF'
+          ssh $USER@$HOST << EOF
             set -e
             
-            echo "🔄 Starting BLUE-GREEN deployment to ${ENVIRONMENT}..."
-            echo "📦 Deploying ref: ${GIT_REF}"
-            echo "⏰ Timestamp: ${TIMESTAMP}"
+            echo "🔄 Starting BLUE-GREEN deployment to $ENVIRONMENT..."
+            echo "📦 Deploying ref: $GIT_REF"
+            echo "⏰ Timestamp: $TIMESTAMP"
             
             # Create deployment directory
             sudo mkdir -p /opt/liberation-platform
@@ -147,18 +147,18 @@ jobs:
             if [ -d ".git" ]; then
               echo "📥 Fetching latest code..."
               git fetch origin
-              git checkout ${GIT_REF}
-              git pull origin ${GIT_REF} || true
+              git checkout $GIT_REF
+              git pull origin $GIT_REF || true
             else
               echo "📥 Cloning repository..."
               rm -rf * .* 2>/dev/null || true
               git clone https://github.com/thegreenfieldoverride/liberation-platform.git .
-              git checkout ${GIT_REF}
+              git checkout $GIT_REF
             fi
             
             # Determine current and new colors
-            CURRENT_CONTAINER="${CONTAINER_NAME}"
-            if docker ps --format "{{.Names}}" | grep -q "${CURRENT_CONTAINER}-blue"; then
+            CURRENT_CONTAINER="$CONTAINER_NAME"
+            if docker ps --format "{{.Names}}" | grep -q "$CURRENT_CONTAINER-blue"; then
               CURRENT_COLOR="blue"
               NEW_COLOR="green"
             else
@@ -167,13 +167,13 @@ jobs:
             fi
             
             # If no existing containers, start with blue
-            if ! docker ps --format "{{.Names}}" | grep -q "${{ env.CONTAINER_NAME }}"; then
+            if ! docker ps --format "{{.Names}}" | grep -q "$CONTAINER_NAME"; then
               CURRENT_COLOR=""
               NEW_COLOR="blue"
             fi
             
-            NEW_CONTAINER="${{ env.CONTAINER_NAME }}-${NEW_COLOR}"
-            OLD_CONTAINER="${{ env.CONTAINER_NAME }}-${CURRENT_COLOR}"
+            NEW_CONTAINER="$CONTAINER_NAME-$NEW_COLOR"
+            OLD_CONTAINER="$CONTAINER_NAME-$CURRENT_COLOR"
             
             echo "🎨 Current: ${CURRENT_COLOR:-none}, Deploying to: ${NEW_COLOR}"
             
