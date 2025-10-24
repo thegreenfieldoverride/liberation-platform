@@ -1,22 +1,40 @@
-name: Deploy Liberation Platform
+name: 🚀 Liberation Platform Deploy
 
 on:
+  # Auto deploy main to staging
   push:
-    branches: [main, production]
-  pull_request:
     branches: [main]
+    
+  # Manual deployment to any environment
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options: 
+          - staging
+          - production
+        default: staging
+      git_ref:
+        description: 'Git ref to deploy (branch, tag, or commit SHA)'
+        required: true
+        default: main
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: greenfieldoverride/liberation-platform
 
 jobs:
-  # Test and build
+  # Test and validate
   test:
+    name: 🧪 Test & Validate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.git_ref || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -44,98 +62,140 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run linting
-        run: pnpm run lint || echo "Linting skipped - no lint script found"
+        run: pnpm run lint || echo "⚠️ Linting skipped - no lint script found"
 
-      - name: Run type checking
+      - name: Run type checking & build
         run: pnpm run build
 
       - name: Run tests
-        run: pnpm run test || echo "Tests skipped - no test script found"
+        run: pnpm run test || echo "⚠️ Tests skipped - no test script found"
 
-  # No separate build job needed - we'll build on the server
-
-  # Deploy to Hetzner VPS
+  # Deploy to specified environment
   deploy:
+    name: 🚀 Deploy to ${{ github.event.inputs.environment || 'staging' }}
     needs: [test]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production'
     environment: 
-      name: ${{ github.ref == 'refs/heads/production' && 'production' || 'staging' }}
-      url: ${{ github.ref == 'refs/heads/production' && 'https://greenfieldoverride.com' || 'https://staging.greenfieldoverride.com' }}
+      name: ${{ github.event.inputs.environment || 'staging' }}
+      url: ${{ github.event.inputs.environment == 'production' && 'https://greenfieldoverride.com' || 'https://staging.greenfieldoverride.com' }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.git_ref || github.sha }}
+
+      - name: Set deployment variables
+        run: |
+          if [ "${{ github.event.inputs.environment || 'staging' }}" = "production" ]; then
+            echo "DEPLOY_PORT=3000" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=liberation-platform-production" >> $GITHUB_ENV
+            echo "ENVIRONMENT=production" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_PORT=3001" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=liberation-platform-staging" >> $GITHUB_ENV
+            echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+          fi
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.8.0
         with:
-          ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+          ssh-private-key: ${{ secrets.PRODUCTION_SSH_KEY }}
 
       - name: Add server to known hosts
         run: |
-          ssh-keyscan -H ${{ secrets.HETZNER_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to server
+      - name: Deploy Liberation Platform
         env:
-          HOST: ${{ secrets.HETZNER_HOST }}
-          USER: ${{ secrets.HETZNER_USER }}
-          ENVIRONMENT: ${{ github.ref == 'refs/heads/production' && 'production' || 'staging' }}
+          HOST: ${{ secrets.PRODUCTION_HOST }}
+          USER: ${{ secrets.PRODUCTION_USER }}
+          GIT_REF: ${{ github.event.inputs.git_ref || github.sha }}
         run: |
-          ssh $USER@$HOST << 'EOF'
+          ssh $USER@$HOST << EOF
             set -e
+            
+            echo "🚀 Starting deployment to ${{ env.ENVIRONMENT }}..."
+            echo "📦 Deploying ref: ${{ env.GIT_REF }}"
             
             # Create deployment directory
             sudo mkdir -p /opt/liberation-platform
             sudo chown deploy-bot:deploy-bot /opt/liberation-platform
             cd /opt/liberation-platform
             
-            # Pull latest code
+            # Update code to specific ref
             if [ -d ".git" ]; then
-              git pull origin main
+              echo "📥 Fetching latest code..."
+              git fetch origin
+              git checkout ${{ env.GIT_REF }}
+              git pull origin ${{ env.GIT_REF }} || true
             else
-              # Clean directory if it exists but isn't a git repo
+              echo "📥 Cloning repository..."
               rm -rf * .* 2>/dev/null || true
               git clone https://github.com/thegreenfieldoverride/liberation-platform.git .
+              git checkout ${{ env.GIT_REF }}
             fi
             
-            # Build Docker image on server
-            docker build -t liberation-platform:latest --build-arg DEPLOYMENT_TARGET=docker .
+            echo "🏗️ Building Docker image..."
+            docker build -t liberation-platform:${{ env.ENVIRONMENT }}-latest \
+              --build-arg DEPLOYMENT_TARGET=docker \
+              --build-arg ENVIRONMENT=${{ env.ENVIRONMENT }} \
+              .
             
-            # Stop existing container
-            docker stop liberation-platform-${{ env.ENVIRONMENT }} || true
-            docker rm liberation-platform-${{ env.ENVIRONMENT }} || true
+            echo "🔄 Updating container..."
+            # Stop and remove existing container
+            docker stop ${{ env.CONTAINER_NAME }} 2>/dev/null || true
+            docker rm ${{ env.CONTAINER_NAME }} 2>/dev/null || true
             
             # Start new container
             docker run -d \
-              --name liberation-platform-${{ env.ENVIRONMENT }} \
+              --name ${{ env.CONTAINER_NAME }} \
               --restart unless-stopped \
-              -p ${{ env.ENVIRONMENT == 'production' && '3000:3000' || '3001:3000' }} \
+              -p ${{ env.DEPLOY_PORT }}:3000 \
               -e NODE_ENV=production \
               -e ENVIRONMENT=${{ env.ENVIRONMENT }} \
               --health-cmd="node healthcheck.js" \
               --health-interval=30s \
               --health-timeout=3s \
               --health-retries=3 \
-              liberation-platform:latest
+              liberation-platform:${{ env.ENVIRONMENT }}-latest
             
-            # Clean up old images (keep last 2)
-            docker image prune -f
+            echo "🧹 Cleaning up old images..."
+            # Keep current and previous image, remove older ones
+            docker images liberation-platform --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | grep -v REPOSITORY | sort -k2 -r | tail -n +3 | awk '{print $1}' | xargs -r docker rmi || true
+            
+            echo "✅ Deployment to ${{ env.ENVIRONMENT }} complete!"
           EOF
 
-      - name: Verify deployment
-        env:
-          HOST: ${{ secrets.HETZNER_HOST }}
-          PORT: ${{ github.ref == 'refs/heads/production' && '3000' || '3001' }}
+      - name: Verify deployment health
         run: |
+          echo "🔍 Waiting for container to be healthy..."
           sleep 30
-          curl -f http://${{ env.HOST }}:${{ env.PORT }}/api/health || exit 1
+          
+          for i in {1..10}; do
+            if curl -f -s http://${{ secrets.PRODUCTION_HOST }}:${{ env.DEPLOY_PORT }}/api/health; then
+              echo "✅ Health check passed!"
+              break
+            else
+              echo "⏳ Attempt $i/10: Health check failed, retrying in 10s..."
+              if [ $i -eq 10 ]; then
+                echo "❌ Health check failed after 10 attempts"
+                exit 1
+              fi
+              sleep 10
+            fi
+          done
 
-      - name: Notify deployment status
+      - name: Deployment Summary
         if: always()
         run: |
           if [ "${{ job.status }}" == "success" ]; then
-            echo "✅ Deployment successful to ${{ github.ref == 'refs/heads/production' && 'production' || 'staging' }}"
+            echo "🎉 SUCCESS: Liberation Platform deployed to ${{ env.ENVIRONMENT }}!"
+            echo "🌍 URL: ${{ github.event.inputs.environment == 'production' && 'https://greenfieldoverride.com' || 'https://staging.greenfieldoverride.com' }}"
+            echo "📦 Git ref: ${{ github.event.inputs.git_ref || github.sha }}"
+            echo "🏃‍♂️ Triggered by: ${{ github.actor }}"
           else
-            echo "❌ Deployment failed"
+            echo "💥 FAILED: Deployment to ${{ env.ENVIRONMENT }} failed"
+            echo "🔍 Check logs above for details"
             exit 1
           fi
