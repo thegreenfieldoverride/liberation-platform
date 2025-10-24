@@ -346,7 +346,7 @@ jobs:
             echo "✅ BLUE-GREEN deployment to $ENVIRONMENT complete!"
             echo "🎨 Active color: $NEW_COLOR"
             echo "📦 Image: liberation-platform:$ENVIRONMENT-$TIMESTAMP"
-EOF
+          EOF
 
       - name: Deploy Liberation Platform (Immediate/Rolling)
         if: env.STRATEGY != 'blue-green'
