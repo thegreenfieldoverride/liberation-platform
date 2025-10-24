@@ -163,34 +163,11 @@ jobs:
               git checkout \$GIT_REF
             fi
             
-            # Determine current and new colors
-            echo "🐛 DEBUG - Starting color detection..."
-            CURRENT_CONTAINER="$CONTAINER_NAME"
-            echo "🐛 DEBUG - CURRENT_CONTAINER set to: '$CURRENT_CONTAINER'"
-            
-            echo "🐛 DEBUG - Checking for existing containers..."
-            docker ps --format "{{.Names}}" || echo "🐛 DEBUG - docker ps failed"
-            
-            if docker ps --format "{{.Names}}" | grep -q "$CURRENT_CONTAINER-blue"; then
-              echo "🐛 DEBUG - Found blue container, setting NEW_COLOR=green"
-              CURRENT_COLOR="blue"
-              NEW_COLOR="green"
-            else
-              echo "🐛 DEBUG - No blue container found, setting NEW_COLOR=blue"
-              CURRENT_COLOR="green" 
-              NEW_COLOR="blue"
-            fi
-            
-            echo "🐛 DEBUG - After first check: CURRENT_COLOR='$CURRENT_COLOR', NEW_COLOR='$NEW_COLOR'"
-            
-            # If no existing containers, start with blue
-            if ! docker ps --format "{{.Names}}" | grep -q "$CONTAINER_NAME"; then
-              echo "🐛 DEBUG - No containers found at all, defaulting to blue"
-              CURRENT_COLOR=""
-              NEW_COLOR="blue"
-            fi
-            
-            echo "🐛 DEBUG - Final colors: CURRENT_COLOR='$CURRENT_COLOR', NEW_COLOR='$NEW_COLOR'"
+            # TEMPORARY: Skip complex detection, just set values directly
+            echo "🐛 TEMP - Using hardcoded values to test deployment"
+            CURRENT_COLOR=""
+            NEW_COLOR="blue"
+            echo "🐛 TEMP - Set NEW_COLOR=$NEW_COLOR"
             
             NEW_CONTAINER="$CONTAINER_NAME-$NEW_COLOR"
             OLD_CONTAINER="$CONTAINER_NAME-$CURRENT_COLOR"
