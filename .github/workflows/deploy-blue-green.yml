@@ -141,6 +141,21 @@ jobs:
             TIMESTAMP="$TIMESTAMP"
             GIT_REF="$GIT_REF"
             
+            echo "🔄 TESTING VARIABLE PASSING..."
+            echo "📦 DEPLOY_PORT: '$DEPLOY_PORT'"
+            echo "📦 CONTAINER_NAME: '$CONTAINER_NAME'"
+            echo "📦 ENVIRONMENT: '$ENVIRONMENT'"
+            echo "📦 TIMESTAMP: '$TIMESTAMP'"
+            echo "📦 GIT_REF: '$GIT_REF'"
+            
+            # Test if all variables are set
+            if [ -z "$DEPLOY_PORT" ] || [ -z "$CONTAINER_NAME" ] || [ -z "$ENVIRONMENT" ] || [ -z "$TIMESTAMP" ] || [ -z "$GIT_REF" ]; then
+              echo "❌ ERROR: One or more variables are empty!"
+              echo "This confirms the SSH variable passing issue exists"
+              exit 1
+            fi
+            
+            echo "✅ All variables passed successfully!"
             echo "🔄 Starting BLUE-GREEN deployment to $ENVIRONMENT..."
             echo "📦 Deploying ref: $GIT_REF"
             echo "⏰ Timestamp: $TIMESTAMP"
