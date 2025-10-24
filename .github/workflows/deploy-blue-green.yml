@@ -210,17 +210,12 @@ jobs:
             echo "  ENVIRONMENT: '$ENVIRONMENT'"
             echo "  TIMESTAMP: '$TIMESTAMP'"
             
-            # Stop and remove any existing new color container
-            docker stop $NEW_CONTAINER 2>/dev/null || true
-            docker rm $NEW_CONTAINER 2>/dev/null || true
-            
-            # Start new container on temporary port first  
-            TEMP_PORT=$(($DEPLOY_PORT + 100))
-            echo "🐛 DEBUG - About to run: docker run -d --name '$NEW_CONTAINER' --restart unless-stopped ..."
+            # SIMPLIFIED: Just deploy directly to main port (no temp port complexity)
+            echo "🚀 Starting $NEW_COLOR container directly on main port..."
             docker run -d \
               --name $NEW_CONTAINER \
               --restart unless-stopped \
-              -p $TEMP_PORT:3000 \
+              -p $DEPLOY_PORT:3000 \
               -e NODE_ENV=production \
               -e ENVIRONMENT=$ENVIRONMENT \
               --health-cmd="node healthcheck.js" \
@@ -229,65 +224,24 @@ jobs:
               --health-retries=3 \
               liberation-platform:$ENVIRONMENT-$NEW_COLOR
             
-            # Wait for new container to be healthy
-            echo "⏳ Waiting for $NEW_COLOR container to be healthy..."
-            for i in {1..30}; do
-              if docker inspect $NEW_CONTAINER --format='{{.State.Health.Status}}' | grep -q "healthy"; then
-                echo "✅ $NEW_COLOR container is healthy!"
+            echo "⏳ Waiting for container to be healthy..."
+            sleep 10
+            
+            # Test the container
+            echo "🧪 Testing container on main port..."
+            for i in {1..10}; do
+              if curl -f -s http://localhost:$DEPLOY_PORT/api/health; then
+                echo "✅ Container is healthy and responding!"
                 break
-              elif [ $i -eq 30 ]; then
-                echo "❌ $NEW_COLOR container failed health check"
+              elif [ $i -eq 10 ]; then
+                echo "❌ Final health check failed"
                 docker logs $NEW_CONTAINER --tail 50
-                docker stop $NEW_CONTAINER
-                docker rm $NEW_CONTAINER
                 exit 1
               else
-                echo "⏳ Health check $i/30: waiting..."
+                echo "⏳ Health check $i/10: waiting..."
                 sleep 5
               fi
             done
-            
-            # Test the new container
-            echo "🧪 Testing new container..."
-            if curl -f -s http://localhost:$TEMP_PORT/api/health > /dev/null; then
-              echo "✅ New container responding correctly"
-            else
-              echo "❌ New container health check failed"
-              docker logs $NEW_CONTAINER --tail 50
-              docker stop $NEW_CONTAINER
-              docker rm $NEW_CONTAINER 
-              exit 1
-            fi
-            
-            # Switch traffic (blue-green swap)
-            echo "🔄 Switching traffic from $CURRENT_COLOR to $NEW_COLOR..."
-            
-            # Stop old container first to free up the port
-            if [ -n "$CURRENT_COLOR" ]; then
-              echo "🔴 Stopping old $CURRENT_COLOR container..."
-              docker stop $OLD_CONTAINER 2>/dev/null || true
-              docker rm $OLD_CONTAINER 2>/dev/null || true
-              echo "⏳ Waiting for port to be released..."
-              sleep 3
-            fi
-            
-            # Stop new container from temp port
-            docker stop $NEW_CONTAINER
-            docker rm $NEW_CONTAINER
-            
-            # Start new container on main port
-            echo "🟢 Starting $NEW_COLOR container on main port..."
-            docker run -d \
-              --name $NEW_CONTAINER \
-              --restart unless-stopped \
-              -p $DEPLOY_PORT:3000 \
-              -e NODE_ENV=production \
-              -e ENVIRONMENT=$ENVIRONMENT \
-              --health-cmd="node healthcheck.js" \
-              --health-interval=30s \
-              --health-timeout=3s \
-              --health-retries=3 \
-              liberation-platform:$ENVIRONMENT-$NEW_COLOR
             
             # Container is now running as the colored name
             # No need for additional symlink container
