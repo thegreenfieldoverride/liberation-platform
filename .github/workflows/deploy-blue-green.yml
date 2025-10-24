@@ -131,8 +131,15 @@ jobs:
           ENVIRONMENT: ${{ env.ENVIRONMENT }}
           TIMESTAMP: ${{ env.TIMESTAMP }}
         run: |
-          ssh $USER@$HOST "DEPLOY_PORT='$DEPLOY_PORT' CONTAINER_NAME='$CONTAINER_NAME' ENVIRONMENT='$ENVIRONMENT' TIMESTAMP='$TIMESTAMP' GIT_REF='$GIT_REF' bash -s" << 'EOF'
+          ssh $USER@$HOST 'bash -s' << EOF
             set -e
+            
+            # Set variables from GitHub Actions
+            DEPLOY_PORT="$DEPLOY_PORT"
+            CONTAINER_NAME="$CONTAINER_NAME"
+            ENVIRONMENT="$ENVIRONMENT"
+            TIMESTAMP="$TIMESTAMP"
+            GIT_REF="$GIT_REF"
             
             echo "🔄 Starting BLUE-GREEN deployment to $ENVIRONMENT..."
             echo "📦 Deploying ref: $GIT_REF"
@@ -324,7 +331,7 @@ jobs:
             echo "✅ BLUE-GREEN deployment to $ENVIRONMENT complete!"
             echo "🎨 Active color: $NEW_COLOR"
             echo "📦 Image: liberation-platform:$ENVIRONMENT-$TIMESTAMP"
-          EOF
+EOF
 
       - name: Deploy Liberation Platform (Immediate/Rolling)
         if: env.STRATEGY != 'blue-green'
