@@ -168,11 +168,15 @@ jobs:
             CURRENT_COLOR=""
             NEW_COLOR="blue"
             echo "🆕 SIMPLIFIED TEST: Deploying to blue"
+            echo "🔍 DEBUG Step 1 - NEW_COLOR after assignment: '$NEW_COLOR'"
             
             NEW_CONTAINER="$CONTAINER_NAME-$NEW_COLOR"
             OLD_CONTAINER="$CONTAINER_NAME-$CURRENT_COLOR"
+            echo "🔍 DEBUG Step 2 - NEW_COLOR after container assignment: '$NEW_COLOR'"
+            echo "🔍 DEBUG Step 2 - NEW_CONTAINER value: '$NEW_CONTAINER'"
             
             echo "🎨 Current: ${CURRENT_COLOR:-none}, Deploying to: $NEW_COLOR"
+            echo "🔍 DEBUG Step 3 - NEW_COLOR after echo: '$NEW_COLOR'"
             
             # Build new image with timestamp tag
             echo "🏗️ Building new Docker image..."
