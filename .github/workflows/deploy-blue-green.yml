@@ -173,12 +173,13 @@ jobs:
             fi
             
             # SIMPLIFIED: Test using GitHub Actions variable pattern
-            echo "🆕 SIMPLIFIED TEST: Using GitHub Actions variables"
-            echo "🔍 DEBUG Step 1 - NEW_COLOR: '$NEW_COLOR'"
-            echo "🔍 DEBUG Step 1 - CURRENT_COLOR: '$CURRENT_COLOR'"
-            echo "🔍 DEBUG Step 1 - CONTAINER_NAME: '$CONTAINER_NAME'"
-            echo "🔍 DEBUG Step 1 - NEW_CONTAINER (pre-computed): '$NEW_CONTAINER'"
-            echo "🔍 DEBUG Step 1 - OLD_CONTAINER (pre-computed): '$OLD_CONTAINER'"
+            echo "🧹 Cleaning up any existing containers first..."
+            docker stop $(docker ps -q --filter "name=$CONTAINER_NAME") 2>/dev/null || true
+            docker rm $(docker ps -aq --filter "name=$CONTAINER_NAME") 2>/dev/null || true
+            
+            echo "🚀 BLUE-GREEN DEPLOYMENT: Using pre-computed container names"
+            echo "🔍 NEW_COLOR: '$NEW_COLOR'"
+            echo "🔍 NEW_CONTAINER: '$NEW_CONTAINER'"
             
             echo "🎨 Current: ${CURRENT_COLOR:-none}, Deploying to: $NEW_COLOR"
             echo "🔍 DEBUG Step 3 - NEW_COLOR after echo: '$NEW_COLOR'"
