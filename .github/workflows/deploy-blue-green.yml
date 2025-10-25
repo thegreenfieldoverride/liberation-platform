@@ -173,24 +173,29 @@ jobs:
             fi
             
             # SIMPLIFIED: Test using GitHub Actions variable pattern
-            echo "🧹 Clean shutdown of existing containers to avoid race conditions..."
+            echo "🧹 Comprehensive cleanup to avoid name/port conflicts..."
             
-            # Find any containers using our port and stop them gracefully
-            EXISTING_CONTAINER=$(docker ps --filter "publish=3001" --format "{{.Names}}" | head -1)
-            if [ -n "$EXISTING_CONTAINER" ]; then
-              echo "🔄 Gracefully stopping existing container: $EXISTING_CONTAINER"
-              docker stop "$EXISTING_CONTAINER" || true
-              docker rm "$EXISTING_CONTAINER" || true
-              echo "⏳ Waiting for port to be fully released..."
-              sleep 5
-            fi
+            # Force remove our specific container names (both running and stopped)
+            echo "🗑️ Removing containers by exact name..."
+            docker rm -f "$NEW_CONTAINER" 2>/dev/null || true
+            docker rm -f "$OLD_CONTAINER" 2>/dev/null || true
             
-            # Clean up any containers with our naming pattern
+            # Also clean up by our naming pattern
+            echo "🗑️ Removing containers by naming pattern..."
             docker stop $(docker ps -q --filter "name=$CONTAINER_NAME") 2>/dev/null || true
             docker rm $(docker ps -aq --filter "name=$CONTAINER_NAME") 2>/dev/null || true
             
-            echo "🔍 Verifying port 3001 is free..."
-            sleep 2
+            # Clean up any containers using port 3001
+            echo "🗑️ Removing containers using port 3001..."
+            EXISTING_CONTAINER=$(docker ps --filter "publish=3001" --format "{{.Names}}" | head -1)
+            if [ -n "$EXISTING_CONTAINER" ]; then
+              echo "🔄 Found container using port 3001: $EXISTING_CONTAINER"
+              docker rm -f "$EXISTING_CONTAINER" || true
+            fi
+            
+            echo "⏳ Waiting for Docker cleanup to complete..."
+            sleep 3
+            echo "🔍 Cleanup complete - ready for deployment"
             
             echo "🚀 BLUE-GREEN DEPLOYMENT: Using pre-computed container names"
             echo "🔍 NEW_COLOR: '$NEW_COLOR'"
