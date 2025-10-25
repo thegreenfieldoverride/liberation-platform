@@ -200,6 +200,10 @@ jobs:
             netstat -tulpn | grep :3001 || echo "No processes found on port 3001"
             lsof -i :3001 || echo "No lsof results for port 3001"
             
+            # Also check if Docker thinks any containers are using the port
+            echo "🔍 Checking Docker port allocations..."
+            docker ps --format "table {{.Names}}\t{{.Ports}}" | grep 3001 || echo "No Docker containers using port 3001"
+            
             echo "🔍 Cleanup complete - ready for deployment"
             
             echo "🚀 BLUE-GREEN DEPLOYMENT: Using pre-computed container names"
@@ -229,6 +233,21 @@ jobs:
             echo "  CONTAINER_NAME: '$CONTAINER_NAME'"
             echo "  ENVIRONMENT: '$ENVIRONMENT'"
             echo "  TIMESTAMP: '$TIMESTAMP'"
+            
+            # Final port check right before docker run
+            echo "🔍 Final port check before starting container..."
+            netstat -tulpn | grep :$DEPLOY_PORT && echo "❌ Port $DEPLOY_PORT is still in use!" && exit 1 || echo "✅ Port $DEPLOY_PORT is free"
+            
+            # Kill any processes that might be holding the port
+            echo "🗑️ Killing any processes using port $DEPLOY_PORT..."
+            sudo lsof -ti:$DEPLOY_PORT | xargs -r sudo kill -9 || echo "No processes to kill on port $DEPLOY_PORT"
+            
+            # Force clean any remaining Docker port bindings
+            echo "🗑️ Force cleaning Docker port bindings..."
+            docker ps --filter "publish=$DEPLOY_PORT" --format "{{.Names}}" | xargs -r docker rm -f || echo "No containers using port $DEPLOY_PORT"
+            
+            # Wait a moment for port to be fully released
+            sleep 2
             
             # SIMPLIFIED: Just deploy directly to main port (no temp port complexity)
             echo "🚀 Starting $NEW_COLOR container directly on main port..."
