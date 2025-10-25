@@ -195,6 +195,11 @@ jobs:
             
             echo "⏳ Waiting for Docker cleanup to complete..."
             sleep 3
+            
+            echo "🔍 Debugging what's using port 3001..."
+            netstat -tulpn | grep :3001 || echo "No processes found on port 3001"
+            lsof -i :3001 || echo "No lsof results for port 3001"
+            
             echo "🔍 Cleanup complete - ready for deployment"
             
             echo "🚀 BLUE-GREEN DEPLOYMENT: Using pre-computed container names"
