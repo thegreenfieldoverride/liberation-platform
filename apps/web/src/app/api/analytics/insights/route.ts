@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const ANALYTICS_SERVICE_URL = process.env.ANALYTICS_SERVICE_URL || 'http://localhost:8080';
+const ANALYTICS_SERVICE_URL = process.env.ANALYTICS_SERVICE_URL || 'http://localhost:8082';
+const ANALYTICS_API_TOKEN = process.env.ANALYTICS_API_TOKEN;
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if we have an API token configured
+    if (!ANALYTICS_API_TOKEN) {
+      console.error('Analytics API token not configured');
+      return NextResponse.json(
+        { error: 'Analytics configuration error' },
+        { status: 500 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'usage';
     
@@ -23,11 +33,20 @@ export async function GET(request: NextRequest) {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'X-API-Key': ANALYTICS_API_TOKEN,
       },
     });
 
     if (!response.ok) {
       console.error('Analytics service error:', response.status, response.statusText);
+      
+      if (response.status === 401) {
+        return NextResponse.json(
+          { error: 'Analytics authentication failed' },
+          { status: 401 }
+        );
+      }
+      
       return NextResponse.json(
         { error: 'Analytics service unavailable' },
         { status: 503 }

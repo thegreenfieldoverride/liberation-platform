@@ -13,16 +13,17 @@
     "@greenfieldoverride/cognitive-debt-assessment": "workspace:*",
     "@greenfieldoverride/real-hourly-wage": "workspace:*",
     "@greenfieldoverride/runway-calculator": "workspace:*",
-    "@greenfieldoverride/types": "workspace:*",
-    "@greenfieldoverride/values-vocation-matcher": "workspace:*",
-    "@greenfieldoverride/user-context": "workspace:*",
     "@greenfieldoverride/small-bets-portfolio": "workspace:*",
+    "@greenfieldoverride/types": "workspace:*",
+    "@greenfieldoverride/user-context": "workspace:*",
+    "@greenfieldoverride/values-vocation-matcher": "workspace:*",
     "lucide-react": "^0.545.0",
     "next": "14.2.18",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
@@ -30,6 +31,7 @@
     "eslint": "^8.0.0",
     "eslint-config-next": "^14.0.0",
     "ignore-loader": "^0.1.2",
+    "playwright": "^1.56.1",
     "postcss": "^8.0.0",
     "tailwindcss": "^3.0.0",
     "typescript": "^5.0.0"

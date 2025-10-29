@@ -1,8 +1,15 @@
 # Liberation Analytics Service
-FROM golang:1.24-alpine AS builder
+FROM ubuntu:22.04 AS builder
 
-# Install build dependencies
-RUN apk add --no-cache gcc musl-dev g++ libstdc++-dev
+# Install build dependencies and Go
+RUN apt-get update && \
+    apt-get install -y gcc g++ libc6-dev wget tar && \
+    wget https://go.dev/dl/go1.24.0.linux-arm64.tar.gz && \
+    tar -C /usr/local -xzf go1.24.0.linux-arm64.tar.gz && \
+    rm go1.24.0.linux-arm64.tar.gz && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ENV PATH="/usr/local/go/bin:${PATH}"
 
 WORKDIR /app
 COPY go.mod go.sum ./
@@ -11,12 +18,12 @@ RUN go mod download
 COPY *.go ./
 RUN CGO_ENABLED=1 GOOS=linux go build -o liberation-analytics
 
-# Production image
-FROM alpine:latest
+# Production image (same Ubuntu version)
+FROM ubuntu:22.04
 
 # Install runtime dependencies
-RUN apk add --no-cache ca-certificates tzdata
-RUN update-ca-certificates
+RUN apt-get update && apt-get install -y ca-certificates tzdata wget && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
 WORKDIR /app

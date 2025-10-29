@@ -46,7 +46,7 @@ export function AnalyticsEnabledRunwayCalculator(props: AnalyticsEnabledRunwayCa
   // Track tool usage when component mounts
   useEffect(() => {
     analytics.trackToolUsage('Runway Calculator');
-    analytics.trackPageView('/tools/runway-calculator');
+    analytics.trackPageview('/tools/runway-calculator');
   }, [analytics]);
 
   // Cleanup timeout on unmount
