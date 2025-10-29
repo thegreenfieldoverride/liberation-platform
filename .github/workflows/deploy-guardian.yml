@@ -60,7 +60,7 @@ jobs:
           # Secrets for Guardian (from your platform repo secrets)
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GUARDIAN_GITHUB_TOKEN }}
-          GITHUB_WEBHOOK_SECRET: ${{ secrets.GITHUB_WEBHOOK_SECRET }}
+          GUARDIAN_WEBHOOK_SECRET: ${{ secrets.GUARDIAN_WEBHOOK_SECRET }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           ssh $USER@$HOST 'bash -s' << 'EOF'
@@ -72,7 +72,7 @@ jobs:
             TIMESTAMP="$TIMESTAMP"
             GOOGLE_API_KEY="$GOOGLE_API_KEY"
             GITHUB_TOKEN="$GITHUB_TOKEN"
-            GITHUB_WEBHOOK_SECRET="$GITHUB_WEBHOOK_SECRET"
+            GUARDIAN_WEBHOOK_SECRET="$GUARDIAN_WEBHOOK_SECRET"
             ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"
             
             echo "🛡️ Deploying Liberation Guardian from source..."
@@ -127,7 +127,7 @@ jobs:
               -e GOOGLE_API_KEY="$GOOGLE_API_KEY" \
               -e ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" \
               -e GITHUB_TOKEN="$GITHUB_TOKEN" \
-              -e GITHUB_WEBHOOK_SECRET="$GITHUB_WEBHOOK_SECRET" \
+              -e GITHUB_WEBHOOK_SECRET="$GUARDIAN_WEBHOOK_SECRET" \
               -e LIBERATION_ANALYTICS_URL="http://host.docker.internal:8082" \
               -e LIBERATION_ANALYTICS_TOKEN="analytics_109b9bad825a594847af51abd7b0fa25469239ef24c33fc220d4dcd7038101f3" \
               -e ENVIRONMENT="$ENVIRONMENT" \

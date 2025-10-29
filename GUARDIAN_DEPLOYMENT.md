@@ -59,7 +59,7 @@ GOOGLE_API_KEY=your_gemini_api_key_here
 
 # Required for GitHub integration  
 GUARDIAN_GITHUB_TOKEN=ghp_your_github_token_here
-GITHUB_WEBHOOK_SECRET=dbf9ef9c94b29bc90b18e1232f886a7bb91b3d07d0ae474f71808fe4912a1e60
+GUARDIAN_WEBHOOK_SECRET=dbf9ef9c94b29bc90b18e1232f886a7bb91b3d07d0ae474f71808fe4912a1e60
 
 # Optional for enhanced AI capabilities
 ANTHROPIC_API_KEY=your_claude_api_key_here
@@ -99,7 +99,7 @@ ANTHROPIC_API_KEY=your_key (optional)
 
 # GitHub Integration
 GITHUB_TOKEN=your_token
-GITHUB_WEBHOOK_SECRET=your_secret
+GUARDIAN_WEBHOOK_SECRET=your_secret
 
 # Platform Integration
 LIBERATION_ANALYTICS_URL=http://host.docker.internal:8082
