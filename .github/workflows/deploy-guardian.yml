@@ -99,8 +99,12 @@ jobs:
             
             # Configure Redis host for Docker deployment
             echo \"⚙️ Configuring Redis connection for Docker...\"
-            sed -i 's/host: \"localhost\"/host: \"host.docker.internal\"/' liberation-guardian.yml
-            echo \"✅ Redis host updated to host.docker.internal\"
+            sed -i 's/host: \"localhost\"/host: \"redis\"/' liberation-guardian.yml
+            echo \"✅ Redis host updated to redis (container name)\"
+            
+            # Create Docker network for Guardian services
+            echo \"🌐 Setting up Docker network...\"
+            docker network create guardian-network 2>/dev/null || echo \"Network already exists\"
             
             # Ensure Redis is running and healthy
             echo \"🗄️ Ensuring Redis is available...\"
@@ -109,6 +113,7 @@ jobs:
               docker run -d \\
                 --name redis \\
                 --restart unless-stopped \\
+                --network guardian-network \\
                 -p 6379:6379 \\
                 redis:alpine
               
@@ -157,11 +162,12 @@ jobs:
               liberation-guardian:$ENVIRONMENT-latest
             
             # Start new Guardian container with secrets as environment variables
-            echo "🚀 Starting Guardian container..."
-            docker run -d \
-              --name liberation-guardian-$ENVIRONMENT \
-              --restart unless-stopped \
-              -p ${{ env.GUARDIAN_PORT }}:9000 \
+            echo \"🚀 Starting Guardian container...\"
+            docker run -d \\
+              --name liberation-guardian-\$ENVIRONMENT \\
+              --restart unless-stopped \\
+              --network guardian-network \\
+              -p ${{ env.GUARDIAN_PORT }}:9000 \\
               -e GOOGLE_API_KEY="$GOOGLE_API_KEY" \
               -e ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" \
               -e GITHUB_TOKEN="$GITHUB_TOKEN" \
@@ -176,7 +182,7 @@ jobs:
               -e REDIS_PORT="6379" \
               -e REDIS_PASSWORD="" \
               -e REDIS_DB="0" \
-              --add-host=host.docker.internal:host-gateway \
+
               liberation-guardian:$ENVIRONMENT-$TIMESTAMP
             
             # Wait for Guardian to be healthy
