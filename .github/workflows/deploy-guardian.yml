@@ -62,17 +62,17 @@ jobs:
           GUARDIAN_WEBHOOK_SECRET: ${{ secrets.GUARDIAN_WEBHOOK_SECRET }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          ssh $USER@$HOST 'bash -s' << 'EOF'
+          ssh $USER@$HOST "
             set -e
             
-            # Get environment variables from GitHub Actions
-            GUARDIAN_REF="$GUARDIAN_REF"
-            ENVIRONMENT="$ENVIRONMENT"
-            TIMESTAMP="$TIMESTAMP"
-            GOOGLE_API_KEY="$GOOGLE_API_KEY"
-            GITHUB_TOKEN="$GITHUB_TOKEN"
-            GUARDIAN_WEBHOOK_SECRET="$GUARDIAN_WEBHOOK_SECRET"
-            ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"
+            # Set variables directly
+            export GUARDIAN_REF='${{ env.GUARDIAN_REF }}'
+            export ENVIRONMENT='${{ env.ENVIRONMENT }}'
+            export TIMESTAMP='${{ env.TIMESTAMP }}'
+            export GOOGLE_API_KEY='${{ secrets.GOOGLE_API_KEY }}'
+            export GITHUB_TOKEN='${{ secrets.GUARDIAN_GITHUB_TOKEN }}'
+            export GUARDIAN_WEBHOOK_SECRET='${{ secrets.GUARDIAN_WEBHOOK_SECRET }}'
+            export ANTHROPIC_API_KEY='${{ secrets.ANTHROPIC_API_KEY }}'
             
             echo "🛡️ Deploying Liberation Guardian from source..."
             echo "📦 Guardian ref: $GUARDIAN_REF"
@@ -169,10 +169,8 @@ jobs:
               awk '{print $1}' | \
               xargs -r docker rmi || true
             
-            echo "✅ Guardian deployment complete!"
-            echo "🌐 Guardian URL: http://${{ secrets.HETZNER_HOST }}:${{ env.GUARDIAN_PORT }}"
-            echo "📦 Image: liberation-guardian:$ENVIRONMENT-$TIMESTAMP"
-          EOF
+            echo 'Deployment complete!'
+          "
 
       - name: Verify Guardian deployment
         run: |
