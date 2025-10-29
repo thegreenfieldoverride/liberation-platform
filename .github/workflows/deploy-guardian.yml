@@ -85,17 +85,22 @@ jobs:
             cd /opt/liberation-guardian
             
             # Update/clone Guardian repository
-            if [ -d ".git" ]; then
-              echo "📥 Updating Guardian code..."
+            if [ -d \".git\" ]; then
+              echo \"📥 Updating Guardian code...\"
               git fetch origin
-              git checkout $GUARDIAN_REF
-              git pull origin $GUARDIAN_REF || true
+              git checkout \$GUARDIAN_REF
+              git pull origin \$GUARDIAN_REF || true
             else
-              echo "📥 Cloning Guardian repository..."
+              echo \"📥 Cloning Guardian repository...\"
               rm -rf * .* 2>/dev/null || true
               git clone https://github.com/${{ env.GUARDIAN_REPO }}.git .
-              git checkout $GUARDIAN_REF
+              git checkout \$GUARDIAN_REF
             fi
+            
+            # Configure Redis host for Docker deployment
+            echo \"⚙️ Configuring Redis connection for Docker...\"
+            sed -i 's/host: \"localhost\"/host: \"host.docker.internal\"/' liberation-guardian.yml
+            echo \"✅ Redis host updated to host.docker.internal\"
             
             # Ensure Redis is running and healthy
             echo \"🗄️ Ensuring Redis is available...\"
