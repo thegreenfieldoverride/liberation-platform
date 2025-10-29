@@ -97,10 +97,24 @@ jobs:
               git checkout $GUARDIAN_REF
             fi
             
+            # Ensure Redis is running
+            echo \"🗄️ Ensuring Redis is available...\"
+            if ! docker ps | grep -q \"redis\"; then
+              echo \"🚀 Starting Redis container...\"
+              docker run -d \\
+                --name redis \\
+                --restart unless-stopped \\
+                -p 6379:6379 \\
+                redis:alpine
+              sleep 5
+            else
+              echo \"✅ Redis already running\"
+            fi
+            
             # Stop existing Guardian
-            echo "🔄 Stopping existing Guardian..."
-            docker stop liberation-guardian-$ENVIRONMENT 2>/dev/null || true
-            docker rm liberation-guardian-$ENVIRONMENT 2>/dev/null || true
+            echo \"🔄 Stopping existing Guardian...\"
+            docker stop liberation-guardian-\$ENVIRONMENT 2>/dev/null || true
+            docker rm liberation-guardian-\$ENVIRONMENT 2>/dev/null || true
             
             # Clean up any containers using Guardian port
             EXISTING_GUARDIAN=$(docker ps --filter "publish=${{ env.GUARDIAN_PORT }}" --format "{{.Names}}" | head -1)
