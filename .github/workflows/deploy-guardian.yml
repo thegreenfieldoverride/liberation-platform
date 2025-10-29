@@ -180,7 +180,7 @@ jobs:
               -e LOG_LEVEL="info" \
               -e PORT="9000" \
               -e TRUST_LEVEL="2" \
-              -e REDIS_HOST="host.docker.internal" \
+              -e REDIS_HOST="liberation-redis" \
               -e REDIS_PORT="6379" \
               -e REDIS_PASSWORD="" \
               -e REDIS_DB="0" \
