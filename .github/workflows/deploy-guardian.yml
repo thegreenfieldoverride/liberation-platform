@@ -182,8 +182,7 @@ jobs:
               -e REDIS_PORT="6379" \
               -e REDIS_PASSWORD="" \
               -e REDIS_DB="0" \
-
-              liberation-guardian:$ENVIRONMENT-$TIMESTAMP
+              liberation-guardian:\$ENVIRONMENT-\$TIMESTAMP
             
             # Wait for Guardian to be healthy
             echo "⏳ Waiting for Guardian to start..."
