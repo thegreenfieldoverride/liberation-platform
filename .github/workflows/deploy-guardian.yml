@@ -1,0 +1,216 @@
+name: 🛡️ Deploy Liberation Guardian
+
+on:
+  # Manual deployment trigger
+  workflow_dispatch:
+    inputs:
+      guardian_ref:
+        description: 'Guardian branch/tag/commit to deploy'
+        required: true
+        default: main
+        type: string
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options: 
+          - production
+          - staging
+        default: production
+
+env:
+  GUARDIAN_REPO: thegreenfieldoverride/guardian
+  GUARDIAN_PORT: 9000
+
+jobs:
+  deploy-guardian:
+    name: 🛡️ Deploy Guardian to ${{ github.event.inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.event.inputs.environment }}
+      url: http://${{ secrets.HETZNER_HOST }}:9000
+    
+    steps:
+      - name: Checkout platform repository
+        uses: actions/checkout@v4
+
+      - name: Set deployment variables
+        run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+          echo "GUARDIAN_REF=${{ github.event.inputs.guardian_ref }}" >> $GITHUB_ENV
+          echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.HETZNER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy Liberation Guardian
+        env:
+          HOST: ${{ secrets.HETZNER_HOST }}
+          USER: ${{ secrets.HETZNER_USER }}
+          GUARDIAN_REF: ${{ env.GUARDIAN_REF }}
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+          TIMESTAMP: ${{ env.TIMESTAMP }}
+          # Secrets for Guardian (from your platform repo secrets)
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GUARDIAN_GITHUB_TOKEN }}
+          GITHUB_WEBHOOK_SECRET: ${{ secrets.GITHUB_WEBHOOK_SECRET }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          ssh $USER@$HOST 'bash -s' << 'EOF'
+            set -e
+            
+            # Get environment variables from GitHub Actions
+            GUARDIAN_REF="$GUARDIAN_REF"
+            ENVIRONMENT="$ENVIRONMENT"
+            TIMESTAMP="$TIMESTAMP"
+            GOOGLE_API_KEY="$GOOGLE_API_KEY"
+            GITHUB_TOKEN="$GITHUB_TOKEN"
+            GITHUB_WEBHOOK_SECRET="$GITHUB_WEBHOOK_SECRET"
+            ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"
+            
+            echo "🛡️ Deploying Liberation Guardian from source..."
+            echo "📦 Guardian ref: $GUARDIAN_REF"
+            echo "🌍 Environment: $ENVIRONMENT"
+            echo "⏰ Timestamp: $TIMESTAMP"
+            
+            # Create Guardian deployment directory
+            sudo mkdir -p /opt/liberation-guardian
+            sudo chown deploy-bot:deploy-bot /opt/liberation-guardian
+            cd /opt/liberation-guardian
+            
+            # Update/clone Guardian repository
+            if [ -d ".git" ]; then
+              echo "📥 Updating Guardian code..."
+              git fetch origin
+              git checkout $GUARDIAN_REF
+              git pull origin $GUARDIAN_REF || true
+            else
+              echo "📥 Cloning Guardian repository..."
+              rm -rf * .* 2>/dev/null || true
+              git clone https://github.com/${{ env.GUARDIAN_REPO }}.git .
+              git checkout $GUARDIAN_REF
+            fi
+            
+            # Stop existing Guardian
+            echo "🔄 Stopping existing Guardian..."
+            docker stop liberation-guardian-$ENVIRONMENT 2>/dev/null || true
+            docker rm liberation-guardian-$ENVIRONMENT 2>/dev/null || true
+            
+            # Clean up any containers using Guardian port
+            EXISTING_GUARDIAN=$(docker ps --filter "publish=${{ env.GUARDIAN_PORT }}" --format "{{.Names}}" | head -1)
+            if [ -n "$EXISTING_GUARDIAN" ]; then
+              echo "🔄 Removing container using Guardian port: $EXISTING_GUARDIAN"
+              docker rm -f "$EXISTING_GUARDIAN" || true
+            fi
+            
+            # Build new Guardian image from Dockerfile
+            echo "🏗️ Building Guardian image from Dockerfile..."
+            docker build -t liberation-guardian:$ENVIRONMENT-$TIMESTAMP .
+            
+            # Tag as latest for environment
+            docker tag liberation-guardian:$ENVIRONMENT-$TIMESTAMP \
+              liberation-guardian:$ENVIRONMENT-latest
+            
+            # Start new Guardian container with secrets as environment variables
+            echo "🚀 Starting Guardian container..."
+            docker run -d \
+              --name liberation-guardian-$ENVIRONMENT \
+              --restart unless-stopped \
+              -p ${{ env.GUARDIAN_PORT }}:9000 \
+              -e GOOGLE_API_KEY="$GOOGLE_API_KEY" \
+              -e ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" \
+              -e GITHUB_TOKEN="$GITHUB_TOKEN" \
+              -e GITHUB_WEBHOOK_SECRET="$GITHUB_WEBHOOK_SECRET" \
+              -e LIBERATION_ANALYTICS_URL="http://host.docker.internal:8082" \
+              -e LIBERATION_ANALYTICS_TOKEN="analytics_109b9bad825a594847af51abd7b0fa25469239ef24c33fc220d4dcd7038101f3" \
+              -e ENVIRONMENT="$ENVIRONMENT" \
+              -e LOG_LEVEL="info" \
+              -e PORT="9000" \
+              -e TRUST_LEVEL="2" \
+              -e REDIS_HOST="localhost" \
+              -e REDIS_PORT="6379" \
+              -e REDIS_PASSWORD="" \
+              -e REDIS_DB="0" \
+              --add-host=host.docker.internal:host-gateway \
+              liberation-guardian:$ENVIRONMENT-$TIMESTAMP
+            
+            # Wait for Guardian to be healthy
+            echo "⏳ Waiting for Guardian to start..."
+            sleep 15
+            
+            # Health check
+            for i in {1..10}; do
+              if curl -f -s http://localhost:${{ env.GUARDIAN_PORT }}/health; then
+                echo "✅ Guardian is healthy!"
+                break
+              elif [ $i -eq 10 ]; then
+                echo "❌ Guardian health check failed"
+                docker logs liberation-guardian-$ENVIRONMENT --tail 20
+                exit 1
+              else
+                echo "⏳ Health check $i/10: waiting..."
+                sleep 5
+              fi
+            done
+            
+            # Clean up old Guardian images
+            echo "🧹 Cleaning up old Guardian images..."
+            docker images liberation-guardian --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | \
+              grep -v REPOSITORY | \
+              grep "$ENVIRONMENT" | \
+              sort -k2 -r | \
+              tail -n +3 | \
+              awk '{print $1}' | \
+              xargs -r docker rmi || true
+            
+            echo "✅ Guardian deployment complete!"
+            echo "🌐 Guardian URL: http://${{ secrets.HETZNER_HOST }}:${{ env.GUARDIAN_PORT }}"
+            echo "📦 Image: liberation-guardian:$ENVIRONMENT-$TIMESTAMP"
+          EOF
+
+      - name: Verify Guardian deployment
+        run: |
+          echo "🔍 Verifying Guardian deployment..."
+          sleep 10
+          
+          for i in {1..5}; do
+            if curl -f -s http://${{ secrets.HETZNER_HOST }}:${{ env.GUARDIAN_PORT }}/health; then
+              echo "✅ Guardian deployment verified!"
+              break
+            else
+              echo "⏳ Verification attempt $i/5..."
+              if [ $i -eq 5 ]; then
+                echo "❌ Guardian verification failed"
+                exit 1
+              fi
+              sleep 10
+            fi
+          done
+
+      - name: Guardian Deployment Summary
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "🎉 SUCCESS: Liberation Guardian deployed!"
+            echo "🛡️ Guardian URL: http://${{ secrets.HETZNER_HOST }}:${{ env.GUARDIAN_PORT }}"
+            echo "📦 Guardian ref: ${{ env.GUARDIAN_REF }}"
+            echo "🌍 Environment: ${{ env.ENVIRONMENT }}"
+            echo "⏰ Deploy time: ${{ env.TIMESTAMP }}"
+            echo "🏃‍♂️ Deployed by: ${{ github.actor }}"
+            echo ""
+            echo "Next steps:"
+            echo "1. Test Guardian: curl http://${{ secrets.HETZNER_HOST }}:${{ env.GUARDIAN_PORT }}/health"
+            echo "2. Configure GitHub webhooks to: http://${{ secrets.HETZNER_HOST }}:${{ env.GUARDIAN_PORT }}/webhook/github"
+            echo "3. Monitor Guardian logs: ssh and 'docker logs liberation-guardian-${{ env.ENVIRONMENT }}'"
+          else
+            echo "💥 FAILED: Guardian deployment failed"
+            echo "🔍 Check logs above for details"
+            exit 1
+          fi
