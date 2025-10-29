@@ -99,28 +99,28 @@ jobs:
             
             # Configure Redis host for Docker deployment
             echo \"⚙️ Configuring Redis connection for Docker...\"
-            sed -i 's/host: \"localhost\"/host: \"redis\"/' liberation-guardian.yml
-            echo \"✅ Redis host updated to redis (container name)\"
+            sed -i 's/host: \"localhost\"/host: \"liberation-redis\"/' liberation-guardian.yml
+            echo \"✅ Redis host updated to liberation-redis (shared container name)\"
             
-            # Create Docker network for Guardian services
-            echo \"🌐 Setting up Docker network...\"
-            docker network create guardian-network 2>/dev/null || echo \"Network already exists\"
+            # Create shared Docker network for Liberation Platform services
+            echo \"🌐 Setting up shared Liberation Platform network...\"
+            docker network create liberation-platform-network 2>/dev/null || echo \"Network already exists\"
             
-            # Ensure Redis is running and healthy
-            echo \"🗄️ Ensuring Redis is available...\"
-            if ! docker ps | grep -q \"redis\"; then
-              echo \"🚀 Starting Redis container...\"
+            # Ensure Redis is running and healthy (shared across all services)
+            echo \"🗄️ Ensuring shared Redis is available...\"
+            if ! docker ps | grep -q \"liberation-redis\"; then
+              echo \"🚀 Starting shared Redis container...\"
               docker run -d \\
-                --name redis \\
+                --name liberation-redis \\
                 --restart unless-stopped \\
-                --network guardian-network \\
+                --network liberation-platform-network \\
                 -p 6379:6379 \\
                 redis:alpine
               
               # Wait for Redis to be ready
               echo \"⏳ Waiting for Redis to be ready...\"
               for i in 1 2 3 4 5 6 7 8 9 10; do
-                if docker exec redis redis-cli ping > /dev/null 2>&1; then
+                if docker exec liberation-redis redis-cli ping > /dev/null 2>&1; then
                   echo \"✅ Redis is ready!\"
                   break
                 elif [ \$i -eq 10 ]; then
@@ -134,9 +134,9 @@ jobs:
             else
               echo \"✅ Redis already running\"
               # Verify existing Redis is healthy
-              if ! docker exec redis redis-cli ping > /dev/null 2>&1; then
+              if ! docker exec liberation-redis redis-cli ping > /dev/null 2>&1; then
                 echo \"🔄 Redis exists but not responding, restarting...\"
-                docker restart redis
+                docker restart liberation-redis
                 sleep 5
               fi
             fi
@@ -166,7 +166,7 @@ jobs:
             docker run -d \\
               --name liberation-guardian-\$ENVIRONMENT \\
               --restart unless-stopped \\
-              --network guardian-network \\
+              --network liberation-platform-network \\
               -p ${{ env.GUARDIAN_PORT }}:9000 \\
               -e GOOGLE_API_KEY="$GOOGLE_API_KEY" \
               -e ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" \
