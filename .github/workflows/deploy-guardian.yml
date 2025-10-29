@@ -147,10 +147,12 @@ jobs:
             docker rm liberation-guardian-\$ENVIRONMENT 2>/dev/null || true
             
             # Clean up any containers using Guardian port
-            EXISTING_GUARDIAN=$(docker ps --filter "publish=${{ env.GUARDIAN_PORT }}" --format "{{.Names}}" | head -1)
-            if [ -n "$EXISTING_GUARDIAN" ]; then
-              echo "🔄 Removing container using Guardian port: $EXISTING_GUARDIAN"
-              docker rm -f "$EXISTING_GUARDIAN" || true
+            EXISTING_GUARDIAN=\$(docker ps --filter \"publish=${{ env.GUARDIAN_PORT }}\" --format \"{{.Names}}\" | head -1)
+            if [ -n \"\$EXISTING_GUARDIAN\" ]; then
+              echo \"🔄 Removing container using Guardian port: \$EXISTING_GUARDIAN\"
+              docker rm -f \"\$EXISTING_GUARDIAN\" || true
+            else
+              echo \"✅ No containers using Guardian port\"
             fi
             
             # Build new Guardian image from Dockerfile
