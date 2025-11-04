@@ -99,7 +99,19 @@ jobs:
             
             # Configure Redis host for Docker deployment
             echo \"⚙️ Configuring Redis connection for Docker...\"
+            
+            # Update all possible config files
             sed -i 's/host: \"localhost\"/host: \"liberation-redis\"/' liberation-guardian.yml
+            sed -i 's/host: \"localhost\"/host: \"liberation-redis\"/' liberation-guardian-liberation-platform.yml 2>/dev/null || true
+            
+            # Also replace any host.docker.internal references
+            sed -i 's/host: \"host.docker.internal\"/host: \"liberation-redis\"/' liberation-guardian.yml
+            sed -i 's/host: \"host.docker.internal\"/host: \"liberation-redis\"/' liberation-guardian-liberation-platform.yml 2>/dev/null || true
+            
+            # Verify the configuration
+            echo \"📋 Redis config verification:\"
+            grep -A3 \"redis:\" liberation-guardian.yml || echo \"No redis section found\"
+            
             echo \"✅ Redis host updated to liberation-redis (shared container name)\"
             
             # Create shared Docker network for Liberation Platform services
@@ -141,10 +153,13 @@ jobs:
               fi
             fi
             
-            # Stop existing Guardian
+            # Stop existing Guardian and clean up any cached containers
             echo \"🔄 Stopping existing Guardian...\"
             docker stop liberation-guardian-\$ENVIRONMENT 2>/dev/null || true
             docker rm liberation-guardian-\$ENVIRONMENT 2>/dev/null || true
+            
+            # Clean up any other Guardian containers that might be running
+            docker ps --filter \"name=liberation-guardian\" --format \"{{.Names}}\" | xargs -r docker rm -f || true
             
             # Clean up any containers using Guardian port
             EXISTING_GUARDIAN=\$(docker ps --filter \"publish=${{ env.GUARDIAN_PORT }}\" --format \"{{.Names}}\" | head -1)
