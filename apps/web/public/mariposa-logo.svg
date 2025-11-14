@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100" width="160" height="100">
+  <!-- Two overlapping heart shapes forming butterfly wings -->
+  <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    
+    <!-- Left wing - heart shape -->
+    <path d="M 80 50
+             C 65 35, 45 35, 35 50
+             C 25 65, 35 75, 50 75
+             C 65 75, 80 65, 80 50 Z" />
+    
+    <!-- Right wing - mirrored heart shape -->
+    <path d="M 80 50
+             C 95 35, 115 35, 125 50
+             C 135 65, 125 75, 110 75
+             C 95 75, 80 65, 80 50 Z" />
+    
+    <!-- Small antennae -->
+    <line x1="75" y1="35" x2="70" y2="25" stroke-width="2" />
+    <line x1="85" y1="35" x2="90" y2="25" stroke-width="2" />
+    
+    <!-- Small dots at antenna tips -->
+    <circle cx="70" cy="25" r="1" fill="currentColor"/>
+    <circle cx="90" cy="25" r="1" fill="currentColor"/>
+    
+  </g>
+</svg>
