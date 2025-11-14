@@ -26,7 +26,9 @@ export function Navigation() {
     '/developers'
   ];
   
-  const isLightBackground = mounted && lightBackgroundPages.some(page => pathname?.startsWith(page));
+  // Always check pathname, but be conservative about scrolled state
+  const isLightBackground = lightBackgroundPages.some(page => pathname?.startsWith(page));
+  const safeScrolled = mounted ? scrolled : false;
 
   useEffect(() => {
     setMounted(true);
@@ -43,6 +45,20 @@ export function Navigation() {
     }
   }, []);
 
+  return <NavigationContent isLightBackground={isLightBackground} scrolled={safeScrolled} isOpen={isOpen} setIsOpen={setIsOpen} />;
+}
+
+function NavigationContent({ 
+  isLightBackground, 
+  scrolled, 
+  isOpen, 
+  setIsOpen 
+}: {
+  isLightBackground: boolean;
+  scrolled: boolean;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}) {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
       isLightBackground
@@ -55,13 +71,13 @@ export function Navigation() {
         <div className="flex justify-between h-20">
           {/* Logo and brand */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-3 group">
+            <Link href="/" className="flex items-center space-x-2 group">
               <MariposaLogo 
                 size={32}
                 isDark={!(isLightBackground || scrolled)}
                 className="transition-all duration-300 group-hover:scale-110"
               />
-              <div className={`text-2xl font-light transition-all duration-300 ${
+              <div className={`text-2xl font-medium transition-all duration-300 ${
                 isLightBackground || scrolled ? 'text-gray-900' : 'text-white'
               } group-hover:scale-105`}>
                 <span className="font-sans">Greenfield Override</span>
