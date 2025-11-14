@@ -5,10 +5,30 @@
 
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SmallBetsPortfolio } from '@greenfieldoverride/small-bets-portfolio';
+import { useLiberationJourney } from '../../hooks/useLiberationJourney';
 
 export default function SmallBetsPortfolioPage() {
+  const { updateMilestone, recordEvent, updateToolInsights } = useLiberationJourney();
+
+  useEffect(() => {
+    // Inject liberation journey hook for package component to use
+    if (typeof window !== 'undefined') {
+      window.liberationJourney = {
+        updateMilestone,
+        recordEvent,
+        updateToolInsights
+      };
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete window.liberationJourney;
+      }
+    };
+  }, [updateMilestone, recordEvent, updateToolInsights]);
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

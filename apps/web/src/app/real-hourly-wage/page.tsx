@@ -5,14 +5,32 @@ import { RealHourlyWageCalculator } from '@greenfieldoverride/real-hourly-wage/r
 import Link from 'next/link';
 import { LibIcon } from '../../components/icons/LiberationIcons';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { useLiberationJourney } from '../../hooks/useLiberationJourney';
 
 export default function RealHourlyWagePage() {
   const { trackRealHourlyWage } = useAnalytics();
+  const { updateMilestone, recordEvent, updateToolInsights } = useLiberationJourney();
 
   useEffect(() => {
     // Track tool usage when page loads
     trackRealHourlyWage();
-  }, [trackRealHourlyWage]);
+    
+    // Inject liberation journey hook for package component to use
+    if (typeof window !== 'undefined') {
+      window.liberationJourney = {
+        updateMilestone,
+        recordEvent,
+        updateToolInsights
+      };
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete window.liberationJourney;
+      }
+    };
+  }, [trackRealHourlyWage, updateMilestone, recordEvent, updateToolInsights]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">

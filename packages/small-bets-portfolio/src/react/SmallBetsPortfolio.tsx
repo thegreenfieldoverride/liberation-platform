@@ -8,6 +8,23 @@ import { useUserContext } from '@greenfieldoverride/user-context';
 import { SmallBet, CoreValue } from '@greenfieldoverride/types';
 import { PortfolioEngine, BetAnalysis, PortfolioInsights } from '../core';
 
+// Helper for liberation journey tracking (injected from app)
+interface LiberationJourneyHook {
+  updateMilestone: (id: string, progress: number, metadata?: any) => void;
+  recordEvent: (event: { 
+    type: 'milestone_completed' | 'phase_advanced' | 'tool_used' | 'decision_made' | 'achievement_unlocked'; 
+    toolId: 'runway-calculator' | 'real-hourly-wage' | 'cognitive-debt-assessment' | 'values-vocation-matcher' | 'insight-engine' | 'ai-copilot' | 'small-bets-portfolio'; 
+    metadata: any 
+  }) => void;
+  updateToolInsights: (toolId: 'runway-calculator' | 'real-hourly-wage' | 'cognitive-debt-assessment' | 'values-vocation-matcher' | 'insight-engine' | 'ai-copilot' | 'small-bets-portfolio', insights: any) => void;
+}
+
+declare global {
+  interface Window {
+    liberationJourney?: LiberationJourneyHook;
+  }
+}
+
 interface SmallBetsPortfolioProps {
   className?: string;
   onBetAdded?: (bet: SmallBet) => void;
@@ -41,6 +58,54 @@ export const SmallBetsPortfolio: React.FC<SmallBetsPortfolioProps> = ({
       await addSmallBet(bet);
       onBetAdded?.(bet);
       setActiveTab('bets');
+
+      // Track liberation journey milestones
+      if (typeof window !== 'undefined' && window.liberationJourney) {
+        const totalBets = (context?.smallBets?.bets?.length || 0) + 1;
+        
+        // First bet milestone
+        if (totalBets === 1) {
+          window.liberationJourney.updateMilestone('action-initiated', 100, {
+            activeBets: totalBets,
+            firstBetName: bet.name,
+            estimatedMonthlyRevenue: bet.monthlyRevenue || 0
+          });
+
+          window.liberationJourney.recordEvent({
+            type: 'tool_used',
+            toolId: 'small-bets-portfolio',
+            metadata: { action: 'first_bet_added', betName: bet.name }
+          });
+        }
+
+        // Multiple bets milestone
+        if (totalBets >= 3) {
+          const totalMonthlyRevenue = (context?.smallBets?.bets || [])
+            .reduce((sum: number, b: SmallBet) => sum + (b.monthlyRevenue || 0), 0) + (bet.monthlyRevenue || 0);
+          
+          window.liberationJourney.updateMilestone('momentum-achieved', 
+            totalMonthlyRevenue >= 100 ? 100 : Math.min(75, totalBets * 20), 
+            {
+              activeBets: totalBets,
+              monthlyRevenue: totalMonthlyRevenue,
+              avgBetValue: totalMonthlyRevenue / totalBets
+            }
+          );
+        }
+
+        // Update tool insights
+        const activeBets = totalBets;
+        const totalRevenue = (context?.smallBets?.bets || [])
+          .reduce((sum: number, b: SmallBet) => sum + (b.monthlyRevenue || 0), 0) + (bet.monthlyRevenue || 0);
+        
+        window.liberationJourney.updateToolInsights('small-bets-portfolio', {
+          activeBetsCount: activeBets,
+          monthlyIncome: totalRevenue,
+          momentum: totalRevenue >= 500 ? 'accelerating' : 
+                   totalRevenue >= 100 ? 'steady' : 
+                   activeBets >= 2 ? 'slowing' : 'unknown'
+        });
+      }
     } catch (err) {
       console.error('Failed to add bet:', err);
     }

@@ -4,6 +4,7 @@ import { Navigation } from '../components/Navigation';
 import { Footer } from '../components/Footer';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { FathomAnalytics } from '../components/analytics/FathomAnalytics';
+import { LiberationJourneyWidget } from '../components/liberation-journey/LiberationJourneyWidget';
 
 export const metadata: Metadata = {
   title: 'The Greenfield Override - Tools for Liberation',
@@ -59,6 +60,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <LiberationJourneyWidget />
         </ErrorBoundary>
         <FathomAnalytics />
       </body>

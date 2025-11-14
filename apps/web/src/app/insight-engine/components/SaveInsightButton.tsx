@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useUserContext } from '@greenfieldoverride/user-context';
+import { useLiberationJourney } from '@/hooks/useLiberationJourney';
 
 interface SaveInsightButtonProps {
   blueprint: any;
@@ -12,6 +13,7 @@ export function SaveInsightButton({ blueprint, userChoice }: SaveInsightButtonPr
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const { context, updateAI } = useUserContext();
+  const { updateMilestone, recordEvent } = useLiberationJourney();
 
   const handleSave = async () => {
     setSaving(true);
@@ -66,6 +68,20 @@ export function SaveInsightButton({ blueprint, userChoice }: SaveInsightButtonPr
         insightDecision,
         generatedAt: new Date().toISOString()
       }));
+
+      // Update Liberation Journey milestones
+      updateMilestone('first-insight-generated', 100, { blueprint, userChoice });
+      
+      // Record the event for cross-tool tracking
+      recordEvent({
+        type: 'tool_used',
+        toolId: 'insight-engine',
+        metadata: { 
+          action: 'blueprint_saved',
+          confidence: blueprint.recommendation.confidence,
+          choice: blueprint.recommendation.choice
+        }
+      });
       
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);

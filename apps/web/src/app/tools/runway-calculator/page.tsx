@@ -4,9 +4,11 @@ import React, { useState, useEffect } from 'react';
 import type { ExpenseCategory, RunwayCalculation } from '@greenfieldoverride/types';
 import Link from 'next/link';
 import { LibIcon } from '../../../components/icons/LiberationIcons';
+import { useLiberationJourney } from '@/hooks/useLiberationJourney';
 
 // Inline calculator for better performance
 function RunwayCalculator() {
+  const { updateMilestone, recordEvent, updateToolInsights } = useLiberationJourney();
   const [expenses, setExpenses] = useState<ExpenseCategory[]>([
     { id: '1', name: 'Housing (rent/mortgage)', amount: 0, isEssential: true },
     { id: '2', name: 'Food & groceries', amount: 0, isEssential: true },
@@ -22,8 +24,9 @@ function RunwayCalculator() {
     runwayMonths: 0, 
     runwayDisplay: "0 months" 
   });
+  const [hasRecordedFirstUse, setHasRecordedFirstUse] = useState<boolean>(false);
 
-  // Real-time calculation
+  // Real-time calculation with milestone tracking
   useEffect(() => {
     const totalMonthlyExpenses = expenses
       .filter(expense => expense.isEssential)
@@ -55,7 +58,45 @@ function RunwayCalculator() {
       runwayMonths,
       runwayDisplay
     });
-  }, [expenses, savings]);
+
+    // Track milestones
+    const hasBasicData = totalMonthlyExpenses > 0 && savings > 0;
+    
+    // First tool use milestone
+    if (!hasRecordedFirstUse && (totalMonthlyExpenses > 0 || savings > 0)) {
+      setHasRecordedFirstUse(true);
+      updateMilestone('first-tool-use', 100, { tool: 'runway-calculator' });
+      recordEvent({
+        type: 'tool_used',
+        toolId: 'runway-calculator',
+        metadata: { action: 'first_data_entered' }
+      });
+    }
+
+    // Basic data entry milestone  
+    if (hasBasicData) {
+      updateMilestone('basic-data-entry', 100, { 
+        expenses: totalMonthlyExpenses,
+        savings: savings,
+        runwayMonths: runwayMonths
+      });
+    }
+
+    // Financial clarity milestone (3+ months runway)
+    if (runwayMonths >= 3) {
+      updateMilestone('financial-clarity', 100, {
+        runwayMonths: runwayMonths,
+        savings: savings,
+        monthlyExpenses: totalMonthlyExpenses
+      });
+    }
+
+    // Update tool insights
+    updateToolInsights('runway-calculator', {
+      runwayMonths: runwayMonths,
+      trend: runwayMonths >= 6 ? 'improving' : runwayMonths >= 3 ? 'stable' : 'declining'
+    });
+  }, [expenses, savings, hasRecordedFirstUse, updateMilestone, recordEvent, updateToolInsights]);
 
   const parseNumericValue = (value: string): number => {
     const cleaned = value.replace(/[^0-9.]/g, '');

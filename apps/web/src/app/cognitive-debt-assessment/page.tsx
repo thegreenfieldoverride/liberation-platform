@@ -3,8 +3,11 @@
 import React from 'react';
 import { CognitiveDebtAssessmentDark } from '../../components/CognitiveDebtAssessmentDark';
 import type { CognitiveDebtResult } from '@greenfieldoverride/types';
+import { useLiberationJourney } from '../../hooks/useLiberationJourney';
 
 export default function CognitiveDebtAssessmentPage() {
+  const { updateMilestone, recordEvent, updateToolInsights } = useLiberationJourney();
+
   const handleResult = (result: CognitiveDebtResult) => {
     // Store result locally for user's reference
     try {
@@ -15,6 +18,32 @@ export default function CognitiveDebtAssessmentPage() {
     } catch (error) {
       console.warn('Could not save result to localStorage:', error);
     }
+
+    // Track liberation journey milestone
+    updateMilestone('cognitive-debt-assessed', 100, {
+      debtPercentage: result.percentageScore,
+      riskLevel: result.riskLevel,
+      primaryConcerns: result.primaryConcerns,
+      score: result.totalScore
+    });
+
+    // Record assessment completion event
+    recordEvent({
+      type: 'tool_used',
+      toolId: 'cognitive-debt-assessment',
+      metadata: {
+        action: 'assessment_completed',
+        debtPercentage: result.percentageScore,
+        riskLevel: result.riskLevel,
+        score: result.totalScore
+      }
+    });
+
+    // Update tool insights
+    updateToolInsights('cognitive-debt-assessment', {
+      debtPercentage: result.percentageScore,
+      riskLevel: result.riskLevel
+    });
   };
 
   return (

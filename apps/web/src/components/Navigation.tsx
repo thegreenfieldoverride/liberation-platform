@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LibIcon } from './icons/LiberationIcons';
+import { MariposaLogo } from './icons/MariposaLogo';
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   
   // Pages that have light backgrounds and need dark navigation
@@ -24,9 +26,11 @@ export function Navigation() {
     '/developers'
   ];
   
-  const isLightBackground = lightBackgroundPages.some(page => pathname?.startsWith(page));
+  const isLightBackground = mounted && lightBackgroundPages.some(page => pathname?.startsWith(page));
 
   useEffect(() => {
+    setMounted(true);
+    
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
@@ -52,6 +56,11 @@ export function Navigation() {
           {/* Logo and brand */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 group">
+              <MariposaLogo 
+                size={32}
+                color={isLightBackground || scrolled ? '#3b82f6' : '#ffffff'}
+                className="transition-all duration-300 group-hover:scale-110"
+              />
               <div className={`text-2xl font-light transition-all duration-300 ${
                 isLightBackground || scrolled ? 'text-gray-900' : 'text-white'
               } group-hover:scale-105`}>

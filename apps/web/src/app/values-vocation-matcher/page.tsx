@@ -3,13 +3,43 @@
 import { useState } from 'react';
 import type { VocationMatchingResult } from '@greenfieldoverride/types';
 import { ValuesVocationMatcher } from '@greenfieldoverride/values-vocation-matcher/react';
+import { useLiberationJourney } from '../../hooks/useLiberationJourney';
 
 export default function ValuesVocationMatcherPage() {
   const [result, setResult] = useState<VocationMatchingResult | null>(null);
+  const { updateMilestone, recordEvent, updateToolInsights } = useLiberationJourney();
 
   const handleComplete = (matchingResult: VocationMatchingResult) => {
     setResult(matchingResult);
     console.log('Values-to-Vocation Assessment Complete:', matchingResult);
+
+    // Track liberation journey milestone
+    const topMatchesCount = matchingResult.topMatches?.length || 0;
+    
+    updateMilestone('values-identified', 100, {
+      topMatches: topMatchesCount,
+      alignmentScore: topMatchesCount * 20, // Simple score based on matches found
+      userProfile: matchingResult.userProfile
+    });
+
+    // Record assessment completion event
+    recordEvent({
+      type: 'tool_used',
+      toolId: 'values-vocation-matcher',
+      metadata: {
+        action: 'assessment_completed',
+        topMatches: topMatchesCount,
+        alignmentScore: topMatchesCount * 20,
+        completedAssessment: true
+      }
+    });
+
+    // Update tool insights
+    updateToolInsights('values-vocation-matcher', {
+      alignmentScore: topMatchesCount * 20,
+      topMatchesCount: topMatchesCount,
+      clarity: topMatchesCount >= 3 ? 'high' : topMatchesCount >= 1 ? 'medium' : 'low'
+    });
   };
 
   return (

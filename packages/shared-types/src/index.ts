@@ -321,5 +321,8 @@ export interface VocationMatchingResult {
 // Export user context types
 export * from './user-context';
 
+// Export liberation journey types
+export * from './liberation-journey';
+
 // Re-export key insight types for convenience
 export type { InsightDecision } from './user-context';

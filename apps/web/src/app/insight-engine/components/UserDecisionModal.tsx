@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { LibIcon } from '../../../components/icons/LiberationIcons';
+import { useLiberationJourney } from '@/hooks/useLiberationJourney';
 interface UserDecisionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -20,6 +21,7 @@ export function UserDecisionModal({ isOpen, onClose, blueprint, userChoice, onDe
   const [reasoning, setReasoning] = useState('');
   const [confidence, setConfidence] = useState(7);
   const [customPlan, setCustomPlan] = useState('');
+  const { updateMilestone, recordEvent } = useLiberationJourney();
 
   if (!isOpen) return null;
 
@@ -29,6 +31,35 @@ export function UserDecisionModal({ isOpen, onClose, blueprint, userChoice, onDe
       reasoning: chosenPath === 'custom' ? customPlan : reasoning,
       confidence,
       decidedAt: new Date()
+    };
+    
+    // Update Liberation Journey milestones for making first strategic decision
+    updateMilestone('first-decision-made', 100, { 
+      decision,
+      blueprint,
+      userChoice 
+    });
+
+    // Record the decision event
+    recordEvent({
+      type: 'decision_made',
+      toolId: 'insight-engine',
+      metadata: {
+        chosenPath,
+        confidence,
+        aiRecommendation: blueprint.recommendation.choice,
+        followedAI: chosenPath === blueprint.recommendation.choice,
+        reasoning: reasoning || customPlan
+      }
+    });
+
+    // Update tool insights with decision information
+    const insightEngine = {
+      recentDecision: {
+        choice: chosenPath,
+        confidence,
+        date: new Date()
+      }
     };
     
     onDecision(decision);

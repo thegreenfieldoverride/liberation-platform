@@ -15,6 +15,23 @@ import {
 } from '../core/calculator';
 import type { WorkHours, WorkCosts, RealWageCalculation } from '@greenfieldoverride/types';
 
+// Helper for liberation journey tracking (will be injected from app)
+interface LiberationJourneyHook {
+  updateMilestone: (id: string, progress: number, metadata?: any) => void;
+  recordEvent: (event: { 
+    type: 'milestone_completed' | 'phase_advanced' | 'tool_used' | 'decision_made' | 'achievement_unlocked'; 
+    toolId: 'runway-calculator' | 'real-hourly-wage' | 'cognitive-debt-assessment' | 'values-vocation-matcher' | 'insight-engine' | 'ai-copilot' | 'small-bets-portfolio'; 
+    metadata: any 
+  }) => void;
+  updateToolInsights: (toolId: 'runway-calculator' | 'real-hourly-wage' | 'cognitive-debt-assessment' | 'values-vocation-matcher' | 'insight-engine' | 'ai-copilot' | 'small-bets-portfolio', insights: any) => void;
+}
+
+declare global {
+  interface Window {
+    liberationJourney?: LiberationJourneyHook;
+  }
+}
+
 interface RealHourlyWageCalculatorProps {
   className?: string;
   onCalculationChange?: (calculation: RealWageCalculation) => void;
@@ -39,6 +56,7 @@ export function RealHourlyWageCalculator({
   });
   const [liberationAnalysis, setLiberationAnalysis] = useState<WageLiberation | null>(null);
   const [activeTab, setActiveTab] = useState<'reality' | 'scenarios' | 'balance' | 'liberation'>('reality');
+  const [hasRecordedCalculation, setHasRecordedCalculation] = useState<boolean>(false);
 
   // Real-time calculation
   useEffect(() => {
@@ -51,6 +69,41 @@ export function RealHourlyWageCalculator({
     if (annualSalary > 0 && showLiberationFeatures) {
       const liberation = calculateWageLiberation(inputs);
       setLiberationAnalysis(liberation);
+    }
+
+    // Track milestones for liberation journey
+    if (typeof window !== 'undefined' && window.liberationJourney) {
+      const hasCompletedCalculation = annualSalary > 0 && newCalculation.realHourlyWage > 0;
+      
+      if (hasCompletedCalculation && !hasRecordedCalculation) {
+        setHasRecordedCalculation(true);
+        
+        // Update milestone for real wage calculated
+        window.liberationJourney.updateMilestone('real-wage-calculated', 100, {
+          statedWage: newCalculation.statedHourlyWage,
+          realWage: newCalculation.realHourlyWage,
+          efficiency: newCalculation.realHourlyWage >= newCalculation.statedHourlyWage * 0.8 ? 'high' : 
+                     newCalculation.realHourlyWage >= newCalculation.statedHourlyWage * 0.6 ? 'medium' : 'low'
+        });
+
+        // Record tool usage event
+        window.liberationJourney.recordEvent({
+          type: 'tool_used',
+          toolId: 'real-hourly-wage',
+          metadata: { 
+            action: 'wage_calculated',
+            realWage: newCalculation.realHourlyWage,
+            statedWage: newCalculation.statedHourlyWage
+          }
+        });
+
+        // Update tool insights
+        window.liberationJourney.updateToolInsights('real-hourly-wage', {
+          realWage: newCalculation.realHourlyWage,
+          efficiency: newCalculation.realHourlyWage >= newCalculation.statedHourlyWage * 0.8 ? 'high' : 
+                     newCalculation.realHourlyWage >= newCalculation.statedHourlyWage * 0.6 ? 'medium' : 'low'
+        });
+      }
     }
 
     // Broadcast data for liberation dashboard integration
@@ -70,7 +123,7 @@ export function RealHourlyWageCalculator({
         detail: liberationData
       }));
     }
-  }, [annualSalary, workHours, workCosts, onCalculationChange, showLiberationFeatures, liberationAnalysis]);
+  }, [annualSalary, workHours, workCosts, onCalculationChange, showLiberationFeatures, liberationAnalysis, hasRecordedCalculation]);
 
   const parseNumericValue = (value: string): number => {
     // Remove commas, dollar signs, and other non-numeric characters except decimal points
