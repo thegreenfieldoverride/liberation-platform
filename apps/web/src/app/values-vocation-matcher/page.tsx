@@ -139,6 +139,124 @@ export default function ValuesVocationMatcherPage() {
               </div>
             </div>
 
+            {/* Career Matches */}
+            <div className="space-y-6 mb-8">
+              <h3 className="text-2xl font-bold text-gray-900 text-center mb-6">
+                Your Values-Aligned Career Matches
+              </h3>
+              
+              {result.topMatches.map((match, index) => (
+                <div key={match.vocation.id} className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-4 mb-2">
+                        <h4 className="text-xl font-bold text-gray-900">
+                          {match.vocation.title}
+                        </h4>
+                        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                          {match.alignmentScore}% Match
+                        </span>
+                      </div>
+                      <p className="text-gray-600 mb-4">
+                        {match.vocation.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Value Alignment */}
+                  <div className="grid md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                      <h5 className="font-semibold text-gray-900 mb-3">Values This Role Supports</h5>
+                      <div className="space-y-2">
+                        {match.valueMatches
+                          .filter(vm => vm.alignment >= 60)
+                          .slice(0, 5)
+                          .map(vm => (
+                            <div key={vm.value} className="flex items-center justify-between">
+                              <span className="text-gray-700 capitalize">
+                                {vm.value.replace('_', ' ')}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-16 h-2 bg-gray-200 rounded-full">
+                                  <div 
+                                    className="h-2 bg-green-500 rounded-full"
+                                    style={{ width: `${vm.alignment}%` }}
+                                  ></div>
+                                </div>
+                                <span className="text-sm text-gray-500 w-8">
+                                  {vm.alignment}%
+                                </span>
+                              </div>
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+
+                    <div>
+                      <h5 className="font-semibold text-gray-900 mb-3">Liberation Potential</h5>
+                      <div className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-gray-700">Autonomy</span>
+                          <span className="font-medium">
+                            {match.vocation.liberationPotential.autonomyLevel}/10
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-700">Flexibility</span>
+                          <span className="font-medium">
+                            {match.vocation.liberationPotential.flexibilityLevel}/10
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-700">Time to Freedom</span>
+                          <span className="font-medium">
+                            {match.vocation.liberationPotential.timeToFreedom}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Transition Strategy */}
+                  <div className="border-t pt-6">
+                    <h5 className="font-semibold text-gray-900 mb-3">Getting Started</h5>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          <strong>Difficulty:</strong> {match.transitionStrategy.difficulty} | 
+                          <strong> Timeframe:</strong> {match.transitionStrategy.timeframe}
+                        </p>
+                        <p className="text-sm text-gray-600 mb-3">
+                          <strong>Risk Level:</strong> {match.transitionStrategy.riskLevel}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          <strong>Income Range:</strong> {match.vocation.realityCheck.averageIncome}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <strong>Market Demand:</strong> {match.vocation.realityCheck.marketDemand} | 
+                          <strong> Growth:</strong> {match.vocation.realityCheck.growthPotential}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {match.transitionStrategy.keySteps.length > 0 && (
+                      <div className="mt-4">
+                        <p className="text-sm font-medium text-gray-700 mb-2">Key Steps:</p>
+                        <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
+                          {match.transitionStrategy.keySteps.slice(0, 3).map((step, stepIndex) => (
+                            <li key={stepIndex}>{step}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {/* Integration with Other Tools */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 mb-8">
               <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
