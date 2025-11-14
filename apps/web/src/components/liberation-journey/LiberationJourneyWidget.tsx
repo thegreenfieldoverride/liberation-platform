@@ -57,21 +57,21 @@ export function LiberationJourneyWidget({
   };
 
   const CompactView = () => (
-    <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+    <div className="group flex items-center justify-between p-3 bg-white/20 dark:bg-gray-900/20 rounded-lg shadow-sm border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-sm hover:bg-white hover:dark:bg-gray-800 hover:shadow-md hover:border-gray-200 hover:dark:border-gray-700 transition-all duration-300">
       <div className="flex items-center space-x-3">
         <div className="text-2xl">{getPhaseIcon(journeyState.currentPhase)}</div>
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 group-hover:text-gray-900 group-hover:dark:text-white transition-colors duration-300">
             {currentPhase.title}
           </h3>
           <div className="flex items-center space-x-2">
-            <div className="w-20 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+            <div className="w-20 h-2 bg-gray-200/60 dark:bg-gray-600/60 group-hover:bg-gray-200 group-hover:dark:bg-gray-600 rounded-full overflow-hidden transition-colors duration-300">
               <div 
-                className={`h-full transition-all duration-300 ${getProgressColor(journeyState.overallScore)}`}
+                className={`h-full transition-all duration-300 opacity-60 group-hover:opacity-100 ${getProgressColor(journeyState.overallScore)}`}
                 style={{ width: `${journeyState.overallScore}%` }}
               />
             </div>
-            <span className="text-xs text-gray-600 dark:text-gray-300">
+            <span className="text-xs text-gray-500 dark:text-gray-500 group-hover:text-gray-600 group-hover:dark:text-gray-300 transition-colors duration-300">
               {Math.round(journeyState.overallScore)}%
             </span>
           </div>
@@ -95,7 +95,7 @@ export function LiberationJourneyWidget({
   );
 
   const ExpandedView = () => (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="bg-white/95 dark:bg-gray-800/95 rounded-lg shadow-lg border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-md overflow-hidden">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">
