@@ -9,7 +9,7 @@ export async function GET() {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const models = await genAI.ListModels ? await genAI.ListModels() : await genAI.listModels();
+    const models = await genAI.listModels();
     
     const modelList = models.map(model => ({
       name: model.name,
