@@ -904,7 +904,7 @@ function DisciplineAudit({
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
            <h3 className="text-xl font-semibold text-blue-900 mb-3 flex items-center gap-3">
-             <LibIcon icon="Shield" size="lg" className="text-blue-700" />
+             <LibIcon icon="Privacy" size="lg" className="text-blue-700" />
              Truth to Accommodate
            </h3>
           <p className="text-blue-800 mb-3">
@@ -958,7 +958,7 @@ function DisciplineAudit({
                  }`}
                >
                  <div className="flex items-center gap-2 mb-2">
-                   <LibIcon icon="Shield" size="md" className="text-blue-600" />
+                   <LibIcon icon="Privacy" size="md" className="text-blue-600" />
                    <span className="font-semibold">Truth to Accommodate</span>
                    {constraint.category === 'truth' && (
                      <LibIcon icon="Success" size="sm" className="text-blue-600 ml-auto" />

@@ -26,29 +26,3 @@ export async function GET() {
     );
   }
 }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const models = await genAI.listModels();
-    
-    const modelList = models.map(model => ({
-      name: model.name,
-      displayName: model.displayName,
-      description: model.description,
-      supportedGenerationMethods: model.supportedGenerationMethods,
-      inputTokenLimit: model.inputTokenLimit,
-      outputTokenLimit: model.outputTokenLimit
-    }));
-
-    return NextResponse.json({
-      availableModels: modelList,
-      count: modelList.length
-    });
-
-  } catch (error) {
-    console.error('Error listing models:', error);
-    return NextResponse.json({
-      error: 'Failed to list models',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
-  }
-}
