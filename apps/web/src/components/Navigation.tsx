@@ -58,7 +58,7 @@ export function Navigation() {
             <Link href="/" className="flex items-center space-x-3 group">
               <MariposaLogo 
                 size={32}
-                color={isLightBackground || scrolled ? '#3b82f6' : '#ffffff'}
+                isDark={!(isLightBackground || scrolled)}
                 className="transition-all duration-300 group-hover:scale-110"
               />
               <div className={`text-2xl font-light transition-all duration-300 ${
