@@ -107,6 +107,50 @@ export interface SmallBetsPortfolio {
   lastUpdated: Date;
 }
 
+// Insight Engine decision tracking
+export interface InsightDecision {
+  id: string;
+  userChoice: {
+    currentSituation: string;
+    currentFeeling: string;
+    energyLevel: number;
+    optionA: string;
+    optionB: string;
+    whichIsCurrent: 'A' | 'B' | 'neither';
+    emotionalPull: 'A' | 'B' | 'unsure';
+    fallbackOption: string;
+    safetyNetLevel: 'low' | 'medium' | 'high';
+    constraints: Array<{
+      description: string;
+      category: 'truth' | 'problem';
+    }>;
+  };
+  aiRecommendation: {
+    choice: 'A' | 'B';
+    confidence: number;
+    reasoning: string;
+    pathAnalysis: {
+      optionA: { viabilityScore: number; strengths: string; challenges: string };
+      optionB: { viabilityScore: number; strengths: string; challenges: string };
+    };
+  };
+  userDecision?: {
+    chosenPath: 'A' | 'B' | 'neither' | 'custom';
+    reasoning: string;
+    confidence: number;
+    decidedAt: Date;
+  };
+  progress?: {
+    status: 'planning' | 'in_progress' | 'completed' | 'pivoted' | 'abandoned';
+    completedActions: string[];
+    nextSteps: string[];
+    lessonsLearned: string[];
+    lastUpdated: Date;
+  };
+  createdAt: Date;
+  tags: string[];
+}
+
 // AI Co-Pilot personalized insights
 export interface AIPersonalization {
   learningContext: string[];
@@ -117,6 +161,7 @@ export interface AIPersonalization {
     insights: string[];
   }>;
   customPrompts: string[];
+  insightDecisions: InsightDecision[];
 }
 
 // Complete user context combining all tool data
@@ -143,6 +188,9 @@ export type UserContextEvent =
   | { type: 'career_updated'; data: Partial<CareerContext> }
   | { type: 'small_bet_added'; data: SmallBet }
   | { type: 'small_bet_updated'; data: Partial<SmallBet> & { id: string } }
+  | { type: 'insight_decision_created'; data: InsightDecision }
+  | { type: 'insight_decision_updated'; data: Partial<InsightDecision> & { id: string } }
+  | { type: 'user_decision_made'; data: { insightId: string; decision: InsightDecision['userDecision'] } }
   | { type: 'liberation_score_changed'; data: { score: number; phase: string } };
 
 // Storage configuration

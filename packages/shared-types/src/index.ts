@@ -320,3 +320,6 @@ export interface VocationMatchingResult {
 
 // Export user context types
 export * from './user-context';
+
+// Re-export key insight types for convenience
+export type { InsightDecision } from './user-context';

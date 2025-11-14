@@ -158,6 +158,7 @@ export class UserContextStorage {
         preferences: [],
         conversationHistory: [],
         customPrompts: []
+        // TODO: Add insightDecisions once types are properly distributed
       },
       liberationScore: 0,
       liberationPhase: 'discovery',

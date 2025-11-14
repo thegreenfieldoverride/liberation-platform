@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { LibIcon } from '../../components/icons/LiberationIcons';
+import { SaveInsightButton } from './components/SaveInsightButton';
+import { InsightsDashboard } from './components/InsightsDashboard';
 
 // Enhanced types for exceptional analysis
 interface Constraint {
@@ -173,6 +175,10 @@ function InsightEngine() {
 
       {/* Main Content */}
       <div className="py-8">
+        {/* Insights Dashboard */}
+        <div className="max-w-6xl mx-auto px-6 mb-8">
+          <InsightsDashboard />
+        </div>
         {currentStep === 'choice' && (
           <ChoiceDefinition
             existingChoice={userChoice}
@@ -1410,20 +1416,10 @@ function BlueprintDisplay({
             >
               Edit Choices
             </button>
-            <button
-              onClick={() => {
-                // Save blueprint to localStorage
-                localStorage.setItem('insight-engine-blueprint', JSON.stringify({
-                  blueprint,
-                  userChoice,
-                  generatedAt: new Date().toISOString()
-                }));
-                alert('Blueprint saved to your browser storage!');
-              }}
-              className="px-6 py-3 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 font-medium"
-            >
-              Save Blueprint
-            </button>
+            <SaveInsightButton 
+              blueprint={blueprint}
+              userChoice={userChoice}
+            />
             <button
               onClick={onStartOver}
               className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium"
