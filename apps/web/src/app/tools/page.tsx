@@ -157,7 +157,7 @@ export default function ToolsPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Values-to-Vocation Matcher */}
             <div className="bg-white rounded-xl shadow-sm p-8 hover:shadow-md transition-shadow">
               <div className="flex items-center mb-4">
@@ -229,6 +229,43 @@ export default function ToolsPage() {
                 className="inline-flex items-center bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors"
               >
                 Get AI Guidance →
+              </Link>
+            </div>
+
+            {/* Insight Engine */}
+            <div className="bg-white rounded-xl shadow-sm p-8 hover:shadow-md transition-shadow">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                  <LibIcon icon="Focus" size="lg" className="text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-medium text-gray-800">Insight Engine</h3>
+                  <p className="text-sm text-gray-600">AI-aided decision making</p>
+                </div>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Navigate tough career decisions with AI-powered analysis. Categorize constraints as "truths to accommodate" 
+                or "problems to solve," then get personalized bridge blueprints to your ideal path.
+              </p>
+              <div className="mb-6">
+                <div className="flex items-center text-sm text-gray-500 mb-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  "Truth vs Problem" framework
+                </div>
+                <div className="flex items-center text-sm text-gray-500 mb-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  AI-generated bridge strategies
+                </div>
+                <div className="flex items-center text-sm text-gray-500">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Actionable timeline & resources
+                </div>
+              </div>
+              <Link 
+                href="/insight-engine"
+                className="inline-flex items-center bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
+              >
+                Get Decision Support →
               </Link>
             </div>
 
