@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@greenfield-override/insight-engine": "workspace:*",
     "@greenfieldoverride/ai-copilot": "workspace:*",
     "@greenfieldoverride/cognitive-debt-assessment": "workspace:*",
     "@greenfieldoverride/real-hourly-wage": "workspace:*",

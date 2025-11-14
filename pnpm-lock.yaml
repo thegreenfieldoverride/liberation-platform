@@ -25,6 +25,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@google/generative-ai':
+        specifier: ^0.24.1
+        version: 0.24.1
+      '@greenfield-override/insight-engine':
+        specifier: workspace:*
+        version: link:../../packages/insight-engine
       '@greenfieldoverride/ai-copilot':
         specifier: workspace:*
         version: link:../../packages/ai-copilot
@@ -136,6 +142,25 @@ importers:
       rollup-plugin-typescript2:
         specifier: ^0.36.0
         version: 0.36.0(rollup@4.52.4)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
+  packages/insight-engine:
+    dependencies:
+      react:
+        specifier: ^18.0.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.0.0
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@types/react':
+        specifier: ^18.0.0
+        version: 18.3.25
+      '@types/react-dom':
+        specifier: ^18.0.0
+        version: 18.3.7(@types/react@18.3.25)
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
@@ -322,6 +347,10 @@ packages:
   '@eslint/js@8.57.1':
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@google/generative-ai@0.24.1':
+    resolution: {integrity: sha512-MqO+MLfM6kjxcKoy0p1wRzG3b4ZZXtPI+z2IE26UogS2Cm/XHO+7gGRBh6gcJsOiIVoH93UwKvW4HdgiOZCy9Q==}
+    engines: {node: '>=18.0.0'}
 
   '@greenfieldoverride/types@1.0.1':
     resolution: {integrity: sha512-q/UWBBgnt6cTAsXxo05MwW+t3+gCuxXo4v8ZoSiqUnIAYe+xjk8jrtlFWW1N0EoEaBT9leSK6b9R/XL0R4adlg==}
@@ -2728,6 +2757,8 @@ snapshots:
       - supports-color
 
   '@eslint/js@8.57.1': {}
+
+  '@google/generative-ai@0.24.1': {}
 
   '@greenfieldoverride/types@1.0.1': {}
 
