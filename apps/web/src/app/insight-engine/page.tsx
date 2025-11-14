@@ -1307,7 +1307,7 @@ function BlueprintDisplay({
                              {action.estimatedTime}
                            </span>
                            <span className="flex items-center gap-1">
-                             <LibIcon icon="BarChart3" size="xs" />
+                             <LibIcon icon="DataVisualization" size="xs" />
                              {action.difficulty}
                            </span>
                          </div>
