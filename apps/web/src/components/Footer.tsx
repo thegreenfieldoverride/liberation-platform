@@ -53,11 +53,16 @@ export function Footer() {
                   Values-to-Vocation Matcher
                 </Link>
               </li>
-              <li>
-                <Link href="/ai-copilot" className="text-gray-300 hover:text-white transition-all duration-300 font-light hover:translate-x-1 inline-block">
-                  AI Co-Pilot
-                </Link>
-              </li>
+               <li>
+                 <Link href="/ai-copilot" className="text-gray-300 hover:text-white transition-all duration-300 font-light hover:translate-x-1 inline-block">
+                   AI Co-Pilot
+                 </Link>
+               </li>
+               <li>
+                 <Link href="/insight-engine" className="text-gray-300 hover:text-white transition-all duration-300 font-light hover:translate-x-1 inline-block">
+                   Insight Engine
+                 </Link>
+               </li>
             </ul>
           </div>
 
@@ -70,17 +75,17 @@ export function Footer() {
                   Developer Resources
                 </Link>
               </li>
-              <li>
-                <a 
-                  href="https://github.com/greenfield-override" 
-                  className="text-gray-300 hover:text-white transition-all duration-300 font-light hover:translate-x-1 inline-flex items-center gap-2"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Open Source
-                  <LibIcon icon="ExternalLink" size="xs" />
-                </a>
-              </li>
+               <li>
+                 <a 
+                   href="https://github.com/thegreenfieldoverride" 
+                   className="text-gray-300 hover:text-white transition-all duration-300 font-light hover:translate-x-1 inline-flex items-center gap-2"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                 >
+                   Open Source
+                   <LibIcon icon="ExternalLink" size="xs" />
+                 </a>
+               </li>
             </ul>
           </div>
 
@@ -93,11 +98,17 @@ export function Footer() {
                   Privacy Promise
                 </Link>
               </li>
-              <li>
-                <span className="text-gray-400 text-sm">
-                  Liberation License
-                </span>
-              </li>
+               <li>
+                 <a 
+                   href="https://github.com/thegreenfieldoverride/liberation-platform/blob/main/LICENSE"
+                   className="text-gray-300 hover:text-white transition-all duration-300 font-light hover:translate-x-1 inline-flex items-center gap-2"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                 >
+                   Liberation License
+                   <LibIcon icon="ExternalLink" size="xs" />
+                 </a>
+               </li>
             </ul>
           </div>
         </div>
