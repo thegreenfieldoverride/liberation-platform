@@ -5,10 +5,12 @@ import type { ExpenseCategory, RunwayCalculation } from '@greenfieldoverride/typ
 import Link from 'next/link';
 import { LibIcon } from '../../../components/icons/LiberationIcons';
 import { useLiberationJourney } from '@/hooks/useLiberationJourney';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 // Inline calculator for better performance
 function RunwayCalculator() {
   const { updateMilestone, recordEvent, updateToolInsights } = useLiberationJourney();
+  const { trackRunwayCalculation, trackToolUsage } = useAnalytics();
   const [expenses, setExpenses] = useState<ExpenseCategory[]>([
     { id: '1', name: 'Housing (rent/mortgage)', amount: 0, isEssential: true },
     { id: '2', name: 'Food & groceries', amount: 0, isEssential: true },
@@ -62,7 +64,7 @@ function RunwayCalculator() {
     // Track milestones
     const hasBasicData = totalMonthlyExpenses > 0 && savings > 0;
     
-    // First tool use milestone
+     // First tool use milestone
     if (!hasRecordedFirstUse && (totalMonthlyExpenses > 0 || savings > 0)) {
       setHasRecordedFirstUse(true);
       updateMilestone('first-tool-use', 100, { tool: 'runway-calculator' });
@@ -71,6 +73,9 @@ function RunwayCalculator() {
         toolId: 'runway-calculator',
         metadata: { action: 'first_data_entered' }
       });
+      
+      // Track first tool usage
+      trackToolUsage('Runway Calculator', { first_use: true });
     }
 
     // Basic data entry milestone  
@@ -80,6 +85,11 @@ function RunwayCalculator() {
         savings: savings,
         runwayMonths: runwayMonths
       });
+      
+      // Track runway calculation
+      const savingsBand = savings < 5000 ? 'low' : savings < 25000 ? 'medium' : 'high';
+      const expensesBand = totalMonthlyExpenses < 3000 ? 'low' : totalMonthlyExpenses < 6000 ? 'medium' : 'high';
+      trackRunwayCalculation(runwayMonths, savingsBand, expensesBand);
     }
 
     // Financial clarity milestone (3+ months runway)
