@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { LibIcon } from './icons/LiberationIcons';
+import { KofiButton } from '@greenfieldoverride/liberation-ui';
 
 export function Footer() {
   return (
@@ -22,8 +23,13 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/tools/runway-calculator" className="text-gray-300 hover:text-white transition-all duration-300 font-light hover:translate-x-1 inline-block">
-                  Start Liberation
+                <Link href="/projects" className="text-gray-300 hover:text-white transition-all duration-300 font-light hover:translate-x-1 inline-block">
+                  Projects
+                </Link>
+              </li>
+              <li>
+                <Link href="/funding" className="text-gray-300 hover:text-white transition-all duration-300 font-light hover:translate-x-1 inline-block">
+                  Funding
                 </Link>
               </li>
             </ul>
@@ -114,12 +120,13 @@ export function Footer() {
         </div>
 
         <div className="border-t border-gray-700 mt-16 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-gray-300 text-sm font-light mb-4 md:mb-0">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="text-gray-300 text-sm font-light">
               Built with radical empathy for those ready to rise from the ashes.
             </div>
             <div className="flex items-center gap-6">
-              <span className="text-sm text-gray-400 font-light">
+              <KofiButton variant="minimal" size="small" />
+              <span className="text-sm text-gray-400 font-light hidden lg:inline">
                 Privacy-first • Open source • Liberation tools
               </span>
               <div className="flex items-center gap-2">

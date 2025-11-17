@@ -23,7 +23,9 @@ export function Navigation() {
     '/tools/values-vocation-matcher',
     '/about',
     '/privacy',
-    '/developers'
+    '/developers',
+    '/funding',
+    '/projects'
   ];
   
   // Always check pathname, but be conservative about scrolled state
@@ -86,21 +88,7 @@ function NavigationContent({
           </div>
 
           {/* Desktop navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link href="/about" className={`relative px-3 py-2 rounded-lg transition-all duration-300 font-light ${
-              isLightBackground || scrolled 
-                ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' 
-                : 'text-white/80 hover:text-white hover:bg-white/10'
-            }`}>
-              About
-            </Link>
-            <Link href="/manifesto" className={`relative px-3 py-2 rounded-lg transition-all duration-300 font-light ${
-              isLightBackground || scrolled 
-                ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' 
-                : 'text-white/80 hover:text-white hover:bg-white/10'
-            }`}>
-              Manifesto
-            </Link>
+          <div className="hidden md:flex items-center space-x-6">
             <Link href="/tools" className={`relative px-3 py-2 rounded-lg transition-all duration-300 font-light ${
               isLightBackground || scrolled 
                 ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' 
@@ -108,19 +96,26 @@ function NavigationContent({
             }`}>
               Tools
             </Link>
-            <Link href="/ai-copilot" className={`relative px-3 py-2 rounded-lg transition-all duration-300 font-light ${
+            <Link href="/projects" className={`relative px-3 py-2 rounded-lg transition-all duration-300 font-light ${
               isLightBackground || scrolled 
                 ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' 
                 : 'text-white/80 hover:text-white hover:bg-white/10'
             }`}>
-              AI Co-Pilot
+              Projects
             </Link>
-            <Link href="/developers" className={`relative px-3 py-2 rounded-lg transition-all duration-300 font-light ${
+            <Link href="/funding" className={`relative px-3 py-2 rounded-lg transition-all duration-300 font-light ${
               isLightBackground || scrolled 
                 ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' 
                 : 'text-white/80 hover:text-white hover:bg-white/10'
             }`}>
-              Resources
+              Funding
+            </Link>
+            <Link href="/about" className={`relative px-3 py-2 rounded-lg transition-all duration-300 font-light ${
+              isLightBackground || scrolled 
+                ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' 
+                : 'text-white/80 hover:text-white hover:bg-white/10'
+            }`}>
+              About
             </Link>
             <Link 
               href="/tools/runway-calculator" 
@@ -160,17 +155,6 @@ function NavigationContent({
           } backdrop-blur-md`}>
             <div className="px-4 pt-6 pb-6 space-y-3">
               <Link 
-                href="/about" 
-                className={`block px-4 py-3 rounded-xl font-light transition-all duration-300 ${
-                  isLightBackground || scrolled 
-                    ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-                onClick={() => setIsOpen(false)}
-              >
-                About
-              </Link>
-              <Link 
                 href="/tools" 
                 className={`block px-4 py-3 rounded-xl font-light transition-all duration-300 ${
                   isLightBackground || scrolled 
@@ -182,7 +166,7 @@ function NavigationContent({
                 Tools
               </Link>
               <Link 
-                href="/ai-copilot" 
+                href="/projects" 
                 className={`block px-4 py-3 rounded-xl font-light transition-all duration-300 ${
                   isLightBackground || scrolled 
                     ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
@@ -190,10 +174,10 @@ function NavigationContent({
                 }`}
                 onClick={() => setIsOpen(false)}
               >
-                AI Co-Pilot
+                Projects
               </Link>
               <Link 
-                href="/developers" 
+                href="/funding" 
                 className={`block px-4 py-3 rounded-xl font-light transition-all duration-300 ${
                   isLightBackground || scrolled 
                     ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
@@ -201,7 +185,18 @@ function NavigationContent({
                 }`}
                 onClick={() => setIsOpen(false)}
               >
-                Resources
+                Funding
+              </Link>
+              <Link 
+                href="/about" 
+                className={`block px-4 py-3 rounded-xl font-light transition-all duration-300 ${
+                  isLightBackground || scrolled 
+                    ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+                onClick={() => setIsOpen(false)}
+              >
+                About
               </Link>
               <Link 
                 href="/tools/runway-calculator" 

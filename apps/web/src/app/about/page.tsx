@@ -164,6 +164,34 @@ export default function AboutPage() {
           </p>
         </div>
 
+        {/* Beyond Tools */}
+        <div className="mb-16 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-8">
+          <h2 className="text-2xl font-light text-gray-900 mb-6">Beyond Tools: Building Ethical Infrastructure</h2>
+          <p className="text-gray-700 mb-6">
+            We're not just building calculators and planning tools. We're building the foundation for a more ethical internet — from data attribution systems to ethically-trained AI models.
+          </p>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">Our Projects</h3>
+              <p className="text-gray-600 text-sm mb-3">
+                Learn about DAON Network, the Collective Strategist, and our ethical LLM training initiative.
+              </p>
+              <Link href="/projects" className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1">
+                Explore Projects <LibIcon icon="Arrow" size="sm" />
+              </Link>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">Radical Transparency</h3>
+              <p className="text-gray-600 text-sm mb-3">
+                See exactly how community support sustains our work. Full public ledger, no black boxes.
+              </p>
+              <Link href="/funding" className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1">
+                View Funding Ledger <LibIcon icon="Arrow" size="sm" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* Call to Action */}
         <div className="text-center">
           <h2 className="text-2xl font-light text-gray-900 mb-6">
