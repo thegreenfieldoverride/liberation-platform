@@ -42,25 +42,29 @@ export default function AICoPilotPage() {
       };
 
       try {
+        // Get data from liberation journey tool insights
+        const toolInsights = journeyState?.toolInsights || {};
+
         // Get runway calculator data
-        const runwayData = localStorage.getItem('runwayCalculatorData');
-        if (runwayData) {
-          const runway = JSON.parse(runwayData);
-          context.runwayMonths = runway.runwayMonths || runway.runway || 0;
+        if (toolInsights['runway-calculator']) {
+          context.runwayMonths = toolInsights['runway-calculator'].runwayMonths || 0;
         }
 
         // Get real hourly wage data
-        const wageData = localStorage.getItem('realHourlyWageResult');
-        if (wageData) {
-          const wage = JSON.parse(wageData);
-          context.realHourlyWage = wage.realWage || wage.hourlyWage || 0;
+        if (toolInsights['real-hourly-wage']) {
+          context.realHourlyWage = toolInsights['real-hourly-wage'].realWage || 0;
         }
 
-        // Get cognitive debt data
+        // Get cognitive debt data from localStorage (still using old key for this)
         const cognitiveData = localStorage.getItem('cognitiveDebtResult');
         if (cognitiveData) {
           const cognitive = JSON.parse(cognitiveData);
           context.cognitiveDebtPercentage = cognitive.percentageScore || 0;
+        }
+
+        // Also check tool insights for cognitive debt
+        if (toolInsights['cognitive-debt-assessment']) {
+          context.cognitiveDebtPercentage = toolInsights['cognitive-debt-assessment'].debtPercentage || 0;
         }
 
         // Get values-vocation matcher data
@@ -78,7 +82,13 @@ export default function AICoPilotPage() {
           }
         }
 
+        // Also check tool insights for values matcher
+        if (toolInsights['values-vocation-matcher']) {
+          // Add any additional data from tool insights if available
+        }
+
         console.log('🎯 Built liberation context from tools:', context);
+        console.log('📊 Tool insights available:', Object.keys(toolInsights));
         setLiberationContext(context);
       } catch (error) {
         console.warn('Failed to build liberation context:', error);
