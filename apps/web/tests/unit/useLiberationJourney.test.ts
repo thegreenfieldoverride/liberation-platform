@@ -5,13 +5,14 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { useLiberationJourney } from '@/hooks/useLiberationJourney';
+import { vi } from 'vitest';
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 };
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock
@@ -19,7 +20,7 @@ Object.defineProperty(window, 'localStorage', {
 
 describe('useLiberationJourney Hook', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorageMock.getItem.mockReturnValue(null);
   });
 
@@ -29,7 +30,7 @@ describe('useLiberationJourney Hook', () => {
       
       expect(result.current.journeyState.currentPhase).toBe('discovery');
       expect(result.current.journeyState.overallScore).toBe(0);
-      expect(result.current.journeyState.milestones).toHaveLength(16);
+      expect(result.current.journeyState.milestones).toHaveLength(15);
       expect(result.current.journeyState.achievements).toHaveLength(0);
       expect(result.current.isLoading).toBe(false);
     });
@@ -55,7 +56,7 @@ describe('useLiberationJourney Hook', () => {
 
     it('should handle corrupted localStorage gracefully', () => {
       localStorageMock.getItem.mockReturnValue('invalid json');
-      console.warn = jest.fn();
+      console.warn = vi.fn();
 
       const { result } = renderHook(() => useLiberationJourney());
       
@@ -107,11 +108,13 @@ describe('useLiberationJourney Hook', () => {
 
       // Complete multiple milestones to advance phase
       act(() => {
-        result.current.updateMilestone('first-tool-use', 100);
-        result.current.updateMilestone('basic-data-entry', 100);
-        result.current.updateMilestone('real-wage-calculated', 100);
-        result.current.updateMilestone('cognitive-debt-assessed', 100);
-        result.current.updateMilestone('financial-clarity', 100);
+        result.current.updateMilestone('first-tool-use', 100); // 3 points
+        result.current.updateMilestone('basic-data-entry', 100); // 4 points  
+        result.current.updateMilestone('real-wage-calculated', 100); // 5 points
+        result.current.updateMilestone('cognitive-debt-assessed', 100); // 6 points
+        result.current.updateMilestone('values-identified', 100); // 8 points
+        result.current.updateMilestone('financial-clarity', 100); // 7 points
+        // Total: 33 points out of 106 total = 31.1% > 25% threshold
       });
 
       // Should advance from discovery (0-25) to planning (25-50)
@@ -123,10 +126,14 @@ describe('useLiberationJourney Hook', () => {
 
       // Force phase change by updating score significantly
       act(() => {
-        // Complete high-weight milestones
-        result.current.updateMilestone('financial-clarity', 100);
-        result.current.updateMilestone('values-identified', 100);
-        result.current.updateMilestone('first-insight-generated', 100);
+        // Complete high-weight milestones to go above 25% threshold
+        result.current.updateMilestone('first-tool-use', 100); // 3 points
+        result.current.updateMilestone('basic-data-entry', 100); // 4 points
+        result.current.updateMilestone('real-wage-calculated', 100); // 5 points
+        result.current.updateMilestone('cognitive-debt-assessed', 100); // 6 points  
+        result.current.updateMilestone('values-identified', 100); // 8 points
+        result.current.updateMilestone('financial-clarity', 100); // 7 points
+        // Total: 33 points out of 106 total = 31.1% > 25% threshold
       });
 
       const phaseAchievements = result.current.journeyState.achievements.filter(
@@ -139,7 +146,7 @@ describe('useLiberationJourney Hook', () => {
   describe('Event Recording', () => {
     it('should record tool usage events', () => {
       const { result } = renderHook(() => useLiberationJourney());
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
 
       act(() => {
         result.current.recordEvent({
@@ -262,7 +269,7 @@ describe('useLiberationJourney Hook', () => {
       localStorageMock.setItem.mockImplementation(() => {
         throw new Error('Storage quota exceeded');
       });
-      console.warn = jest.fn();
+      console.warn = vi.fn();
 
       const { result } = renderHook(() => useLiberationJourney());
 
@@ -285,13 +292,14 @@ describe('useLiberationJourney Hook', () => {
         result.current.updateMilestone('first-tool-use', 150);
       });
 
-      const milestone = result.current.journeyState.milestones.find(m => m.id === 'first-tool-use');
+      let milestone = result.current.journeyState.milestones.find(m => m.id === 'first-tool-use');
       expect(milestone?.progress).toBe(100);
 
       act(() => {
         result.current.updateMilestone('first-tool-use', -10);
       });
 
+      milestone = result.current.journeyState.milestones.find(m => m.id === 'first-tool-use');
       expect(milestone?.progress).toBe(0);
     });
 

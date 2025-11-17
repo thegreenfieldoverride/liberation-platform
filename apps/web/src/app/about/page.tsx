@@ -181,7 +181,7 @@ export default function AboutPage() {
               Calculate Your Runway
             </Link>
             <Link 
-              href="/tools/real-hourly-wage"
+              href="/real-hourly-wage"
               className="bg-red-600 text-white px-8 py-4 rounded-lg hover:bg-red-700 transition-colors"
             >
               Take the Red Pill

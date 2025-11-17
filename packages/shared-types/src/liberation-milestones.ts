@@ -11,11 +11,12 @@ export const LIBERATION_PHASES: Record<LiberationPhaseDefinition['id'], Liberati
     title: 'Discovery Phase',
     description: 'Learning about your current situation and exploring possibilities',
     scoreRange: [0, 25],
-    requiredMilestones: ['first-tool-use', 'basic-data-entry'],
+    requiredMilestones: ['first-tool-use', 'basic-data-entry', 'real-wage-calculated', 'cognitive-debt-assessed', 'values-identified'],
     recommendedActions: [
       'Calculate your runway',
       'Assess your real hourly wage',
-      'Complete cognitive debt assessment'
+      'Complete cognitive debt assessment',
+      'Complete values-vocation assessment'
     ],
     color: '#6366F1', // Indigo
     icon: 'Direction'
@@ -25,11 +26,11 @@ export const LIBERATION_PHASES: Record<LiberationPhaseDefinition['id'], Liberati
     title: 'Planning Phase', 
     description: 'Creating strategy and understanding your path forward',
     scoreRange: [25, 50],
-    requiredMilestones: ['financial-clarity', 'values-identified'],
+    requiredMilestones: ['financial-clarity', 'first-insight-generated'],
     recommendedActions: [
-      'Complete values-vocation assessment',
       'Set financial targets',
-      'Create first strategic insight'
+      'Create first strategic insight',
+      'Plan your transition strategy'
     ],
     color: '#0EA5E9', // Sky
     icon: 'Focus'
@@ -39,7 +40,7 @@ export const LIBERATION_PHASES: Record<LiberationPhaseDefinition['id'], Liberati
     title: 'Building Phase',
     description: 'Taking action and building your liberation foundation',
     scoreRange: [50, 75],
-    requiredMilestones: ['first-decision-made', 'action-initiated'],
+    requiredMilestones: ['first-decision-made', 'action-initiated', 'consistency-achieved'],
     recommendedActions: [
       'Start your first small bet',
       'Implement strategic decisions',
@@ -53,7 +54,7 @@ export const LIBERATION_PHASES: Record<LiberationPhaseDefinition['id'], Liberati
     title: 'Transitioning Phase',
     description: 'Actively moving toward your liberation goals',
     scoreRange: [75, 90],
-    requiredMilestones: ['momentum-achieved', 'multiple-successes'],
+    requiredMilestones: ['momentum-achieved', 'multiple-successes', 'advanced-insights'],
     recommendedActions: [
       'Scale successful bets',
       'Reduce dependencies',

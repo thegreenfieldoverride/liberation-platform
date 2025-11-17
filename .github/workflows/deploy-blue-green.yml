@@ -134,6 +134,7 @@ jobs:
           CURRENT_COLOR: ""
           NEW_CONTAINER: "${{ env.CONTAINER_NAME }}-blue"
           OLD_CONTAINER: "${{ env.CONTAINER_NAME }}-"
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           ssh $USER@$HOST 'bash -s' << EOF
             set -e
@@ -148,6 +149,7 @@ jobs:
             CURRENT_COLOR="$CURRENT_COLOR"
             NEW_CONTAINER="$NEW_CONTAINER"
             OLD_CONTAINER="$OLD_CONTAINER"
+            GEMINI_API_KEY="$GEMINI_API_KEY"
             
 
             echo "🔄 Starting BLUE-GREEN deployment to $ENVIRONMENT..."
@@ -273,6 +275,7 @@ jobs:
               -p $DEPLOY_PORT:3000 \
               -e NODE_ENV=production \
               -e ENVIRONMENT=$ENVIRONMENT \
+              -e GEMINI_API_KEY="$GEMINI_API_KEY" \
               --health-cmd="node healthcheck.js" \
               --health-interval=10s \
               --health-timeout=3s \

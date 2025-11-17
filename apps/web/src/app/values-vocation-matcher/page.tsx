@@ -11,15 +11,21 @@ export default function ValuesVocationMatcherPage() {
 
   const handleComplete = (matchingResult: VocationMatchingResult) => {
     setResult(matchingResult);
-    console.log('Values-to-Vocation Assessment Complete:', matchingResult);
+    console.log('🎯 Values-to-Vocation Assessment Complete! Updating milestone...', matchingResult);
 
     // Track liberation journey milestone
     const topMatchesCount = matchingResult.topMatches?.length || 0;
+    console.log('📊 Top matches found:', topMatchesCount);
     
-    updateMilestone('values-identified', 100, {
+    // Check if milestone criteria is met (at least 3 career matches)
+    const milestoneProgress = topMatchesCount >= 3 ? 100 : Math.min(90, topMatchesCount * 30);
+    console.log('📈 Milestone progress:', milestoneProgress, '% (need 3+ matches for 100%)');
+    
+    updateMilestone('values-identified', milestoneProgress, {
       topMatches: topMatchesCount,
       alignmentScore: topMatchesCount * 20, // Simple score based on matches found
-      userProfile: matchingResult.userProfile
+      userProfile: matchingResult.userProfile,
+      meetsRequirement: topMatchesCount >= 3
     });
 
     // Record assessment completion event
@@ -298,7 +304,7 @@ export default function ValuesVocationMatcherPage() {
               
               <div className="grid md:grid-cols-3 gap-6">
                 <a 
-                  href="/runway-calculator" 
+                  href="/tools/runway-calculator" 
                   className="block p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:shadow-md transition-all duration-200 group"
                 >
                   <div className="w-12 h-12 bg-blue-500 text-white rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">

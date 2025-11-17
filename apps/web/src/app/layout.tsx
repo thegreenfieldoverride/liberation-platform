@@ -3,7 +3,7 @@ import '../styles/globals.css';
 import { Navigation } from '../components/Navigation';
 import { Footer } from '../components/Footer';
 import { ErrorBoundary } from '../components/ErrorBoundary';
-import { FathomAnalytics } from '../components/analytics/FathomAnalytics';
+
 import { LiberationJourneyWidget } from '../components/liberation-journey/LiberationJourneyWidget';
 
 export const metadata: Metadata = {
@@ -62,7 +62,6 @@ export default function RootLayout({
           <Footer />
           <LiberationJourneyWidget />
         </ErrorBoundary>
-        <FathomAnalytics />
       </body>
     </html>
   );

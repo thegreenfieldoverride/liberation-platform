@@ -21,8 +21,8 @@ function createDefaultJourneyState(): LiberationJourneyState {
     overallScore: 0,
     milestones: [...LIBERATION_MILESTONES], // Create copy with default progress
     phaseProgress: {
-      discovery: { score: 0, completedMilestones: 0, totalMilestones: 4 },
-      planning: { score: 0, completedMilestones: 0, totalMilestones: 3 },
+      discovery: { score: 0, completedMilestones: 0, totalMilestones: 5 },
+      planning: { score: 0, completedMilestones: 0, totalMilestones: 2 },
       building: { score: 0, completedMilestones: 0, totalMilestones: 3 },
       transitioning: { score: 0, completedMilestones: 0, totalMilestones: 3 },
       liberated: { score: 0, completedMilestones: 0, totalMilestones: 2 }
@@ -145,34 +145,51 @@ export function useLiberationJourney() {
         trackLiberationMilestone(completedMilestone.title);
       }
 
-      // Check for phase advancement
-      if (newCurrentPhase !== prev.currentPhase) {
-        newAchievements.push({
-          id: `phase-${newCurrentPhase}`,
-          title: `Entered ${LIBERATION_PHASES[newCurrentPhase].title}`,
-          description: `Advanced to the ${LIBERATION_PHASES[newCurrentPhase].title}`,
-          unlockedAt: new Date(),
-          category: 'insight' as const
-        });
-        
-        // Track phase advancement
-        track('Phase Advanced', undefined, {
-          from_phase: prev.currentPhase,
-          to_phase: newCurrentPhase,
-          phase_title: LIBERATION_PHASES[newCurrentPhase].title,
-          overall_progress: newOverallScore
-        });
-      }
+       // Check for phase advancement
+       if (newCurrentPhase !== prev.currentPhase) {
+         newAchievements.push({
+           id: `phase-${newCurrentPhase}`,
+           title: `Entered ${LIBERATION_PHASES[newCurrentPhase].title}`,
+           description: `Advanced to the ${LIBERATION_PHASES[newCurrentPhase].title}`,
+           unlockedAt: new Date(),
+           category: 'insight' as const
+         });
+         
+         // Track phase advancement
+         track('Phase Advanced', undefined, {
+           from_phase: prev.currentPhase,
+           to_phase: newCurrentPhase,
+           phase_title: LIBERATION_PHASES[newCurrentPhase].title,
+           overall_progress: newOverallScore
+         });
+       }
 
-      return {
-        ...prev,
-        currentPhase: newCurrentPhase,
-        overallScore: newOverallScore,
-        milestones: updatedMilestones,
-        phaseProgress: updatedPhaseProgress,
-        achievements: [...prev.achievements, ...newAchievements],
-        lastUpdated: new Date()
-      };
+       // Update tool insights if metadata provided
+       let updatedToolInsights = prev.toolInsights;
+       if (metadata && completedMilestone) {
+         const toolId = completedMilestone.tool;
+         if (toolId) {
+           updatedToolInsights = {
+             ...prev.toolInsights,
+             [toolId]: {
+               ...prev.toolInsights[toolId],
+               ...metadata,
+               lastUpdated: new Date()
+             }
+           };
+         }
+       }
+
+       return {
+         ...prev,
+         currentPhase: newCurrentPhase,
+         overallScore: newOverallScore,
+         milestones: updatedMilestones,
+         phaseProgress: updatedPhaseProgress,
+         toolInsights: updatedToolInsights,
+         achievements: [...prev.achievements, ...newAchievements],
+         lastUpdated: new Date()
+       };
     });
   }, [calculateOverallScore]);
 
@@ -182,6 +199,9 @@ export function useLiberationJourney() {
       ...event,
       timestamp: new Date()
     };
+
+    // Log event for debugging
+    console.log('Liberation Journey Event:', fullEvent);
 
     // Track analytics for liberation journey events
     track('Liberation Journey Event', undefined, {

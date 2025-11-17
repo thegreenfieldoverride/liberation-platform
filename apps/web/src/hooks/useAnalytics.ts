@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useRef } from 'react';
-import { trackEvent, trackPageView } from '../components/analytics/FathomAnalytics';
 
 /**
  * Internal Liberation Analytics Client
@@ -12,9 +11,7 @@ class LiberationAnalyticsClient {
   private sessionID: string;
 
   constructor() {
-    this.baseURL = process.env.NODE_ENV === 'production' 
-      ? 'https://analytics.greenfieldoverride.com/api' 
-      : '/api/analytics';
+    this.baseURL = '/api/analytics';
     this.sessionID = this.generateSessionID();
   }
 
@@ -63,7 +60,7 @@ const getInternalAnalytics = (): LiberationAnalyticsClient => {
 
 /**
  * Enhanced Analytics hook for tracking liberation platform events
- * Dual tracking: Fathom (privacy-first, public) + Internal (detailed insights)
+ * Privacy-first internal analytics only
  */
 export function useAnalytics() {
   const internalRef = useRef<LiberationAnalyticsClient>();
@@ -72,20 +69,19 @@ export function useAnalytics() {
     internalRef.current = getInternalAnalytics();
   }
 
-  // Dual tracking function - both Fathom and internal
+  // Privacy-first internal analytics only
   const track = useCallback((eventName: string, value?: number, attributes?: Record<string, any>) => {
-    // Track with Fathom (privacy-first, public analytics)
-    trackEvent(eventName, value);
-    
     // Track with internal analytics (detailed insights)
-    if (attributes) {
-      internalRef.current?.track('platform', eventName.toLowerCase().replace(/\s+/g, '_'), attributes);
-    }
+    internalRef.current?.track('platform', eventName.toLowerCase().replace(/\s+/g, '_'), {
+      event: eventName,
+      value,
+      ...attributes
+    });
   }, []);
 
   const trackPageview = useCallback((url?: string) => {
-    trackPageView(url);
-  }, []);
+    track('Page View', undefined, { url: url || window.location.pathname });
+  }, [track]);
 
   // Liberation-specific tracking events with detailed attributes
   const trackToolUsage = useCallback((toolName: string, metadata?: Record<string, any>) => {
