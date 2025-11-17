@@ -229,12 +229,6 @@ export default function AICoPilotPage() {
               </div>
             </div>
           )}
-            <AICoPilot 
-              onPlanGenerated={handlePlanGenerated}
-              liberationContext={liberationContext}
-              className="text-white"
-            />
-          )}
         </div>
 
         {!showDashboard && generatedPlan && (
