@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { CognitiveDebtAssessmentDark } from '../../components/CognitiveDebtAssessmentDark';
 import type { CognitiveDebtResult } from '@greenfieldoverride/types';
+import { KofiButton } from '@greenfieldoverride/liberation-ui';
 import { useLiberationJourney } from '../../hooks/useLiberationJourney';
 
 export default function CognitiveDebtAssessmentPage() {
@@ -98,10 +100,24 @@ export default function CognitiveDebtAssessmentPage() {
 
         {/* Footer Context */}
         <footer className="px-6 py-12 text-center border-t border-white/10">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto mb-12">
             <p className="text-white/60 font-serif leading-relaxed">
               Understanding your cognitive debt is the first step toward reclaiming your mental freedom. 
               The path to liberation begins with honest self-assessment.
+            </p>
+          </div>
+
+          {/* Support */}
+          <div className="max-w-2xl mx-auto bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8">
+            <h3 className="text-lg font-medium text-white mb-3">
+              Find These Tools Helpful?
+            </h3>
+            <p className="text-white/80 mb-6">
+              Liberation tools are built in the open and funded by the community. Your support keeps them free, privacy-first, and ad-free for everyone.
+            </p>
+            <KofiButton variant="button" size="medium" />
+            <p className="text-sm text-white/60 mt-4">
+              <Link href="/funding" className="text-blue-300 hover:text-blue-200 underline">See how funds are used</Link>
             </p>
           </div>
         </footer>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import type { ExpenseCategory, RunwayCalculation } from '@greenfieldoverride/types';
 import Link from 'next/link';
 import { LibIcon } from '../../../components/icons/LiberationIcons';
+import { KofiButton } from '@greenfieldoverride/liberation-ui';
 import { useLiberationJourney } from '@/hooks/useLiberationJourney';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
@@ -250,6 +251,20 @@ export default function RunwayCalculatorPage() {
           >
             Calculate Your Real Hourly Wage →
           </Link>
+        </div>
+
+        {/* Support */}
+        <div className="mt-16 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8 text-center border-2 border-blue-100">
+          <h3 className="text-lg font-medium text-gray-900 mb-3">
+            Find These Tools Helpful?
+          </h3>
+          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+            Liberation tools are built in the open and funded by the community. Your support keeps them free, privacy-first, and ad-free for everyone.
+          </p>
+          <KofiButton variant="button" size="medium" />
+          <p className="text-sm text-gray-500 mt-4">
+            <Link href="/funding" className="text-blue-600 hover:text-blue-700 underline">See how funds are used</Link>
+          </p>
         </div>
       </div>
     </div>
