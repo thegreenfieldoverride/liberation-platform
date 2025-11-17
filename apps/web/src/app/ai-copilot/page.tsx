@@ -13,6 +13,18 @@ export default function AICoPilotPage() {
   const [liberationContext, setLiberationContext] = useState<Partial<LiberationContext>>({});
   const { journeyState } = useLiberationJourney();
 
+  // Load saved plan from localStorage on mount
+  useEffect(() => {
+    const savedPlan = localStorage.getItem('ai-copilot-plan');
+    if (savedPlan) {
+      try {
+        setGeneratedPlan(JSON.parse(savedPlan));
+      } catch (error) {
+        console.warn('Failed to load saved plan:', error);
+      }
+    }
+  }, []);
+
   // Sample liberation data for demo (fallback when no dynamic data available)
   const sampleLiberationData = {
     financial: {
@@ -34,9 +46,9 @@ export default function AICoPilotPage() {
     }
   };
 
-  // Build liberation context from journey state and tool results
+  // Build liberation context AND dashboard data from journey state and tool results
   useEffect(() => {
-    const buildLiberationContext = () => {
+    const buildLiberationData = () => {
       const context: Partial<LiberationContext> = {
         riskTolerance: 'medium' // Default
       };
@@ -45,26 +57,48 @@ export default function AICoPilotPage() {
         // Get data from liberation journey tool insights
         const toolInsights = journeyState?.toolInsights || {};
 
-        // Get runway calculator data
-        if (toolInsights['runway-calculator']) {
-          context.runwayMonths = toolInsights['runway-calculator'].runwayMonths || 0;
-        }
+        // Build dashboard data structure from localStorage (more complete data)
+        const dashboardData: any = {
+          financial: {},
+          cognitive: {},
+          career: {}
+        };
 
-        // Get real hourly wage data
-        if (toolInsights['real-hourly-wage']) {
-          context.realHourlyWage = toolInsights['real-hourly-wage'].realWage || 0;
-        }
+        // Get runway calculator data from localStorage for complete info
+        const storedState = localStorage.getItem('liberation-journey-state');
+        if (storedState) {
+          try {
+            const parsedState = JSON.parse(storedState);
+            const insights = parsedState.toolInsights || {};
+            
+            // Runway data
+            if (insights['runway-calculator']) {
+              context.runwayMonths = insights['runway-calculator'].runwayMonths || 0;
+              dashboardData.financial = {
+                runwayMonths: insights['runway-calculator'].runwayMonths || 0,
+                savings: insights['runway-calculator'].savings || 0,
+                monthlyExpenses: insights['runway-calculator'].monthlyExpenses || insights['runway-calculator'].expenses || 0
+              };
+            }
 
-        // Get cognitive debt data from localStorage (still using old key for this)
-        const cognitiveData = localStorage.getItem('cognitiveDebtResult');
-        if (cognitiveData) {
-          const cognitive = JSON.parse(cognitiveData);
-          context.cognitiveDebtPercentage = cognitive.percentageScore || 0;
-        }
+            // Real hourly wage data  
+            if (insights['real-hourly-wage']) {
+              context.realHourlyWage = insights['real-hourly-wage'].realWage || 0;
+              dashboardData.financial.realHourlyWage = insights['real-hourly-wage'].realWage || 0;
+            }
 
-        // Also check tool insights for cognitive debt
-        if (toolInsights['cognitive-debt-assessment']) {
-          context.cognitiveDebtPercentage = toolInsights['cognitive-debt-assessment'].debtPercentage || 0;
+            // Cognitive debt data
+            if (insights['cognitive-debt-assessment']) {
+              context.cognitiveDebtPercentage = insights['cognitive-debt-assessment'].debtPercentage || 0;
+              dashboardData.cognitive = {
+                overallScore: insights['cognitive-debt-assessment'].score || 0,
+                riskLevel: insights['cognitive-debt-assessment'].riskLevel || 'unknown',
+                primaryConcerns: insights['cognitive-debt-assessment'].primaryConcerns || []
+              };
+            }
+          } catch (e) {
+            console.warn('Failed to parse journey state:', e);
+          }
         }
 
         // Get values-vocation matcher data
@@ -82,25 +116,34 @@ export default function AICoPilotPage() {
           }
         }
 
-        // Also check tool insights for values matcher
+        // Check tool insights for values matcher
         if (toolInsights['values-vocation-matcher']) {
-          // Add any additional data from tool insights if available
+          dashboardData.career.alignmentScore = toolInsights['values-vocation-matcher'].alignmentScore || 0;
         }
 
         console.log('🎯 Built liberation context from tools:', context);
+        console.log('📊 Built dashboard data:', dashboardData);
         console.log('📊 Tool insights available:', Object.keys(toolInsights));
+        
         setLiberationContext(context);
+        
+        // Only set dashboard data if we have real financial data
+        if (dashboardData.financial.runwayMonths || dashboardData.financial.realHourlyWage) {
+          setDynamicLiberationData(dashboardData);
+        }
       } catch (error) {
         console.warn('Failed to build liberation context:', error);
       }
     };
 
-    buildLiberationContext();
+    buildLiberationData();
   }, [journeyState]); // Rebuild when journey state changes
 
   const handlePlanGenerated = (plan: LiberationPlan) => {
     setGeneratedPlan(plan);
-    console.log('Liberation plan generated:', plan);
+    // Save plan to localStorage so it persists across tab switches
+    localStorage.setItem('ai-copilot-plan', JSON.stringify(plan));
+    console.log('Liberation plan generated and saved:', plan);
   };
 
   return (
