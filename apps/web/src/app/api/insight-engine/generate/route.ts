@@ -40,11 +40,18 @@ export async function POST(request: NextRequest) {
     let aiResponse;
     try {
       // Clean the response text (remove any markdown formatting)
-      const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
+      let cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
+      
+      // Try to extract JSON if the response contains explanatory text
+      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        cleanedText = jsonMatch[0];
+      }
+      
       aiResponse = JSON.parse(cleanedText);
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError);
-      console.error('Raw response:', text);
+      console.error('Raw response:', text.substring(0, 1000));
       
       // Return a structured error response
       return NextResponse.json({
