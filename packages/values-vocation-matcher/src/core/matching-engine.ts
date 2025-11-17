@@ -112,7 +112,7 @@ function calculateValueMatches(vocation: VocationOption, coreValues: any[]): Arr
     }
     
     // Alignment is weighted combination of importance and support
-    const alignment = (importance * 0.6) + (vocationSupport * 0.4);
+    const alignment = Math.round((importance * 0.6) + (vocationSupport * 0.4));
     
     return {
       value: userValue.value,
@@ -251,7 +251,7 @@ function calculateOverallAlignment(
     }
   }
   
-  return Math.min(100, Math.max(0, score));
+  return Math.round(Math.min(100, Math.max(0, score)));
 }
 
 /**

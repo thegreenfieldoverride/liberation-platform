@@ -1,14 +1,17 @@
 'use client';
 
 import { AICoPilot, LiberationDashboard, LiberationDataCollector } from '@greenfieldoverride/ai-copilot/react';
-import type { LiberationPlan } from '@greenfieldoverride/types';
-import { useState } from 'react';
+import type { LiberationPlan, LiberationContext } from '@greenfieldoverride/types';
+import { useState, useEffect } from 'react';
 import { LibIcon } from '../../components/icons/LiberationIcons';
+import { useLiberationJourney } from '../../hooks/useLiberationJourney';
 
 export default function AICoPilotPage() {
   const [generatedPlan, setGeneratedPlan] = useState<LiberationPlan | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
   const [dynamicLiberationData, setDynamicLiberationData] = useState<any>(null);
+  const [liberationContext, setLiberationContext] = useState<Partial<LiberationContext>>({});
+  const { journeyState } = useLiberationJourney();
 
   // Sample liberation data for demo (fallback when no dynamic data available)
   const sampleLiberationData = {
@@ -30,6 +33,60 @@ export default function AICoPilotPage() {
       marketValue: 7
     }
   };
+
+  // Build liberation context from journey state and tool results
+  useEffect(() => {
+    const buildLiberationContext = () => {
+      const context: Partial<LiberationContext> = {
+        riskTolerance: 'medium' // Default
+      };
+
+      try {
+        // Get runway calculator data
+        const runwayData = localStorage.getItem('runwayCalculatorData');
+        if (runwayData) {
+          const runway = JSON.parse(runwayData);
+          context.runwayMonths = runway.runwayMonths || runway.runway || 0;
+        }
+
+        // Get real hourly wage data
+        const wageData = localStorage.getItem('realHourlyWageResult');
+        if (wageData) {
+          const wage = JSON.parse(wageData);
+          context.realHourlyWage = wage.realWage || wage.hourlyWage || 0;
+        }
+
+        // Get cognitive debt data
+        const cognitiveData = localStorage.getItem('cognitiveDebtResult');
+        if (cognitiveData) {
+          const cognitive = JSON.parse(cognitiveData);
+          context.cognitiveDebtPercentage = cognitive.percentageScore || 0;
+        }
+
+        // Get values-vocation matcher data
+        const valuesData = localStorage.getItem('valuesVocationResult');
+        if (valuesData) {
+          const values = JSON.parse(valuesData);
+          if (values.userProfile?.dominantValues) {
+            context.skills = values.userProfile.dominantValues;
+          }
+          if (values.userProfile?.preferences?.industry) {
+            context.industry = values.userProfile.preferences.industry;
+          }
+          if (values.userProfile?.preferences?.riskTolerance) {
+            context.riskTolerance = values.userProfile.preferences.riskTolerance;
+          }
+        }
+
+        console.log('🎯 Built liberation context from tools:', context);
+        setLiberationContext(context);
+      } catch (error) {
+        console.warn('Failed to build liberation context:', error);
+      }
+    };
+
+    buildLiberationContext();
+  }, [journeyState]); // Rebuild when journey state changes
 
   const handlePlanGenerated = (plan: LiberationPlan) => {
     setGeneratedPlan(plan);
@@ -143,10 +200,34 @@ export default function AICoPilotPage() {
               </div>
             </div>
           ) : (
-            <AICoPilot 
-              onPlanGenerated={handlePlanGenerated}
-              className="text-white"
-            />
+            <div className="space-y-6">
+              <AICoPilot 
+                onPlanGenerated={handlePlanGenerated}
+                liberationContext={liberationContext}
+                className="text-white"
+              />
+              
+              {/* Context Status Indicator */}
+              <div className="p-4 bg-white/10 rounded-xl border border-white/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <LibIcon 
+                      icon={Object.keys(liberationContext).length > 1 ? "ActivityChart" : "Documentation"} 
+                      size="sm" 
+                      className={`${Object.keys(liberationContext).length > 1 ? 'text-green-400 animate-pulse' : 'text-gray-400'}`}
+                    />
+                    <span className="text-sm font-medium text-white">
+                      Context: {Object.keys(liberationContext).length > 1 ? 'Auto-filled from Tools' : 'Manual Entry Required'}
+                    </span>
+                  </div>
+                  {Object.keys(liberationContext).length <= 1 && (
+                    <span className="text-xs text-white/70 bg-white/20 px-3 py-1 rounded-full">
+                      Complete liberation tools to auto-populate context
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           )}
         </div>
 

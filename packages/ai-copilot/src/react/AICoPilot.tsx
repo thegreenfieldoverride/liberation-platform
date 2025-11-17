@@ -6,20 +6,30 @@ import { sovereignAI } from '../sovereign-ai';
 
 export interface AICoPilotProps {
   onPlanGenerated?: (plan: LiberationPlan) => void;
+  liberationContext?: Partial<LiberationContext>;
   className?: string;
 }
 
-export function AICoPilot({ onPlanGenerated, className = '' }: AICoPilotProps) {
+export function AICoPilot({ onPlanGenerated, liberationContext, className = '' }: AICoPilotProps) {
   const [status, setStatus] = useState<AIStatus>({ initialized: false, modelsLoaded: [] });
   const [context, setContext] = useState<Partial<LiberationContext>>({
     riskTolerance: 'medium',
     skills: [],
-    goals: []
+    goals: [],
+    ...liberationContext
   });
   const [plan, setPlan] = useState<LiberationPlan | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [step, setStep] = useState<'input' | 'generating' | 'plan'>('input');
   const [skillsInput, setSkillsInput] = useState<string>('');
+
+  // Update context when liberationContext prop changes
+  useEffect(() => {
+    if (liberationContext) {
+      setContext(prev => ({ ...prev, ...liberationContext }));
+      setSkillsInput(liberationContext.skills?.join(', ') || '');
+    }
+  }, [liberationContext]);
 
   // Initialize AI on component mount
   useEffect(() => {
@@ -296,7 +306,7 @@ export function AICoPilot({ onPlanGenerated, className = '' }: AICoPilotProps) {
               value={context.runwayMonths || ''}
               onChange={(e) => setContext((prev: Partial<LiberationContext>) => ({ ...prev, runwayMonths: Number(e.target.value) }))}
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-blue-400 focus:outline-none"
-              placeholder="6"
+              placeholder="Enter runway months"
             />
           </div>
 
@@ -309,7 +319,7 @@ export function AICoPilot({ onPlanGenerated, className = '' }: AICoPilotProps) {
               value={context.realHourlyWage || ''}
               onChange={(e) => setContext((prev: Partial<LiberationContext>) => ({ ...prev, realHourlyWage: Number(e.target.value) }))}
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-blue-400 focus:outline-none"
-              placeholder="25"
+              placeholder="Enter real hourly wage"
             />
           </div>
 
@@ -322,7 +332,7 @@ export function AICoPilot({ onPlanGenerated, className = '' }: AICoPilotProps) {
               value={context.cognitiveDebtPercentage || ''}
               onChange={(e) => setContext((prev: Partial<LiberationContext>) => ({ ...prev, cognitiveDebtPercentage: Number(e.target.value) }))}
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-blue-400 focus:outline-none"
-              placeholder="72"
+              placeholder="Enter cognitive debt %"
               max="100"
             />
           </div>
@@ -336,7 +346,7 @@ export function AICoPilot({ onPlanGenerated, className = '' }: AICoPilotProps) {
               value={skillsInput}
               onChange={(e) => handleSkillChange(e.target.value)}
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-blue-400 focus:outline-none"
-              placeholder="JavaScript, Writing, Design"
+              placeholder="Enter your skills, comma-separated"
               spellCheck="false"
               autoComplete="off"
             />
@@ -351,7 +361,7 @@ export function AICoPilot({ onPlanGenerated, className = '' }: AICoPilotProps) {
               value={context.industry || ''}
               onChange={(e) => setContext((prev: Partial<LiberationContext>) => ({ ...prev, industry: e.target.value }))}
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-blue-400 focus:outline-none"
-              placeholder="Technology"
+              placeholder="Enter your industry"
             />
           </div>
 

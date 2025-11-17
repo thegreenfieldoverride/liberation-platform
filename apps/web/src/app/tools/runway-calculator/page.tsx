@@ -245,7 +245,7 @@ export default function RunwayCalculatorPage() {
             Now that you know your runway, discover what you're really earning per hour.
           </p>
           <Link 
-            href="/tools/real-hourly-wage"
+            href="/real-hourly-wage"
             className="inline-flex items-center bg-gray-700 text-white px-8 py-4 rounded-2xl hover:bg-gray-600 transition-all duration-300 font-light shadow-sm hover:shadow-md"
           >
             Calculate Your Real Hourly Wage →

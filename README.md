@@ -4,6 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-Liberation--1.0-blue.svg)](https://github.com/liberationlicense/license/blob/v1.0.0/LICENSE.md)
 [![GitHub](https://img.shields.io/github/stars/thegreenfieldoverride/liberation-platform?style=social)](https://github.com/thegreenfieldoverride/liberation-platform)
+[![Support on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/greenfieldoverride)
 
 ## Mission
 
@@ -146,6 +147,22 @@ pnpm build
 # Run tests
 pnpm test
 ```
+
+## 💜 Supporting Liberation
+
+This platform is built with love and funded by community support. Every contribution helps keep the lights on and development moving forward.
+
+**☕ [Support on Ko-fi](https://ko-fi.com/greenfieldoverride)**  
+
+Your support helps:
+- 🔧 **Maintain & improve** the liberation tools
+- 🤖 **Develop AI features** that respect privacy  
+- 📚 **Create educational content** for corporate escapees
+- 🛡️ **Keep the platform** independent and advertisement-free
+
+*Every coffee bought helps someone escape the hamster wheel* ✨
+
+---
 
 ## Contributing
 
