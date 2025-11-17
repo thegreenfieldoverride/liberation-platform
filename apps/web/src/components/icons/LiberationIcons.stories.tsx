@@ -1,5 +1,5 @@
 import type { Story } from '@ladle/react';
-import { LibIcon } from './LiberationIcons';
+import { LibIcon } from '@greenfieldoverride/liberation-ui';
 
 export default {
   title: 'Liberation Platform / Icons',

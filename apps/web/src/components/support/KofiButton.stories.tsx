@@ -1,5 +1,5 @@
 import type { Story } from '@ladle/react';
-import KofiButton from './KofiButton';
+import { KofiButton } from '@greenfieldoverride/liberation-ui';
 
 export default {
   title: 'Liberation Platform / Support',

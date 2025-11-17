@@ -123,7 +123,7 @@ importers:
         version: 7.2.2(@types/node@20.19.19)(jiti@1.21.7)(terser@5.44.0)
       vitest:
         specifier: ^1.0.0
-        version: 1.6.1(@types/node@20.19.19)(jsdom@23.2.0)(terser@5.44.0)
+        version: 1.6.1(@types/node@20.19.19)(happy-dom@20.0.10)(jsdom@23.2.0)(terser@5.44.0)
 
   packages/ai-copilot:
     dependencies:
@@ -219,21 +219,42 @@ importers:
       '@ladle/react':
         specifier: ^5.1.1
         version: 5.1.1(@types/node@20.19.19)(@types/react@18.3.25)(jiti@1.21.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(terser@5.44.0)(typescript@5.9.3)
+      '@testing-library/jest-dom':
+        specifier: ^6.9.1
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^14.3.1
+        version: 14.3.1(@types/react@18.3.25)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/react':
         specifier: ^18.3.3
         version: 18.3.25
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.7(@types/react@18.3.25)
+      '@vitejs/plugin-react':
+        specifier: ^5.1.1
+        version: 5.1.1(vite@7.2.2(@types/node@20.19.19)(jiti@1.21.7)(terser@5.44.0))
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
+      happy-dom:
+        specifier: ^20.0.10
+        version: 20.0.10
+      jsdom:
+        specifier: ^23.2.0
+        version: 23.2.0
       tsup:
         specifier: ^8.3.0
         version: 8.5.1(@swc/core@1.15.2)(jiti@1.21.7)(postcss@8.5.6)(typescript@5.9.3)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      vite:
+        specifier: ^7.2.2
+        version: 7.2.2(@types/node@20.19.19)(jiti@1.21.7)(terser@5.44.0)
+      vitest:
+        specifier: ^1.6.1
+        version: 1.6.1(@types/node@20.19.19)(happy-dom@20.0.10)(jsdom@23.2.0)(terser@5.44.0)
 
   packages/real-hourly-wage:
     dependencies:
@@ -1552,6 +1573,9 @@ packages:
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
 
+  '@types/whatwg-mimetype@3.0.2':
+    resolution: {integrity: sha512-c2AKvDT8ToxLIOUlN51gTiHXflsfIFisS4pO7pDPoKouJCESkhZnEy623gwP9laCy5lnLDAw1vAzu2vM2YLOrA==}
+
   '@typescript-eslint/eslint-plugin@8.45.0':
     resolution: {integrity: sha512-HC3y9CVuevvWCl/oyZuI47dOeDF9ztdMEfMH8/DW/Mhwa9cCLnK1oD7JoTVGW/u7kFzNZUKUoyJEqkaJh5y3Wg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -2798,6 +2822,10 @@ packages:
 
   guid-typescript@1.0.9:
     resolution: {integrity: sha512-Y8T4vYhEfwJOTbouREvG+3XDsjr8E3kIr7uf+JZ0BYloFsttiHU0WfvANVsR7TxNUJa/WpCnw/Ino/p+DeBhBQ==}
+
+  happy-dom@20.0.10:
+    resolution: {integrity: sha512-6umCCHcjQrhP5oXhrHQQvLB0bwb1UzHAHdsXy+FjtKoYjUhmNZsQL8NivwM1vDvNEChJabVrUYxUnp/ZdYmy2g==}
+    engines: {node: '>=20.0.0'}
 
   has-bigints@1.1.0:
     resolution: {integrity: sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg==}
@@ -4763,6 +4791,10 @@ packages:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
 
+  whatwg-mimetype@3.0.0:
+    resolution: {integrity: sha512-nt+N2dzIutVRxARx1nghPKGv1xHikU7HKdfafKkLNLindmPU/ch3U31NOCGGA/dmPcmb1VlofO0vnKAcsm0o/Q==}
+    engines: {node: '>=12'}
+
   whatwg-mimetype@4.0.0:
     resolution: {integrity: sha512-QaKxh0eNIi2mE9p2vEdzfagOKHCcj1pJ56EEHGQOVxp8r9/iszLUUV7v89x9O1p/T+NlTM5W7jW6+cz4Fq1YVg==}
     engines: {node: '>=18'}
@@ -5899,6 +5931,8 @@ snapshots:
   '@types/unist@2.0.11': {}
 
   '@types/unist@3.0.3': {}
+
+  '@types/whatwg-mimetype@3.0.2': {}
 
   '@typescript-eslint/eslint-plugin@8.45.0(@typescript-eslint/parser@8.45.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)':
     dependencies:
@@ -7405,6 +7439,12 @@ snapshots:
   graphql@16.12.0: {}
 
   guid-typescript@1.0.9: {}
+
+  happy-dom@20.0.10:
+    dependencies:
+      '@types/node': 20.19.19
+      '@types/whatwg-mimetype': 3.0.2
+      whatwg-mimetype: 3.0.0
 
   has-bigints@1.1.0: {}
 
@@ -9903,7 +9943,7 @@ snapshots:
       jiti: 1.21.7
       terser: 5.44.0
 
-  vitest@1.6.1(@types/node@20.19.19)(jsdom@23.2.0)(terser@5.44.0):
+  vitest@1.6.1(@types/node@20.19.19)(happy-dom@20.0.10)(jsdom@23.2.0)(terser@5.44.0):
     dependencies:
       '@vitest/expect': 1.6.1
       '@vitest/runner': 1.6.1
@@ -9927,6 +9967,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 20.19.19
+      happy-dom: 20.0.10
       jsdom: 23.2.0
     transitivePeerDependencies:
       - less
@@ -9949,6 +9990,8 @@ snapshots:
   whatwg-encoding@3.1.1:
     dependencies:
       iconv-lite: 0.6.3
+
+  whatwg-mimetype@3.0.0: {}
 
   whatwg-mimetype@4.0.0: {}
 

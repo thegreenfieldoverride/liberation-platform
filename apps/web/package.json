@@ -10,7 +10,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "components": "ladle serve",
+    "components": "./ladle.sh",
     "components:build": "ladle build"
   },
   "dependencies": {
