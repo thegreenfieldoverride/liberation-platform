@@ -26,7 +26,8 @@ services:
     networks:
       - liberation-network
       
-  # Liberation Guardian (Go microservice)
+  # Liberation Guardian (Go microservice) 
+  # Image built and published by thegreenfieldoverride/guardian repository
   liberation-guardian:
     image: greenfieldoverride/liberation-guardian:latest
     ports:

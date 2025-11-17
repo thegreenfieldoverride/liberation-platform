@@ -6,8 +6,11 @@ Complete guide for deploying the Liberation Platform using Docker Hub images.
 
 ### Core Images
 - **`greenfieldoverride/liberation-platform:latest`** - Main Next.js web application (Port: 3000)
-- **`greenfieldoverride/liberation-guardian:latest`** - Go microservice guardian (Port: 9000)  
+  - Built from: `thegreenfieldoverride/liberation-platform` repository
+- **`greenfieldoverride/liberation-guardian:latest`** - Go microservice guardian (Port: 9000)
+  - Built from: `thegreenfieldoverride/guardian` repository  
 - **`greenfieldoverride/liberation-analytics:latest`** - Analytics service (Port: 8080)
+  - Built from: `thegreenfieldoverride/liberation-analytics` repository
 
 ### Architecture Support
 - **AMD64** (Intel/AMD processors)
