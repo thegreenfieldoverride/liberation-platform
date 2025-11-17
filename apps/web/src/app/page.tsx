@@ -367,6 +367,27 @@ export default function HomePage() {
                 The only question is: are you ready to begin?
               </p>
             </div>
+            
+            {/* Support Section */}
+            <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-white/30 rounded-2xl p-8 my-12 max-w-2xl mx-auto">
+              <div className="text-center">
+                <p className="text-lg text-white mb-4">
+                  💜 This platform is built with love and funded by community support
+                </p>
+                <a
+                  href="https://ko-fi.com/greenfieldoverride"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  <span>☕</span>
+                  <span className="font-medium">Support on Ko-fi</span>
+                </a>
+                <p className="text-sm text-white/70 mt-3">
+                  Every coffee helps keep the platform independent & ad-free
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-6">

@@ -344,4 +344,14 @@ To enable automated builds, add these secrets to your GitHub repository:
 curl -sSL https://raw.githubusercontent.com/thegreenfieldoverride/greenfield-override/main/docker-compose.stack.yml | docker-compose -f - up -d
 ```
 
+## 💜 Support the Project
+
+This liberation platform is built with love and community support.
+
+**☕ [Support development on Ko-fi](https://ko-fi.com/greenfieldoverride)**
+
+Every contribution helps keep this platform independent, privacy-focused, and free from corporate influence.
+
+---
+
 Happy Liberation! 🦋
