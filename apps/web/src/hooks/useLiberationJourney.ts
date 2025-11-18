@@ -21,10 +21,10 @@ function createDefaultJourneyState(): LiberationJourneyState {
     overallScore: 0,
     milestones: [...LIBERATION_MILESTONES], // Create copy with default progress
     phaseProgress: {
-      discovery: { score: 0, completedMilestones: 0, totalMilestones: 5 },
+      discovery: { score: 0, completedMilestones: 0, totalMilestones: 6 },
       planning: { score: 0, completedMilestones: 0, totalMilestones: 2 },
       building: { score: 0, completedMilestones: 0, totalMilestones: 3 },
-      transitioning: { score: 0, completedMilestones: 0, totalMilestones: 3 },
+      transitioning: { score: 0, completedMilestones: 0, totalMilestones: 2 },
       liberated: { score: 0, completedMilestones: 0, totalMilestones: 2 }
     },
     toolInsights: {
@@ -67,6 +67,19 @@ export function useLiberationJourney() {
           ...m,
           completedAt: m.completedAt ? new Date(m.completedAt) : undefined
         }));
+        
+        // Recalculate phase progress to fix any stale data from milestone rebalancing
+        const recalculatedPhaseProgress: any = {};
+        Object.keys(LIBERATION_PHASES).forEach((phaseId) => {
+          const completion = calculatePhaseCompletion(phaseId as any, parsed.milestones);
+          recalculatedPhaseProgress[phaseId] = {
+            score: completion.percentage,
+            completedMilestones: completion.completed,
+            totalMilestones: completion.total
+          };
+        });
+        parsed.phaseProgress = recalculatedPhaseProgress;
+        
         setJourneyState(parsed);
       }
     } catch (error) {

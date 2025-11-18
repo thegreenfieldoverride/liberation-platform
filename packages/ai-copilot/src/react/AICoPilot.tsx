@@ -4,6 +4,19 @@ import React, { useState, useEffect, useCallback } from 'react';
 import type { LiberationContext, LiberationPlan, LiberationPhase, AIStatus } from '@greenfieldoverride/types';
 import { sovereignAI } from '../sovereign-ai';
 
+// Simple function to strip markdown formatting
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '$1') // **bold**
+    .replace(/\*(.*?)\*/g, '$1')     // *italic*
+    .replace(/__(.*?)__/g, '$1')     // __bold__
+    .replace(/_(.*?)_/g, '$1')       // _italic_
+    .replace(/`(.*?)`/g, '$1')       // `code`
+    .replace(/###\s+(.*?)$/gm, '$1') // ### heading
+    .replace(/##\s+(.*?)$/gm, '$1')  // ## heading
+    .replace(/#\s+(.*?)$/gm, '$1');  // # heading
+}
+
 export interface AICoPilotProps {
   onPlanGenerated?: (plan: LiberationPlan) => void;
   liberationContext?: Partial<LiberationContext>;
@@ -177,7 +190,7 @@ export function AICoPilot({ onPlanGenerated, liberationContext, className = '' }
               <span>📊</span> Situation Assessment
             </h3>
             <p className="text-white/80 leading-relaxed whitespace-pre-line">
-              {plan.assessment}
+              {stripMarkdown(plan.assessment || '')}
             </p>
           </div>
 
