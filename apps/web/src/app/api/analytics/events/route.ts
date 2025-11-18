@@ -1,36 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const ANALYTICS_SERVICE_URL = process.env.ANALYTICS_SERVICE_URL || 'http://localhost:8080';
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // Forward the request to our analytics service
-    const response = await fetch(`${ANALYTICS_SERVICE_URL}/api/events`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
+    // Log analytics event locally (console only for now)
+    // In the future, this could store to a database or send to a service
+    console.log('📊 Analytics event:', {
+      type: body.type,
+      tool: body.tool,
+      timestamp: new Date().toISOString(),
+      data: body.data
     });
-
-    if (!response.ok) {
-      console.error('Analytics service error:', response.status, response.statusText);
-      return NextResponse.json(
-        { error: 'Analytics service unavailable' },
-        { status: 503 }
-      );
-    }
-
-    const data = await response.json();
-    return NextResponse.json(data);
+    
+    return NextResponse.json({ 
+      success: true,
+      message: 'Event tracked'
+    });
   } catch (error) {
     console.error('Analytics API error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    // Don't fail the request - analytics is non-critical
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Event logged'
+    });
   }
 }
 

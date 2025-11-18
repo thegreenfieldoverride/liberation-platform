@@ -11,12 +11,13 @@ export const LIBERATION_PHASES: Record<LiberationPhaseDefinition['id'], Liberati
     title: 'Discovery Phase',
     description: 'Learning about your current situation and exploring possibilities',
     scoreRange: [0, 25],
-    requiredMilestones: ['first-tool-use', 'basic-data-entry', 'real-wage-calculated', 'cognitive-debt-assessed', 'values-identified'],
+    requiredMilestones: ['first-tool-use', 'basic-data-entry', 'real-wage-calculated', 'cognitive-debt-assessed', 'financial-clarity', 'values-identified'],
     recommendedActions: [
       'Calculate your runway',
       'Assess your real hourly wage',
       'Complete cognitive debt assessment',
-      'Complete values-vocation assessment'
+      'Complete values-vocation assessment',
+      'Achieve financial clarity with 3+ months runway'
     ],
     color: '#6366F1', // Indigo
     icon: 'Direction'
@@ -26,10 +27,10 @@ export const LIBERATION_PHASES: Record<LiberationPhaseDefinition['id'], Liberati
     title: 'Planning Phase', 
     description: 'Creating strategy and understanding your path forward',
     scoreRange: [25, 50],
-    requiredMilestones: ['financial-clarity', 'first-insight-generated'],
+    requiredMilestones: ['first-insight-generated', 'first-decision-made'],
     recommendedActions: [
-      'Set financial targets',
-      'Create first strategic insight',
+      'Generate strategic insights',
+      'Make informed strategic decisions',
       'Plan your transition strategy'
     ],
     color: '#0EA5E9', // Sky
@@ -40,11 +41,12 @@ export const LIBERATION_PHASES: Record<LiberationPhaseDefinition['id'], Liberati
     title: 'Building Phase',
     description: 'Taking action and building your liberation foundation',
     scoreRange: [50, 75],
-    requiredMilestones: ['first-decision-made', 'action-initiated', 'consistency-achieved'],
+    requiredMilestones: ['action-initiated', 'consistency-achieved', 'momentum-achieved'],
     recommendedActions: [
       'Start your first small bet',
       'Implement strategic decisions',
-      'Track progress consistently'
+      'Track progress consistently',
+      'Build momentum with multiple active projects'
     ],
     color: '#10B981', // Emerald
     icon: 'Growth'
@@ -54,7 +56,7 @@ export const LIBERATION_PHASES: Record<LiberationPhaseDefinition['id'], Liberati
     title: 'Transitioning Phase',
     description: 'Actively moving toward your liberation goals',
     scoreRange: [75, 90],
-    requiredMilestones: ['momentum-achieved', 'multiple-successes', 'advanced-insights'],
+    requiredMilestones: ['multiple-successes', 'advanced-insights'],
     recommendedActions: [
       'Scale successful bets',
       'Reduce dependencies',
