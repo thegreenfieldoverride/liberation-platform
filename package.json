@@ -11,6 +11,10 @@
     "build": "pnpm --filter @greenfieldoverride/types run build && pnpm --filter @greenfieldoverride/user-context run build && pnpm -r run build",
     "dev": "pnpm --filter greenfield-override-web run dev",
     "test": "pnpm -r run test",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report",
     "lint": "pnpm -r run lint",
     "publish:ui": "pnpm --filter @greenfieldoverride/liberation-ui publish",
     "publish:runway": "pnpm --filter @greenfieldoverride/runway-calculator publish",
@@ -24,6 +28,7 @@
     "publish:all": "pnpm publish:types && pnpm publish:user-context && pnpm publish:ui && pnpm publish:runway && pnpm publish:hourly-wage && pnpm publish:ai-copilot && pnpm publish:cognitive-debt && pnpm publish:values-matcher && pnpm publish:small-bets"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   },
