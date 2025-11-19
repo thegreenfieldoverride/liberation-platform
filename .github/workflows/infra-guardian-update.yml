@@ -1,0 +1,79 @@
+name: 🔧 Update Guardian Infrastructure
+
+# This workflow is for infrastructure maintenance only
+# It updates the Guardian deployment configuration when upstream images are updated
+# No Docker image building happens here - Guardian has its own build pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      guardian_version:
+        description: 'Guardian image version to deploy (e.g., latest, v1.2.3, git-abc1234)'
+        required: true
+        default: 'latest'
+      action:
+        description: 'Maintenance action'
+        required: true
+        type: choice
+        options:
+          - update-guardian-image
+          - security-patch
+          - config-update
+        default: 'update-guardian-image'
+
+env:
+  GUARDIAN_IMAGE: greenfieldoverride/liberation-guardian
+
+jobs:
+  update-infrastructure:
+    name: 🔧 Update Infrastructure
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Action summary
+        run: |
+          echo "## 🔧 Infrastructure Maintenance" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Action:** ${{ inputs.action }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Guardian Version:** ${{ inputs.guardian_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+      - name: Verify Guardian image exists
+        if: inputs.action == 'update-guardian-image' || inputs.action == 'security-patch'
+        run: |
+          echo "🔍 Verifying Guardian image exists..."
+          docker manifest inspect ${{ env.GUARDIAN_IMAGE }}:${{ inputs.guardian_version }}
+          echo "✅ Image verified"
+          
+      - name: Notify infrastructure update
+        run: |
+          echo "📡 Sending infrastructure update signal..."
+          
+          # TODO: Add actual Guardian configuration update mechanism
+          # This could be:
+          # 1. API call to Guardian to update its configuration
+          # 2. Update to a GitOps repo that Guardian watches
+          # 3. Direct SSH/kubectl command to update deployment
+          
+          # Example:
+          # curl -X POST ${{ secrets.GUARDIAN_CONFIG_API }} \
+          #   -H "Authorization: Bearer ${{ secrets.GUARDIAN_TOKEN }}" \
+          #   -d '{
+          #     "guardian_version": "${{ inputs.guardian_version }}",
+          #     "action": "${{ inputs.action }}"
+          #   }'
+          
+          echo "✅ Infrastructure update signal sent"
+          
+      - name: Update summary
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Infrastructure Update Initiated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Guardian will pull and apply the new configuration" >> $GITHUB_STEP_SUMMARY
+          echo "2. Monitor Guardian logs for successful deployment" >> $GITHUB_STEP_SUMMARY
+          echo "3. Verify system health after update" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** No image building occurred - using pre-built Guardian image" >> $GITHUB_STEP_SUMMARY

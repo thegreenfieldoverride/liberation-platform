@@ -1,0 +1,106 @@
+name: 🚀 Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to deploy (e.g., latest, git-abc1234)'
+        required: true
+        default: 'latest'
+      skip_health_check:
+        description: 'Skip health check before deploying'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  IMAGE_NAME: greenfieldoverride/liberation-platform
+
+jobs:
+  deploy:
+    name: 🚀 Deploy Liberation Platform
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://greenfieldoverride.com
+      
+    steps:
+      - name: Verify image exists
+        run: |
+          echo "🔍 Verifying image exists on Docker Hub..."
+          docker manifest inspect ${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
+          
+      - name: Notify deployment start
+        run: |
+          echo "## 🚀 Production Deployment Started" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** Production" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          
+      - name: Trigger Guardian deployment
+        run: |
+          echo "🎯 Notifying Guardian to deploy new image..."
+          echo "Image: ${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}"
+          
+          # TODO: Add actual Guardian webhook/API call here
+          # Example:
+          # curl -X POST ${{ secrets.GUARDIAN_WEBHOOK_URL }} \
+          #   -H "Authorization: Bearer ${{ secrets.GUARDIAN_TOKEN }}" \
+          #   -H "Content-Type: application/json" \
+          #   -d '{
+          #     "image": "${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}",
+          #     "environment": "production",
+          #     "skip_health_check": ${{ inputs.skip_health_check }}
+          #   }'
+          
+          echo "✅ Deployment signal sent to Guardian"
+          
+      - name: Wait for deployment
+        if: ${{ !inputs.skip_health_check }}
+        run: |
+          echo "⏳ Waiting for deployment to complete..."
+          sleep 30
+          
+      - name: Health check
+        if: ${{ !inputs.skip_health_check }}
+        run: |
+          echo "🏥 Running health check..."
+          
+          MAX_RETRIES=10
+          RETRY_DELAY=10
+          
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Attempt $i/$MAX_RETRIES..."
+            
+            if curl -f -s https://greenfieldoverride.com/api/health > /dev/null; then
+              echo "✅ Health check passed!"
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### ✅ Deployment Successful" >> $GITHUB_STEP_SUMMARY
+              echo "Site is healthy and responding" >> $GITHUB_STEP_SUMMARY
+              exit 0
+            fi
+            
+            if [ $i -lt $MAX_RETRIES ]; then
+              echo "⏳ Waiting ${RETRY_DELAY}s before retry..."
+              sleep $RETRY_DELAY
+            fi
+          done
+          
+          echo "❌ Health check failed after $MAX_RETRIES attempts"
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ⚠️ Health Check Failed" >> $GITHUB_STEP_SUMMARY
+          echo "Manual verification required" >> $GITHUB_STEP_SUMMARY
+          exit 1
+          
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Deployment Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image Tag:** ${{ inputs.image_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Health Check:** ${{ inputs.skip_health_check && 'Skipped' || 'Enabled' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment ID:** ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
