@@ -247,7 +247,9 @@ export class UserContextStorage {
       request.onsuccess = () => {
         const results = request.result;
         if (results.length > 0) {
-          resolve(results[0]);
+          // Remove the top-level id field (it's a duplicate of identity.id)
+          const { id, ...context } = results[0];
+          resolve(context as UserContext);
         } else {
           resolve(null);
         }
@@ -264,8 +266,14 @@ export class UserContextStorage {
       const transaction = this.db!.transaction(['userContext'], 'readwrite');
       const store = transaction.objectStore('userContext');
       
+      // Add top-level id field for IndexedDB keyPath compatibility
+      const contextWithId = {
+        ...context,
+        id: context.identity.id
+      };
+      
       store.clear();
-      store.add(context);
+      store.add(contextWithId);
 
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error);

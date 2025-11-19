@@ -21,10 +21,10 @@ function createDefaultJourneyState(): LiberationJourneyState {
     overallScore: 0,
     milestones: [...LIBERATION_MILESTONES], // Create copy with default progress
     phaseProgress: {
-      discovery: { score: 0, completedMilestones: 0, totalMilestones: 5 },
+      discovery: { score: 0, completedMilestones: 0, totalMilestones: 6 },
       planning: { score: 0, completedMilestones: 0, totalMilestones: 2 },
       building: { score: 0, completedMilestones: 0, totalMilestones: 3 },
-      transitioning: { score: 0, completedMilestones: 0, totalMilestones: 3 },
+      transitioning: { score: 0, completedMilestones: 0, totalMilestones: 2 },
       liberated: { score: 0, completedMilestones: 0, totalMilestones: 2 }
     },
     toolInsights: {
@@ -67,6 +67,19 @@ export function useLiberationJourney() {
           ...m,
           completedAt: m.completedAt ? new Date(m.completedAt) : undefined
         }));
+        
+        // Recalculate phase progress to fix any stale data from milestone rebalancing
+        const recalculatedPhaseProgress: any = {};
+        Object.keys(LIBERATION_PHASES).forEach((phaseId) => {
+          const completion = calculatePhaseCompletion(phaseId as any, parsed.milestones);
+          recalculatedPhaseProgress[phaseId] = {
+            score: completion.percentage,
+            completedMilestones: completion.completed,
+            totalMilestones: completion.total
+          };
+        });
+        parsed.phaseProgress = recalculatedPhaseProgress;
+        
         setJourneyState(parsed);
       }
     } catch (error) {
@@ -81,11 +94,40 @@ export function useLiberationJourney() {
     if (!isLoading) {
       try {
         localStorage.setItem(JOURNEY_STORAGE_KEY, JSON.stringify(journeyState));
+        // Dispatch custom event so other hook instances can update
+        window.dispatchEvent(new Event('liberation-journey-updated'));
       } catch (error) {
         console.warn('Failed to save journey state to localStorage:', error);
       }
     }
   }, [journeyState, isLoading]);
+
+  // Listen for updates from other hook instances
+  useEffect(() => {
+    const handleStorageUpdate = () => {
+      try {
+        const stored = localStorage.getItem(JOURNEY_STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          parsed.lastUpdated = new Date(parsed.lastUpdated);
+          parsed.achievements = parsed.achievements?.map((a: any) => ({
+            ...a,
+            unlockedAt: new Date(a.unlockedAt)
+          })) || [];
+          parsed.milestones = parsed.milestones?.map((m: any) => ({
+            ...m,
+            completedAt: m.completedAt ? new Date(m.completedAt) : undefined
+          })) || [];
+          setJourneyState(parsed);
+        }
+      } catch (error) {
+        console.warn('Failed to sync journey state:', error);
+      }
+    };
+
+    window.addEventListener('liberation-journey-updated', handleStorageUpdate);
+    return () => window.removeEventListener('liberation-journey-updated', handleStorageUpdate);
+  }, []);
 
   // Calculate overall score based on milestone weights and progress
   const calculateOverallScore = useCallback((milestones: LiberationMilestone[]): number => {

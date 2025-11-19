@@ -8,6 +8,7 @@
 import React, { useEffect } from 'react';
 import { SmallBetsPortfolio } from '@greenfieldoverride/small-bets-portfolio';
 import { useLiberationJourney } from '../../hooks/useLiberationJourney';
+import Link from 'next/link';
 
 export default function SmallBetsPortfolioPage() {
   const { updateMilestone, recordEvent, updateToolInsights } = useLiberationJourney();
@@ -30,8 +31,15 @@ export default function SmallBetsPortfolioPage() {
     };
   }, [updateMilestone, recordEvent, updateToolInsights]);
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb */}
+        <nav className="mb-8">
+          <Link href="/tools" className="text-gray-500 hover:text-gray-700 transition-all duration-300 font-light">
+            ← Back to Tools
+          </Link>
+        </nav>
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="max-w-4xl">
