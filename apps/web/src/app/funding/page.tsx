@@ -1,12 +1,9 @@
+'use client';
+
 import { Shield, Server, Cpu, Heart, ArrowRight } from 'lucide-react';
 import { KofiButton } from '@greenfieldoverride/liberation-ui';
 import { CampaignCard } from '../../components/funding/CampaignCard';
 import { GoalCard } from '../../components/funding/GoalCard';
-
-export const metadata = {
-  title: 'Funding Transparency - The Greenfield Development Fund',
-  description: 'Radical transparency in funding public good software. See exactly how your contributions sustain ethical tool development.',
-};
 
 export default function FundingPage() {
   // TODO: Replace with actual Ko-fi API data or manual updates
