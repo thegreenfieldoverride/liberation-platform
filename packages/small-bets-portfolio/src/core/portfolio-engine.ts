@@ -356,16 +356,54 @@ export class PortfolioEngine {
       }
     });
     
-    // Identify underperforming bets
+    // Identify underperforming bets (only if they've had enough time and high effort)
     betAnalyses.forEach(({ bet, analysis }) => {
-      if (analysis.profitability.roi < 10 && analysis.alignment.burnoutRisk > 7) {
+      const daysSinceStart = Math.floor(
+        (Date.now() - new Date(bet.startDate).getTime()) / (1000 * 60 * 60 * 24)
+      );
+      const monthsSinceStart = daysSinceStart / 30;
+      
+      // Only flag as underperforming if:
+      // 1. Been running for at least 2 months (60 days)
+      // 2. Requires significant time investment (>5 hours/week)
+      // 3. Has low ROI AND high burnout risk
+      const hasMatured = monthsSinceStart >= 2;
+      const isHighEffort = bet.hoursPerWeek > 5;
+      const isUnderperforming = analysis.profitability.roi < 10 && analysis.alignment.burnoutRisk > 7;
+      
+      if (hasMatured && isHighEffort && isUnderperforming) {
         recommendations.push({
           type: 'pivot',
           priority: 'medium',
           title: `Pivot or stop ${bet.name}`,
-          description: `Low ROI (${analysis.profitability.roi.toFixed(1)}%) and high burnout risk. Consider changing approach or stopping.`,
+          description: `Low ROI (${analysis.profitability.roi.toFixed(1)}%) and high burnout risk after ${monthsSinceStart.toFixed(1)} months. Consider changing approach or stopping.`,
           expectedImpact: 'Free up time for better opportunities',
           timeframe: '1 month',
+          effort: 'low'
+        });
+      }
+    });
+    
+    // Identify low-effort passive income bets worth nurturing
+    betAnalyses.forEach(({ bet, analysis }) => {
+      const daysSinceStart = Math.floor(
+        (Date.now() - new Date(bet.startDate).getTime()) / (1000 * 60 * 60 * 24)
+      );
+      const monthsSinceStart = daysSinceStart / 30;
+      
+      // Highlight passive/low-effort bets that are early stage
+      const isLowEffort = bet.hoursPerWeek <= 2;
+      const isEarlyStage = monthsSinceStart < 3;
+      const hasUpside = bet.category === 'content' || bet.category === 'product' || bet.category === 'investment';
+      
+      if (isLowEffort && isEarlyStage && hasUpside && bet.status === 'testing') {
+        recommendations.push({
+          type: 'optimize',
+          priority: 'low',
+          title: `Monitor ${bet.name}`,
+          description: `Low-effort passive income bet (${bet.hoursPerWeek}h/week). Still early (${monthsSinceStart.toFixed(1)} months). Give it time to attract organic income.`,
+          expectedImpact: 'Potential passive income with minimal ongoing effort',
+          timeframe: '3-6 months',
           effort: 'low'
         });
       }
