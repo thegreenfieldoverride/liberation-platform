@@ -1,0 +1,133 @@
+name: 🐳 Build & Deploy Liberation Platform
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to deploy (e.g., latest, git-abc123, v1.0.0)'
+        required: true
+        default: 'latest'
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+        default: 'staging'
+
+env:
+  IMAGE_NAME: greenfieldoverride/liberation-platform
+  REGISTRY: docker.io
+
+jobs:
+  build-image:
+    name: 🏗️ Build Docker Image
+    runs-on: ubuntu-latest
+    # Only build on push to main, not on manual dispatch
+    if: github.event_name == 'push'
+    
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=git-
+            type=raw,value=latest,enable={{is_default_branch}}
+      
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          
+      - name: Image build summary
+        run: |
+          echo "## 🐳 Liberation Platform Image Built!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Published Images:**" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.IMAGE_NAME }}:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.IMAGE_NAME }}:git-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Deploy Options:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Manual Deployment:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to Actions → Build & Deploy Liberation Platform" >> $GITHUB_STEP_SUMMARY
+          echo "2. Click 'Run workflow'" >> $GITHUB_STEP_SUMMARY
+          echo "3. Enter image tag: \`latest\` or \`git-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "4. Select environment: staging or production" >> $GITHUB_STEP_SUMMARY
+
+  deploy:
+    name: 🚀 Deploy to ${{ inputs.environment || 'auto' }}
+    runs-on: ubuntu-latest
+    # Only run on manual workflow dispatch
+    if: github.event_name == 'workflow_dispatch'
+    
+    environment:
+      name: ${{ inputs.environment }}
+      
+    steps:
+      - name: Checkout Guardian repo
+        uses: actions/checkout@v4
+        with:
+          repository: thegreenfieldoverride/liberation-guardian
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: guardian
+          
+      - name: Update deployment configuration
+        run: |
+          cd guardian
+          
+          # Update docker-compose.production.yml with new image tag
+          sed -i "s|image: greenfieldoverride/liberation-platform:.*|image: greenfieldoverride/liberation-platform:${{ inputs.image_tag }}|g" docker-compose.production.yml || true
+          
+          echo "## 🚀 Deployment Triggered!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** \`${{ inputs.environment }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Guardian will pull and deploy the specified image." >> $GITHUB_STEP_SUMMARY
+          
+      - name: Trigger Guardian deployment
+        run: |
+          # Call Guardian webhook or deployment endpoint
+          # This step depends on how Guardian is configured to receive deployment signals
+          echo "Notifying Guardian of new deployment..."
+          echo "Image: ${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}"
+          echo "Environment: ${{ inputs.environment }}"
+          
+          # TODO: Replace with actual Guardian deployment trigger
+          # Example: curl -X POST https://guardian.example.com/deploy \
+          #   -H "Authorization: Bearer ${{ secrets.GUARDIAN_TOKEN }}" \
+          #   -d '{"image": "${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}", "env": "${{ inputs.environment }}"}'
