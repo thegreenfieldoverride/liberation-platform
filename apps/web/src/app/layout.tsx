@@ -3,6 +3,7 @@ import '../styles/globals.css';
 import { Navigation } from '../components/Navigation';
 import { Footer } from '../components/Footer';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { AnalyticsPageView } from '../components/AnalyticsPageView';
 
 import { LiberationJourneyWidget } from '../components/liberation-journey/LiberationJourneyWidget';
 
@@ -63,6 +64,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased min-h-screen flex flex-col">
         <ErrorBoundary>
+          <AnalyticsPageView />
           <Navigation />
           <main className="flex-1 relative">
             {children}

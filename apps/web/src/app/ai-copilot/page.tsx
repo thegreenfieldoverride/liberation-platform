@@ -5,6 +5,7 @@ import type { LiberationPlan, LiberationContext } from '@greenfieldoverride/type
 import { useState, useEffect } from 'react';
 import { LibIcon } from '../../components/icons/LiberationIcons';
 import { useLiberationJourney } from '../../hooks/useLiberationJourney';
+import { useAnalytics } from '../../hooks/useAnalytics';
 
 export default function AICoPilotPage() {
   const [generatedPlan, setGeneratedPlan] = useState<LiberationPlan | null>(null);
@@ -12,6 +13,12 @@ export default function AICoPilotPage() {
   const [dynamicLiberationData, setDynamicLiberationData] = useState<any>(null);
   const [liberationContext, setLiberationContext] = useState<Partial<LiberationContext>>({});
   const { journeyState } = useLiberationJourney();
+  const { trackToolUsage } = useAnalytics();
+  
+  // Track page view on mount
+  useEffect(() => {
+    trackToolUsage('AI Co-Pilot', { action: 'page_view' });
+  }, [trackToolUsage]);
 
   // Load saved plan from localStorage on mount
   useEffect(() => {
