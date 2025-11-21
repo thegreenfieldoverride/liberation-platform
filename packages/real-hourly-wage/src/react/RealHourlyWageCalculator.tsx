@@ -131,7 +131,7 @@ export function RealHourlyWageCalculator({
         detail: liberationData
       }));
     }
-  }, [annualSalary, workHours, workCosts, onCalculationChange, showLiberationFeatures, liberationAnalysis, hasRecordedCalculation]);
+  }, [annualSalary, workHours, workCosts, onCalculationChange, showLiberationFeatures, hasRecordedCalculation]);
 
   const parseNumericValue = (value: string): number => {
     // Remove commas, dollar signs, and other non-numeric characters except decimal points
