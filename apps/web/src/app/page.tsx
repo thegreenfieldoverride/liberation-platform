@@ -187,6 +187,154 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Projects: What We're Building */}
+      <section id="projects" className="min-h-screen px-8 py-20 relative">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-16 text-center">
+            <h2 className="text-5xl md:text-6xl font-bold leading-tight mb-8 text-white">
+              What We're Building
+            </h2>
+            <div className="w-24 h-1 bg-white/30 mb-8 mx-auto"></div>
+            <p className="text-xl text-white/70 leading-relaxed max-w-3xl mx-auto">
+              We're not just building tools — we're building the foundation for a more ethical internet.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* DAON Network */}
+            <div className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-2xl overflow-hidden hover:bg-white/15 transition-all duration-300 group">
+              <div className="bg-gradient-to-br from-blue-500/20 to-indigo-600/20 p-8 border-b border-white/20">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm group-hover:scale-110 transition-transform">
+                  <LibIcon icon="ExternalLink" size="xl" className="text-white" />
+                </div>
+                <h3 className="text-3xl font-bold text-white mb-2">DAON Network</h3>
+                <p className="text-blue-200 font-medium">Public Good Project</p>
+              </div>
+              
+              <div className="p-8">
+                <p className="text-white/90 leading-relaxed mb-6">
+                  The <strong className="text-white">Data Attribution and Origin Network</strong> provides cryptographic verification 
+                  of data ownership and consent — the foundation for ethical AI training.
+                </p>
+                
+                <ul className="space-y-3 text-sm text-white/80 mb-6">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-0.5">✓</span>
+                    <span>Cryptographic proof of data ownership</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-0.5">✓</span>
+                    <span>Explicit consent tracking for AI training</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-0.5">✓</span>
+                    <span>Transparent attribution chain</span>
+                  </li>
+                </ul>
+
+                <a 
+                  href="https://daon.network" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600/80 backdrop-blur-sm text-white rounded-xl hover:bg-blue-600 transition-colors font-medium"
+                >
+                  Visit DAON Network
+                  <LibIcon icon="ExternalLink" size="sm" />
+                </a>
+              </div>
+            </div>
+
+            {/* Collective Strategist */}
+            <div className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-2xl overflow-hidden hover:bg-white/15 transition-all duration-300 group">
+              <div className="bg-gradient-to-br from-purple-500/20 to-pink-600/20 p-8 border-b border-white/20">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm group-hover:scale-110 transition-transform">
+                  <LibIcon icon="Magic" size="xl" className="text-white" />
+                </div>
+                <h3 className="text-3xl font-bold text-white mb-2">Collective Strategist</h3>
+                <p className="text-purple-200 font-medium">In Development</p>
+              </div>
+              
+              <div className="p-8">
+                <p className="text-white/90 leading-relaxed mb-6">
+                  An AI-powered strategic planning tool designed to help you navigate complex liberation decisions using 
+                  collective intelligence and ethical frameworks.
+                </p>
+                
+                <ul className="space-y-3 text-sm text-white/80 mb-6">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-0.5">◆</span>
+                    <span>Multi-scenario planning with AI assistance</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-0.5">◆</span>
+                    <span>Collaborative decision-making framework</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-0.5">◆</span>
+                    <span>Value-aligned recommendation engine</span>
+                  </li>
+                </ul>
+
+                <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 text-white/60 rounded-xl font-medium cursor-not-allowed">
+                  Coming Soon
+                  <LibIcon icon="Info" size="sm" />
+                </div>
+              </div>
+            </div>
+
+            {/* Ethical LLM Training */}
+            <div className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-2xl overflow-hidden hover:bg-white/15 transition-all duration-300 group">
+              <div className="bg-gradient-to-br from-green-500/20 to-emerald-600/20 p-8 border-b border-white/20">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm group-hover:scale-110 transition-transform">
+                  <LibIcon icon="AICopilot" size="xl" className="text-white" />
+                </div>
+                <h3 className="text-3xl font-bold text-white mb-2">Ethical LLM Training</h3>
+                <p className="text-green-200 font-medium">Future Sprint</p>
+              </div>
+              
+              <div className="p-8">
+                <p className="text-white/90 leading-relaxed mb-6">
+                  Training specialized AI models on ethical, fully-consented data. No stolen content. No scraped websites. 
+                  Just honest, transparent machine learning.
+                </p>
+                
+                <ul className="space-y-3 text-sm text-white/80 mb-6">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-0.5">✓</span>
+                    <span><strong className="text-white">LoRA fine-tuning:</strong> Lean, cost-effective training</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-0.5">✓</span>
+                    <span><strong className="text-white">DAON-verified data:</strong> Only fully consented content</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-0.5">✓</span>
+                    <span><strong className="text-white">5 specialist models:</strong> Purpose-built for liberation</span>
+                  </li>
+                </ul>
+
+                <Link 
+                  href="/funding"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600/80 backdrop-blur-sm text-white rounded-xl hover:bg-green-600 transition-colors font-medium"
+                >
+                  Support This Sprint
+                  <LibIcon icon="Arrow" size="sm" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-16">
+            <Link 
+              href="/projects"
+              className="text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-2 text-lg"
+            >
+              Learn more about our projects <LibIcon icon="Arrow" size="sm" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* 3. The Diagnosis: The Three Stages of Burndown */}
       <section id="diagnosis" className="min-h-screen px-8 py-20 relative">
         <div className="max-w-4xl mx-auto">
