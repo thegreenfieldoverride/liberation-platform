@@ -104,12 +104,9 @@ export function RealHourlyWageCalculator({
                      newCalculation.realHourlyWage >= newCalculation.statedHourlyWage * 0.6 ? 'medium' : 'low'
         });
         
-        // Track analytics if available
-        if ((window as any).liberationAnalytics?.trackRealHourlyWage) {
-          const salaryBand = annualSalary < 50000 ? 'low' : annualSalary < 100000 ? 'medium' : 'high';
-          const realWageDiff = ((newCalculation.realHourlyWage - newCalculation.statedHourlyWage) / newCalculation.statedHourlyWage) * 100;
-          const commuteMinutes = workHours.commuteDailyMinutes || 0;
-          (window as any).liberationAnalytics.trackRealHourlyWage(salaryBand, realWageDiff, commuteMinutes);
+        // Track analytics (simple version - just usage)
+        if (typeof (window as any).trackToolUsed === 'function') {
+          (window as any).trackToolUsed('real-hourly-wage');
         }
       }
     }

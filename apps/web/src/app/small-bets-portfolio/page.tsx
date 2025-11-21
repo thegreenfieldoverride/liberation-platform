@@ -8,17 +8,12 @@
 import React, { useEffect } from 'react';
 import { SmallBetsPortfolio } from '@greenfieldoverride/small-bets-portfolio';
 import { useLiberationJourney } from '../../hooks/useLiberationJourney';
-import { useAnalytics } from '../../hooks/useAnalytics';
 import Link from 'next/link';
 
 export default function SmallBetsPortfolioPage() {
   const { updateMilestone, recordEvent, updateToolInsights } = useLiberationJourney();
-  const { trackSmallBets, trackToolUsage } = useAnalytics();
 
   useEffect(() => {
-    // Track page view
-    trackToolUsage('Small Bets Portfolio', { action: 'page_view' });
-    
     // Inject liberation journey hook for package component to use
     if (typeof window !== 'undefined') {
       window.liberationJourney = {
@@ -26,21 +21,15 @@ export default function SmallBetsPortfolioPage() {
         recordEvent,
         updateToolInsights
       };
-      
-      // Also inject analytics tracking
-      (window as any).liberationAnalytics = {
-        trackSmallBets
-      };
     }
 
     // Cleanup on unmount
     return () => {
       if (typeof window !== 'undefined') {
         delete window.liberationJourney;
-        delete (window as any).liberationAnalytics;
       }
     };
-  }, [updateMilestone, recordEvent, updateToolInsights, trackSmallBets, trackToolUsage]);
+  }, [updateMilestone, recordEvent, updateToolInsights]);
   return (
     <div className="min-h-screen bg-gray-50 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
