@@ -68,7 +68,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
-          <LiberationJourneyWidget />
+          {/* <LiberationJourneyWidget /> */}
         </ErrorBoundary>
       </body>
     </html>
