@@ -5,15 +5,14 @@ import { RealHourlyWageCalculator } from '@greenfieldoverride/real-hourly-wage/r
 import Link from 'next/link';
 import { LibIcon } from '../../components/icons/LiberationIcons';
 import { KofiButton } from '@greenfieldoverride/liberation-ui';
-import { useAnalytics } from '../../hooks/useAnalytics';
 import { useLiberationJourney } from '../../hooks/useLiberationJourney';
+import { trackToolUsed } from '../../lib/analytics';
 
 export default function RealHourlyWagePage() {
-  const { trackRealHourlyWage } = useAnalytics();
   const { updateMilestone, recordEvent, updateToolInsights } = useLiberationJourney();
 
   useEffect(() => {
-    // Inject liberation journey hook for package component to use
+    // Inject hooks for package component to use
     if (typeof window !== 'undefined') {
       window.liberationJourney = {
         updateMilestone,
@@ -21,20 +20,18 @@ export default function RealHourlyWagePage() {
         updateToolInsights
       };
       
-      // Also inject analytics tracking
-      (window as any).liberationAnalytics = {
-        trackRealHourlyWage
-      };
+      // Expose analytics (simple function, not object)
+      (window as any).trackToolUsed = trackToolUsed;
     }
 
     // Cleanup on unmount
     return () => {
       if (typeof window !== 'undefined') {
         delete window.liberationJourney;
-        delete (window as any).liberationAnalytics;
+        delete (window as any).trackToolUsed;
       }
     };
-  }, [trackRealHourlyWage, updateMilestone, recordEvent, updateToolInsights]);
+  }, [updateMilestone, recordEvent, updateToolInsights]);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-24 pb-12">

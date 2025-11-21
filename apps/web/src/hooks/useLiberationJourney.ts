@@ -6,7 +6,6 @@ import {
   LiberationJourneyEvent, 
   LiberationMilestone 
 } from '../../../../packages/shared-types/src/liberation-journey';
-import { useAnalytics } from './useAnalytics';
 import { 
   LIBERATION_PHASES, 
   LIBERATION_MILESTONES, 
@@ -49,7 +48,6 @@ function createDefaultJourneyState(): LiberationJourneyState {
 export function useLiberationJourney() {
   const [journeyState, setJourneyState] = useState<LiberationJourneyState>(createDefaultJourneyState);
   const [isLoading, setIsLoading] = useState(true);
-  const { trackLiberationMilestone, track } = useAnalytics();
 
   // Load journey state from localStorage on mount
   useEffect(() => {
@@ -183,8 +181,7 @@ export function useLiberationJourney() {
           category: completedMilestone.category
         });
         
-        // Track milestone completion
-        trackLiberationMilestone(completedMilestone.title);
+        // Milestone completed (analytics removed for simplicity)
       }
 
        // Check for phase advancement
@@ -197,13 +194,7 @@ export function useLiberationJourney() {
            category: 'insight' as const
          });
          
-         // Track phase advancement
-         track('Phase Advanced', undefined, {
-           from_phase: prev.currentPhase,
-           to_phase: newCurrentPhase,
-           phase_title: LIBERATION_PHASES[newCurrentPhase].title,
-           overall_progress: newOverallScore
-         });
+         // Phase advanced (analytics removed for simplicity)
        }
 
        // Update tool insights if metadata provided
@@ -245,14 +236,7 @@ export function useLiberationJourney() {
     // Log event for debugging
     console.log('Liberation Journey Event:', fullEvent);
 
-    // Track analytics for liberation journey events
-    track('Liberation Journey Event', undefined, {
-      event_type: event.type,
-      tool_id: 'toolId' in event ? event.toolId : undefined,
-      milestone_id: 'milestoneId' in event ? event.milestoneId : undefined,
-      phase: 'phase' in event ? event.phase : undefined,
-      metadata: event.metadata
-    });
+    // Event recorded (analytics removed for simplicity)
 
     // Update tool insights based on event
     setJourneyState(prev => {
