@@ -1,78 +1,16 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
-
-/**
- * Internal Liberation Analytics Client
- * Provides detailed insights for liberation tools
- */
-class LiberationAnalyticsClient {
-  private baseURL: string;
-  private sessionID: string;
-
-  constructor() {
-    this.baseURL = '/api/analytics';
-    this.sessionID = this.generateSessionID();
-  }
-
-  async track(app: string, action: string, attributes: Record<string, any> = {}): Promise<void> {
-    const event = {
-      app,
-      action,
-      attributes,
-      timestamp: new Date().toISOString(),
-      session_id: this.sessionID
-    };
-
-    try {
-      const response = await fetch(`${this.baseURL}/events`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(event)
-      });
-
-      if (!response.ok) {
-        console.warn('Liberation Analytics: Failed to track event', response.status);
-      }
-    } catch (error) {
-      // Fail silently - analytics should never break the user experience
-      console.warn('Liberation Analytics: Network error', error);
-    }
-  }
-
-  private generateSessionID(): string {
-    return 'sess_' + Math.random().toString(36).substr(2, 16) + 
-           Date.now().toString(36);
-  }
-}
-
-// Create singleton instance
-let internalAnalytics: LiberationAnalyticsClient | null = null;
-
-const getInternalAnalytics = (): LiberationAnalyticsClient => {
-  if (!internalAnalytics) {
-    internalAnalytics = new LiberationAnalyticsClient();
-  }
-  return internalAnalytics;
-};
+import { useCallback } from 'react';
+import { analytics } from '@/lib/analytics';
 
 /**
  * Enhanced Analytics hook for tracking liberation platform events
- * Privacy-first internal analytics only
+ * Privacy-first analytics using the Liberation Analytics service
  */
 export function useAnalytics() {
-  const internalRef = useRef<LiberationAnalyticsClient>();
-
-  if (!internalRef.current) {
-    internalRef.current = getInternalAnalytics();
-  }
-
-  // Privacy-first internal analytics only
+  // Privacy-first analytics using new analytics service
   const track = useCallback((eventName: string, value?: number, attributes?: Record<string, any>) => {
-    // Track with internal analytics (detailed insights)
-    internalRef.current?.track('platform', eventName.toLowerCase().replace(/\s+/g, '_'), {
+    analytics.track('platform', eventName.toLowerCase().replace(/\s+/g, '_'), {
       event: eventName,
       value,
       ...attributes
@@ -80,8 +18,8 @@ export function useAnalytics() {
   }, []);
 
   const trackPageview = useCallback((url?: string) => {
-    track('Page View', undefined, { url: url || window.location.pathname });
-  }, [track]);
+    analytics.trackPageView(url || (typeof window !== 'undefined' ? window.location.pathname : '/'));
+  }, []);
 
   // Liberation-specific tracking events with detailed attributes
   const trackToolUsage = useCallback((toolName: string, metadata?: Record<string, any>) => {
@@ -108,54 +46,42 @@ export function useAnalytics() {
     track(`Liberation Milestone: ${milestone}`, undefined, { milestone });
   }, [track]);
 
-  // Enhanced tool-specific tracking with detailed data
+  // Enhanced tool-specific tracking with detailed data - using new analytics service
   const trackRunwayCalculation = useCallback((runwayMonths?: number, savingsBand?: string, expensesBand?: string) => {
-    trackCalculation('Runway Calculator', runwayMonths ? `${runwayMonths} months` : undefined, {
-      runway_months: runwayMonths,
-      savings_band: savingsBand,
-      expenses_band: expensesBand
-    });
-  }, [trackCalculation]);
+    if (runwayMonths !== undefined && savingsBand && expensesBand) {
+      analytics.trackRunwayCalculation(runwayMonths, savingsBand, expensesBand);
+    }
+  }, []);
 
   const trackRealHourlyWage = useCallback((salaryBand?: string, realWageDiff?: number, commuteMinutes?: number) => {
-    trackCalculation('Real Hourly Wage', realWageDiff ? `${realWageDiff}% difference` : undefined, {
-      salary_band: salaryBand,
-      real_wage_diff: realWageDiff,
-      commute_minutes: commuteMinutes
-    });
-  }, [trackCalculation]);
+    if (salaryBand && realWageDiff !== undefined && commuteMinutes !== undefined) {
+      analytics.trackRealWageReveal(salaryBand, realWageDiff, commuteMinutes);
+    }
+  }, []);
 
   const trackCognitiveDebt = useCallback((score?: number, category?: string, recommendation?: string) => {
-    trackCalculation('Cognitive Debt Assessment', score ? `Score: ${score}` : undefined, {
-      debt_score: score,
-      primary_category: category,
-      recommendation
-    });
-  }, [trackCalculation]);
+    if (score !== undefined && category && recommendation) {
+      analytics.trackCognitiveDebtAssessment(score, category, recommendation);
+    }
+  }, []);
 
   const trackAICopilot = useCallback((queryType?: string, planGenerated?: boolean, actionsTaken?: number) => {
-    trackToolUsage('AI Co-Pilot', {
-      query_type: queryType,
-      plan_generated: planGenerated,
-      actions_taken: actionsTaken
-    });
-  }, [trackToolUsage]);
+    if (queryType && planGenerated !== undefined && actionsTaken !== undefined) {
+      analytics.trackAICoPilotConsultation(queryType, planGenerated, actionsTaken);
+    }
+  }, []);
 
   const trackValuesVocation = useCallback((topValue?: string, careerPivot?: boolean, satisfactionChange?: number) => {
-    trackCalculation('Values-to-Vocation Matcher', topValue, {
-      top_value: topValue,
-      career_pivot: careerPivot,
-      satisfaction_change: satisfactionChange
-    });
-  }, [trackCalculation]);
+    if (topValue && careerPivot !== undefined && satisfactionChange !== undefined) {
+      analytics.trackValuesVocationMatch(topValue, careerPivot, satisfactionChange);
+    }
+  }, []);
 
   const trackSmallBets = useCallback((betCount?: number, totalValue?: number, topPerformer?: string) => {
-    trackToolUsage('Small Bets Portfolio', {
-      bet_count: betCount,
-      total_value: totalValue,
-      top_performer: topPerformer
-    });
-  }, [trackToolUsage]);
+    if (betCount !== undefined && totalValue !== undefined && topPerformer) {
+      analytics.trackSmallBetsActivity(betCount, totalValue, topPerformer);
+    }
+  }, []);
 
   return {
     // Core tracking

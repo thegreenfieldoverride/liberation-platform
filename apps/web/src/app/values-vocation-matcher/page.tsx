@@ -4,10 +4,12 @@ import { useState } from 'react';
 import type { VocationMatchingResult } from '@greenfieldoverride/types';
 import { ValuesVocationMatcher } from '@greenfieldoverride/values-vocation-matcher/react';
 import { useLiberationJourney } from '../../hooks/useLiberationJourney';
+import { useAnalytics } from '../../hooks/useAnalytics';
 
 export default function ValuesVocationMatcherPage() {
   const [result, setResult] = useState<VocationMatchingResult | null>(null);
   const { updateMilestone, recordEvent, updateToolInsights } = useLiberationJourney();
+  const { trackValuesVocation } = useAnalytics();
 
   const handleComplete = (matchingResult: VocationMatchingResult) => {
     setResult(matchingResult);
@@ -27,6 +29,12 @@ export default function ValuesVocationMatcherPage() {
       userProfile: matchingResult.userProfile,
       meetsRequirement: topMatchesCount >= 3
     });
+    
+    // Track analytics
+    const topValue = 'career_match'; // Simplified tracking
+    const careerPivot = topMatchesCount > 0;
+    const satisfactionChange = topMatchesCount * 10; // Simple metric
+    trackValuesVocation(topValue, careerPivot, satisfactionChange);
 
     // Record assessment completion event
     recordEvent({

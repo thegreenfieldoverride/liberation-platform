@@ -13,9 +13,6 @@ export default function RealHourlyWagePage() {
   const { updateMilestone, recordEvent, updateToolInsights } = useLiberationJourney();
 
   useEffect(() => {
-    // Track tool usage when page loads
-    trackRealHourlyWage();
-    
     // Inject liberation journey hook for package component to use
     if (typeof window !== 'undefined') {
       window.liberationJourney = {
@@ -23,12 +20,18 @@ export default function RealHourlyWagePage() {
         recordEvent,
         updateToolInsights
       };
+      
+      // Also inject analytics tracking
+      (window as any).liberationAnalytics = {
+        trackRealHourlyWage
+      };
     }
 
     // Cleanup on unmount
     return () => {
       if (typeof window !== 'undefined') {
         delete window.liberationJourney;
+        delete (window as any).liberationAnalytics;
       }
     };
   }, [trackRealHourlyWage, updateMilestone, recordEvent, updateToolInsights]);

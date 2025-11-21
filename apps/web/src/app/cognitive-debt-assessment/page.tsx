@@ -6,9 +6,11 @@ import { CognitiveDebtAssessmentDark } from '../../components/CognitiveDebtAsses
 import type { CognitiveDebtResult } from '@greenfieldoverride/types';
 import { KofiButton } from '@greenfieldoverride/liberation-ui';
 import { useLiberationJourney } from '../../hooks/useLiberationJourney';
+import { useAnalytics } from '../../hooks/useAnalytics';
 
 export default function CognitiveDebtAssessmentPage() {
   const { updateMilestone, recordEvent, updateToolInsights } = useLiberationJourney();
+  const { trackCognitiveDebt } = useAnalytics();
 
   const handleResult = (result: CognitiveDebtResult) => {
     // Store result locally for user's reference
@@ -28,6 +30,13 @@ export default function CognitiveDebtAssessmentPage() {
       primaryConcerns: result.primaryConcerns,
       score: result.totalScore
     });
+    
+    // Track analytics
+    trackCognitiveDebt(
+      result.totalScore,
+      result.primaryConcerns[0] || 'unknown',
+      result.riskLevel
+    );
 
     // Record assessment completion event
     recordEvent({
