@@ -193,8 +193,43 @@ class LiberationAnalytics {
   }
 }
 
-// Create singleton instance
-export const analytics = new LiberationAnalytics();
+// Create singleton instance lazily to avoid SSR issues
+let analyticsInstance: LiberationAnalytics | null = null;
+
+export const analytics = {
+  track: (...args: Parameters<LiberationAnalytics['track']>) => {
+    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
+    return analyticsInstance.track(...args);
+  },
+  trackRunwayCalculation: (...args: Parameters<LiberationAnalytics['trackRunwayCalculation']>) => {
+    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
+    return analyticsInstance.trackRunwayCalculation(...args);
+  },
+  trackRealWageReveal: (...args: Parameters<LiberationAnalytics['trackRealWageReveal']>) => {
+    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
+    return analyticsInstance.trackRealWageReveal(...args);
+  },
+  trackCognitiveDebtAssessment: (...args: Parameters<LiberationAnalytics['trackCognitiveDebtAssessment']>) => {
+    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
+    return analyticsInstance.trackCognitiveDebtAssessment(...args);
+  },
+  trackValuesVocationMatch: (...args: Parameters<LiberationAnalytics['trackValuesVocationMatch']>) => {
+    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
+    return analyticsInstance.trackValuesVocationMatch(...args);
+  },
+  trackAICoPilotConsultation: (...args: Parameters<LiberationAnalytics['trackAICoPilotConsultation']>) => {
+    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
+    return analyticsInstance.trackAICoPilotConsultation(...args);
+  },
+  trackSmallBetsActivity: (...args: Parameters<LiberationAnalytics['trackSmallBetsActivity']>) => {
+    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
+    return analyticsInstance.trackSmallBetsActivity(...args);
+  },
+  trackPageView: (...args: Parameters<LiberationAnalytics['trackPageView']>) => {
+    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
+    return analyticsInstance.trackPageView(...args);
+  },
+};
 
 // Export class for custom instances
 export default LiberationAnalytics;
