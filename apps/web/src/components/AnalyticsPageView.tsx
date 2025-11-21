@@ -2,22 +2,19 @@
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-// import { analytics } from '../lib/analytics';
+import { trackPageView } from '../lib/analytics';
 
 /**
- * Client component to track page views
- * Automatically tracks navigation changes
- * TEMPORARILY DISABLED - causing performance issues
+ * Tracks page views automatically on navigation
  */
 export function AnalyticsPageView() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Temporarily disabled
-    // if (pathname) {
-    //   analytics.trackPageView(pathname);
-    // }
+    if (pathname) {
+      trackPageView(pathname);
+    }
   }, [pathname]);
 
-  return null; // This component doesn't render anything
+  return null;
 }

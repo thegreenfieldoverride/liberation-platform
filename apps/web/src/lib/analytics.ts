@@ -1,19 +1,11 @@
 /**
- * Liberation Analytics Client
+ * Simple Analytics Client
  * 
- * PRIVACY-FIRST DESIGN:
- * - Only tracks USAGE (which tools are used), NOT RESULTS (your personal data)
- * - No personal information collected (no emails, names, IPs, or financial data)
- * - No persistent tracking - each event gets a random ID (can't link your tool uses together)
- * - No cookies, no sessionStorage, no localStorage
- * - No cross-site tracking
- * - Used only to understand: "How many people used the runway calculator this week?"
- * - NOT used to know: "What is your runway?" or any personal financial information
+ * Tracks:
+ * 1. Page views (where people go)
+ * 2. Tool usage (when someone completes a calculation)
  * 
- * Example: We know "50 people used the runway calculator" but have no idea what their results were
- * or if the same person used multiple tools.
- * 
- * You can always disable JavaScript to block all analytics entirely.
+ * Privacy: No personal data, no results, no persistent tracking
  */
 
 interface AnalyticsEvent {
@@ -24,212 +16,63 @@ interface AnalyticsEvent {
   session_id: string;
 }
 
-class LiberationAnalytics {
-  private baseURL: string;
-  private sessionID: string;
+/**
+ * Track a page view
+ */
+export async function trackPageView(path: string): Promise<void> {
+  if (typeof window === 'undefined') return;
+  
+  await sendEvent('navigation', 'page_view', { 
+    path: path.split('?')[0] // Remove query params
+  });
+}
 
-  constructor(baseURL: string = process.env.NEXT_PUBLIC_ANALYTICS_URL || 'https://analytics.greenfieldoverride.com') {
-    this.baseURL = baseURL;
-    this.sessionID = this.generateSessionID();
-  }
+/**
+ * Track when a tool is used
+ */
+export async function trackToolUsed(toolName: string): Promise<void> {
+  if (typeof window === 'undefined') return;
+  
+  await sendEvent(toolName, 'completed', { 
+    completed: true 
+  });
+}
 
-  /**
-   * Track a liberation analytics event
-   */
-  async track(app: string, action: string, attributes: Record<string, any> = {}): Promise<void> {
-    // Only track in browser
-    if (typeof window === 'undefined') return;
+/**
+ * Send event to analytics service
+ */
+async function sendEvent(
+  app: string, 
+  action: string, 
+  attributes: Record<string, any> = {}
+): Promise<void> {
+  if (typeof window === 'undefined') return;
 
-    const event: AnalyticsEvent = {
-      app,
-      action,
-      attributes,
-      timestamp: new Date().toISOString(),
-      session_id: this.sessionID
-    };
+  const baseURL = process.env.NEXT_PUBLIC_ANALYTICS_URL || 'https://analytics.greenfieldoverride.com';
+  
+  const event: AnalyticsEvent = {
+    app,
+    action,
+    attributes,
+    timestamp: new Date().toISOString(),
+    session_id: generateEventID()
+  };
 
-    try {
-      const response = await fetch(`${this.baseURL}/api/events`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(event)
-      });
-
-      if (!response.ok) {
-        console.warn('Liberation Analytics: Failed to track event', response.status);
-      }
-    } catch (error) {
-      // Fail silently - analytics should never break the user experience
-      console.warn('Liberation Analytics: Network error', (error as Error).message);
-    }
-  }
-
-  // Convenience methods for specific liberation tools
-
-  /**
-   * Track runway calculation usage (privacy-first: just that the tool was used)
-   */
-  async trackRunwayCalculation(
-    runwayMonths: number, 
-    savingsBand: string, 
-    expensesBand: string, 
-    industry?: string
-  ): Promise<void> {
-    // Only track that the tool was used, not the results
-    return this.track('runway-calculator', 'used', {
-      completed: true
+  try {
+    await fetch(`${baseURL}/api/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(event)
     });
-  }
-
-  /**
-   * Track real hourly wage usage (privacy-first: just that the tool was used)
-   */
-  async trackRealWageReveal(
-    salaryBand: string, 
-    realWageDiff: number, 
-    commuteMinutes: number, 
-    industry?: string
-  ): Promise<void> {
-    // Only track that the tool was used, not the results
-    return this.track('real-hourly-wage', 'used', {
-      completed: true
-    });
-  }
-
-  /**
-   * Track cognitive debt assessment usage (privacy-first: just that the tool was used)
-   */
-  async trackCognitiveDebtAssessment(
-    score: number, 
-    primaryCategory: string, 
-    recommendation: string
-  ): Promise<void> {
-    // Only track that the tool was used, not the results
-    return this.track('cognitive-debt-assessment', 'used', {
-      completed: true
-    });
-  }
-
-  /**
-   * Track values-vocation matching usage (privacy-first: just that the tool was used)
-   */
-  async trackValuesVocationMatch(
-    topValue: string, 
-    careerPivot: boolean, 
-    satisfactionChange: number
-  ): Promise<void> {
-    // Only track that the tool was used, not the results
-    return this.track('values-vocation-matcher', 'used', {
-      completed: true
-    });
-  }
-
-  /**
-   * Track AI co-pilot usage (privacy-first: just that the tool was used)
-   */
-  async trackAICoPilotConsultation(
-    queryType: string, 
-    planGenerated: boolean, 
-    actionsTaken: number
-  ): Promise<void> {
-    // Only track that the tool was used, not the results
-    return this.track('ai-copilot', 'used', {
-      completed: true
-    });
-  }
-
-  /**
-   * Track small bets portfolio usage (privacy-first: just that the tool was used)
-   */
-  async trackSmallBetsActivity(
-    betCount: number, 
-    totalValue: number, 
-    topPerformer: string
-  ): Promise<void> {
-    // Only track that the tool was used, not the results
-    return this.track('small-bets-portfolio', 'used', {
-      completed: true
-    });
-  }
-
-  /**
-   * Track page views (privacy-first: only tool category, not specific pages)
-   */
-  async trackPageView(page: string): Promise<void> {
-    // Only track high-level categories to understand which tools are used
-    // No query parameters, no specific paths that could identify users
-    const pagePath = page.split('?')[0]; // Remove query params
-    
-    // Only track if it's a tool - ignore navigation to content pages
-    if (pagePath.includes('runway-calculator') || 
-        pagePath.includes('real-hourly-wage') || 
-        pagePath.includes('ai-copilot') ||
-        pagePath.includes('small-bets') ||
-        pagePath.includes('cognitive-debt') ||
-        pagePath.includes('values-vocation')) {
-      return this.track('navigation', 'tool_visited', {
-        completed: true
-      });
-    }
-    
-    // Don't track other page visits at all
-    return Promise.resolve();
-  }
-
-  /**
-   * Generate a random event ID (privacy-first: no persistent sessions)
-   */
-  private generateSessionID(): string {
-    if (typeof window === 'undefined') {
-      return 'event_server';
-    }
-    
-    // Generate completely random ID for each event - no persistence
-    // This way we can't track users across multiple tool uses
-    return 'event_' + Math.random().toString(36).substr(2, 16) + 
-           Date.now().toString(36);
+    // Silently succeed or fail - never break UX
+  } catch (error) {
+    // Fail silently
   }
 }
 
-// Create singleton instance lazily to avoid SSR issues
-let analyticsInstance: LiberationAnalytics | null = null;
-
-export const analytics = {
-  track: (...args: Parameters<LiberationAnalytics['track']>) => {
-    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
-    return analyticsInstance.track(...args);
-  },
-  trackRunwayCalculation: (...args: Parameters<LiberationAnalytics['trackRunwayCalculation']>) => {
-    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
-    return analyticsInstance.trackRunwayCalculation(...args);
-  },
-  trackRealWageReveal: (...args: Parameters<LiberationAnalytics['trackRealWageReveal']>) => {
-    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
-    return analyticsInstance.trackRealWageReveal(...args);
-  },
-  trackCognitiveDebtAssessment: (...args: Parameters<LiberationAnalytics['trackCognitiveDebtAssessment']>) => {
-    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
-    return analyticsInstance.trackCognitiveDebtAssessment(...args);
-  },
-  trackValuesVocationMatch: (...args: Parameters<LiberationAnalytics['trackValuesVocationMatch']>) => {
-    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
-    return analyticsInstance.trackValuesVocationMatch(...args);
-  },
-  trackAICoPilotConsultation: (...args: Parameters<LiberationAnalytics['trackAICoPilotConsultation']>) => {
-    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
-    return analyticsInstance.trackAICoPilotConsultation(...args);
-  },
-  trackSmallBetsActivity: (...args: Parameters<LiberationAnalytics['trackSmallBetsActivity']>) => {
-    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
-    return analyticsInstance.trackSmallBetsActivity(...args);
-  },
-  trackPageView: (...args: Parameters<LiberationAnalytics['trackPageView']>) => {
-    if (!analyticsInstance) analyticsInstance = new LiberationAnalytics();
-    return analyticsInstance.trackPageView(...args);
-  },
-};
-
-// Export class for custom instances
-export default LiberationAnalytics;
+/**
+ * Generate random event ID (no persistent tracking)
+ */
+function generateEventID(): string {
+  return 'evt_' + Math.random().toString(36).substr(2, 16) + Date.now().toString(36);
+}
