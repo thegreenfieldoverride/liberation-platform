@@ -6,8 +6,11 @@ import { LibIcon } from '../components/icons/LiberationIcons';
 
 export default function HomePage() {
   const [scrollY, setScrollY] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    
     let ticking = false;
     let lastUpdate = 0;
     
@@ -30,7 +33,7 @@ export default function HomePage() {
   }, []);
 
   const getBackgroundStyle = () => {
-    if (typeof window === 'undefined') {
+    if (!mounted) {
       return { 
         background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%)'
       };
