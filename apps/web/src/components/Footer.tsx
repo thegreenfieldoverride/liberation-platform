@@ -104,6 +104,11 @@ export function Footer() {
                   Privacy Promise
                 </Link>
               </li>
+              <li>
+                <Link href="/credits" className="text-gray-300 hover:text-white transition-all duration-300 font-light hover:translate-x-1 inline-block">
+                  Credits & Inspiration
+                </Link>
+              </li>
                <li>
                  <a 
                    href="https://github.com/thegreenfieldoverride/liberation-platform/blob/main/LICENSE"
