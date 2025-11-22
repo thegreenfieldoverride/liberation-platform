@@ -87,44 +87,64 @@ export function useLiberationJourney() {
     }
   }, []);
 
-  // Save journey state to localStorage whenever it changes
+  // Save journey state to localStorage whenever it changes (debounced)
   useEffect(() => {
     if (!isLoading) {
-      try {
-        localStorage.setItem(JOURNEY_STORAGE_KEY, JSON.stringify(journeyState));
-        // Dispatch custom event so other hook instances can update
-        window.dispatchEvent(new Event('liberation-journey-updated'));
-      } catch (error) {
-        console.warn('Failed to save journey state to localStorage:', error);
-      }
+      // Debounce localStorage writes to avoid blocking the main thread
+      const timeoutId = setTimeout(() => {
+        try {
+          localStorage.setItem(JOURNEY_STORAGE_KEY, JSON.stringify(journeyState));
+          // Dispatch custom event so other hook instances can update
+          window.dispatchEvent(new Event('liberation-journey-updated'));
+        } catch (error) {
+          console.warn('Failed to save journey state to localStorage:', error);
+        }
+      }, 300); // Wait 300ms after last change before saving
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [journeyState, isLoading]);
 
-  // Listen for updates from other hook instances
+  // Listen for updates from other hook instances (throttled)
   useEffect(() => {
+    let rafId: number | null = null;
+    
     const handleStorageUpdate = () => {
-      try {
-        const stored = localStorage.getItem(JOURNEY_STORAGE_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          parsed.lastUpdated = new Date(parsed.lastUpdated);
-          parsed.achievements = parsed.achievements?.map((a: any) => ({
-            ...a,
-            unlockedAt: new Date(a.unlockedAt)
-          })) || [];
-          parsed.milestones = parsed.milestones?.map((m: any) => ({
-            ...m,
-            completedAt: m.completedAt ? new Date(m.completedAt) : undefined
-          })) || [];
-          setJourneyState(parsed);
-        }
-      } catch (error) {
-        console.warn('Failed to sync journey state:', error);
+      // Use requestAnimationFrame to avoid blocking navigation
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
       }
+      
+      rafId = requestAnimationFrame(() => {
+        try {
+          const stored = localStorage.getItem(JOURNEY_STORAGE_KEY);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            parsed.lastUpdated = new Date(parsed.lastUpdated);
+            parsed.achievements = parsed.achievements?.map((a: any) => ({
+              ...a,
+              unlockedAt: new Date(a.unlockedAt)
+            })) || [];
+            parsed.milestones = parsed.milestones?.map((m: any) => ({
+              ...m,
+              completedAt: m.completedAt ? new Date(m.completedAt) : undefined
+            })) || [];
+            setJourneyState(parsed);
+          }
+        } catch (error) {
+          console.warn('Failed to sync journey state:', error);
+        }
+        rafId = null;
+      });
     };
 
     window.addEventListener('liberation-journey-updated', handleStorageUpdate);
-    return () => window.removeEventListener('liberation-journey-updated', handleStorageUpdate);
+    return () => {
+      window.removeEventListener('liberation-journey-updated', handleStorageUpdate);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
   }, []);
 
   // Calculate overall score based on milestone weights and progress
