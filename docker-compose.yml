@@ -1,47 +1,15 @@
-# Liberation Platform Docker Compose
-# For local development and testing
+# Liberation Platform - Local Development
+# 
+# This is a convenience wrapper for local development.
+# For full control, use the files in infrastructure/docker/compose/
+#
+# Usage:
+#   docker compose up                    # Just platform (port 3333)
+#   docker compose --profile full up     # Full stack
+#   docker compose --profile mail up     # With mail service
+#
+# See infrastructure/README.md for full documentation.
 
-version: '3.8'
-
-services:
-  liberation-platform:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-      args:
-        DEPLOYMENT_TARGET: docker
-    ports:
-      - "3333:3000"
-    environment:
-      - NODE_ENV=production
-      - ENVIRONMENT=local
-    healthcheck:
-      test: ["CMD", "node", "healthcheck.js"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    restart: unless-stopped
-    
-  # Future: Add PostgreSQL when needed
-  # postgres:
-  #   image: postgres:15-alpine
-  #   environment:
-  #     POSTGRES_DB: liberation_platform
-  #     POSTGRES_USER: liberation
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   ports:
-  #     - "5432:5432"
-  #   restart: unless-stopped
-  
-  # Future: Add Redis when needed  
-  # redis:
-  #   image: redis:7-alpine
-  #   ports:
-  #     - "6379:6379"
-  #   restart: unless-stopped
-
-# volumes:
-#   postgres_data:
+include:
+  - infrastructure/docker/compose/base.yml
+  - infrastructure/docker/compose/development.yml

@@ -1,0 +1,14 @@
+# Liberation Platform - SASL Password Template
+# This file is processed by entrypoint.sh to create the actual sasl_passwd
+#
+# The actual passwords are injected from environment variables.
+# DO NOT commit real passwords to this file.
+#
+# Format: [server]:port username:password
+
+# Internal authentication for liberation-platform service
+# Used when apps send mail through Postfix
+[localhost]:587 ${SMTP_AUTH_USER}:${SMTP_AUTH_PASSWORD}
+
+# If using external relay (optional), add here:
+# [smtp.example.com]:587 relay_user:relay_password

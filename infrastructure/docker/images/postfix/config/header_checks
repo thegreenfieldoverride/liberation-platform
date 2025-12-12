@@ -1,0 +1,26 @@
+# Liberation Platform - Postfix Header Checks
+# Removes sensitive information from outbound mail headers
+# Using PCRE format
+
+# Remove internal IP addresses from Received headers
+/^Received:.*\[10\./                    IGNORE
+/^Received:.*\[172\.(1[6-9]|2[0-9]|3[01])\./  IGNORE
+/^Received:.*\[192\.168\./              IGNORE
+/^Received:.*localhost/                  IGNORE
+
+# Remove internal hostnames
+/^Received:.*liberation-platform/        IGNORE
+/^Received:.*liberation-postfix/         IGNORE
+
+# Remove X-Originating-IP if present
+/^X-Originating-IP:/                     IGNORE
+
+# Remove X-Mailer headers that expose software
+/^X-Mailer:/                             IGNORE
+
+# Remove User-Agent headers
+/^User-Agent:/                           IGNORE
+
+# Remove X-Priority (often spam indicator)
+/^X-Priority:/                           IGNORE
+/^X-MSMail-Priority:/                    IGNORE

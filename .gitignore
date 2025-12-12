@@ -48,5 +48,31 @@ Thumbs.db
 *.tmp
 *.temp
 
-# other
+# Other
 liberation-analytics
+
+# =============================================================================
+# INFRASTRUCTURE
+# =============================================================================
+
+# Docker
+docker-compose.monitoring.tmp.yml
+
+# Secrets and generated configs
+infrastructure/mail/dkim/*.private
+infrastructure/mail/dkim/*.txt
+infrastructure/docker/images/postfix/config/sasl_passwd
+*.pem
+*.key
+!*.key.example
+
+# Postfix spool (if mounted locally)
+postfix_spool/
+
+# Monitoring data (if mounted locally)
+prometheus_data/
+grafana_data/
+
+# Backup files
+*.bak
+*.backup
