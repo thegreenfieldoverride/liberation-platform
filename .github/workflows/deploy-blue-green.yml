@@ -165,7 +165,10 @@ jobs:
             if [ -d ".git" ]; then
               echo "📥 Fetching latest code..."
               git fetch origin
-              git checkout $GIT_REF
+              echo "🧹 Cleaning untracked files..."
+              git clean -fd
+              echo "🔄 Checking out $GIT_REF..."
+              git checkout -f $GIT_REF
               git pull origin $GIT_REF || true
             else
               echo "📥 Cloning repository..."
