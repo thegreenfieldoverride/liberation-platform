@@ -67,6 +67,7 @@ jobs:
         run: |
           echo "🐳 Testing Docker build..."
           docker build -t liberation-platform:pr-test \
+            -f infrastructure/docker/images/platform.Dockerfile \
             --build-arg DEPLOYMENT_TARGET=docker \
             --build-arg ENVIRONMENT=test \
             .
@@ -176,7 +177,8 @@ jobs:
             git checkout pr-${{ github.event.number }}
             
             # Build and deploy to staging
-            docker build -t liberation-platform:pr-${{ github.event.number }} .
+            docker build -t liberation-platform:pr-${{ github.event.number }} \
+              -f infrastructure/docker/images/platform.Dockerfile .
             
             # Stop current staging
             docker stop liberation-platform-staging || true

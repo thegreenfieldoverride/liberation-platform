@@ -1,0 +1,147 @@
+# Liberation Platform - Production Overrides
+# Use with: docker compose -f base.yml -f production.yml up
+#
+# This file provides production-specific settings:
+# - Pulls pre-built images from registry
+# - Stricter resource limits
+# - Production-grade security settings
+# - Logging configuration
+
+name: liberation-platform
+
+services:
+  liberation-platform:
+    # Use pre-built image in production (overrides build in base.yml)
+    image: greenfieldoverride/liberation-platform:${IMAGE_TAG:-latest}
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  liberation-guardian:
+    profiles: ["full", "guardian"]
+    image: greenfieldoverride/liberation-guardian:${GUARDIAN_TAG:-latest}
+    environment:
+      - GIN_MODE=release
+      - LOG_LEVEL=info
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  liberation-analytics:
+    profiles: ["full"]
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  liberation-redis:
+    profiles: ["full", "guardian", "mail"]
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 300
+      --timeout 0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 600M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    # Note: In production, use internal network only - don't bind to host ports
+    # Configure via REDIS_PORT= (empty) to disable port exposure
+
+  liberation-postgres:
+    profiles: ["full"]
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in production}
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    # Note: In production, use internal network only - don't bind to host ports
+
+  liberation-postfix:
+    profiles: ["full", "mail"]
+    environment:
+      - DKIM_ENABLED=true
+      - RATE_LIMIT_PER_MINUTE=60
+      - RATE_LIMIT_PER_HOUR=500
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+
+  liberation-prometheus:
+    profiles: ["monitoring"]
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  liberation-grafana:
+    profiles: ["monitoring"]
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD must be set}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M

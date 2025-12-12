@@ -1,0 +1,20 @@
+# Liberation Platform - Sender Access Control
+# Only allow specific sender addresses/domains
+#
+# Format: pattern    action
+# Run `postmap /etc/postfix/sender_access` after changes
+
+# Allow our domains
+daon.network           OK
+greenfieldoverride.com OK
+geekish.us             OK
+
+# Specific allowed senders (magic links, notifications)
+noreply@daon.network           OK
+auth@daon.network              OK
+notifications@daon.network     OK
+support@daon.network           OK
+
+# Reject everything else (belt and suspenders with SASL auth)
+# Uncomment to enforce strict sender policy:
+# *                    REJECT Sender not authorized

@@ -1,0 +1,112 @@
+# Liberation Platform - Prometheus Alert Rules
+
+groups:
+  # =============================================================================
+  # SERVICE AVAILABILITY
+  # =============================================================================
+  - name: service_availability
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.job }} has been down for more than 1 minute."
+
+      - alert: PlatformHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="liberation-platform"}[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Liberation Platform high latency"
+          description: "95th percentile latency is above 2 seconds."
+
+      - alert: GuardianHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="liberation-guardian"}[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Liberation Guardian high latency"
+          description: "95th percentile latency is above 1 second."
+
+  # =============================================================================
+  # RESOURCE UTILIZATION
+  # =============================================================================
+  - name: resource_utilization
+    rules:
+      - alert: HighMemoryUsage
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.container }}"
+          description: "Memory usage is above 90% of limit."
+
+      - alert: HighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total[5m]) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.container }}"
+          description: "CPU usage is above 90%."
+
+  # =============================================================================
+  # REDIS
+  # =============================================================================
+  - name: redis
+    rules:
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis server is not responding."
+
+      - alert: RedisHighMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis high memory usage"
+          description: "Redis memory usage is above 90%."
+
+      - alert: RedisTooManyConnections
+        expr: redis_connected_clients > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis has too many connections"
+          description: "Redis has {{ $value }} connected clients."
+
+  # =============================================================================
+  # MAIL SERVICE
+  # =============================================================================
+  - name: mail
+    rules:
+      - alert: PostfixQueueHigh
+        expr: postfix_queue_size > 100
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Postfix queue is backing up"
+          description: "Mail queue has {{ $value }} messages waiting."
+
+      - alert: MailDeliveryFailures
+        expr: rate(postfix_delivery_failures_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High mail delivery failure rate"
+          description: "Mail delivery failures are occurring."
