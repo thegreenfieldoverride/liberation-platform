@@ -27,12 +27,18 @@ export default function ProjectsPage() {
                   <LibIcon icon="ExternalLink" size="xl" className="text-white" />
                 </div>
                 <h2 className="text-3xl font-bold text-white mb-2">DAON Network</h2>
-                <p className="text-blue-100 font-medium">Public Good Project</p>
+                <p className="text-blue-100 font-medium flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
+                  </span>
+                  Now Live
+                </p>
               </div>
               
               <div className="p-8">
                 <p className="text-gray-700 leading-relaxed mb-6">
-                  The <strong>Data Attribution and Origin Network</strong> is our flagship infrastructure project. DAON provides cryptographic verification of data ownership and consent — the foundation for ethical AI training.
+                  The <strong>Digital Asset Ownership Network</strong> is now live at daon.network. DAON provides cryptographic verification of data ownership and consent — and is now the foundation for ethical AI training at scale.
                 </p>
                 
                 <div className="bg-gray-50 rounded-xl p-4 mb-6">
@@ -59,19 +65,30 @@ export default function ProjectsPage() {
 
                 <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
                   <p className="text-sm text-gray-700">
-                    <strong>Greenfield's Role:</strong> We are sponsoring and developing DAON as a public good. We're hosting the infrastructure and building the initial implementation.
+                    <strong>Greenfield's Role:</strong> We sponsored and built DAON as a public good. We host the infrastructure and maintain the implementation — now live and open for registration.
                   </p>
                 </div>
 
-                <a 
-                  href="https://daon.network" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
-                >
-                  Visit DAON Network
-                  <LibIcon icon="ExternalLink" size="sm" />
-                </a>
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    href="https://daon.network"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 border border-blue-300 text-blue-700 rounded-xl hover:bg-blue-50 transition-colors font-medium"
+                  >
+                    Read the Docs
+                    <LibIcon icon="ExternalLink" size="sm" />
+                  </a>
+                  <a
+                    href="https://app.daon.network"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
+                  >
+                    Register Your Data
+                    <LibIcon icon="ExternalLink" size="sm" />
+                  </a>
+                </div>
               </div>
             </div>
 

@@ -82,13 +82,35 @@ export function Footer() {
                 </Link>
               </li>
                <li>
-                 <a 
-                   href="https://github.com/thegreenfieldoverride" 
+                 <a
+                   href="https://github.com/thegreenfieldoverride"
                    className="text-gray-300 hover:text-white transition-all duration-300 font-light hover:translate-x-1 inline-flex items-center gap-2"
                    target="_blank"
                    rel="noopener noreferrer"
                  >
                    Open Source
+                   <LibIcon icon="ExternalLink" size="xs" />
+                 </a>
+               </li>
+               <li>
+                 <a
+                   href="https://daon.network"
+                   className="text-gray-300 hover:text-white transition-all duration-300 font-light hover:translate-x-1 inline-flex items-center gap-2"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                 >
+                   DAON Network
+                   <LibIcon icon="ExternalLink" size="xs" />
+                 </a>
+               </li>
+               <li>
+                 <a
+                   href="https://app.daon.network"
+                   className="text-gray-300 hover:text-white transition-all duration-300 font-light hover:translate-x-1 inline-flex items-center gap-2"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                 >
+                   Register on DAON
                    <LibIcon icon="ExternalLink" size="xs" />
                  </a>
                </li>

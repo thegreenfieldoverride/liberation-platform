@@ -200,6 +200,31 @@ export default function HomePage() {
             </p>
           </div>
 
+          {/* DAON Launch Announcement */}
+          <div className="bg-gradient-to-r from-green-500/15 to-blue-500/15 backdrop-blur-sm border border-green-400/30 rounded-2xl p-6 mb-10">
+            <p className="text-white font-medium text-lg mb-3">
+              DAON Network is now live. Cryptographic data attribution for the ethical AI era.
+            </p>
+            <div className="flex flex-wrap gap-6">
+              <a
+                href="https://daon.network"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-green-300 hover:text-white transition-colors font-medium"
+              >
+                Read the Docs <LibIcon icon="ExternalLink" size="sm" />
+              </a>
+              <a
+                href="https://app.daon.network"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-blue-300 hover:text-white transition-colors font-medium"
+              >
+                Register Your Data <LibIcon icon="ExternalLink" size="sm" />
+              </a>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* DAON Network */}
             <div className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-2xl overflow-hidden hover:bg-white/15 transition-all duration-300 group">
@@ -208,13 +233,18 @@ export default function HomePage() {
                   <LibIcon icon="ExternalLink" size="xl" className="text-white" />
                 </div>
                 <h3 className="text-3xl font-bold text-white mb-2">DAON Network</h3>
-                <p className="text-blue-200 font-medium">Public Good Project</p>
+                <p className="text-blue-200 font-medium flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
+                  </span>
+                  Now Live
+                </p>
               </div>
               
               <div className="p-8">
                 <p className="text-white/90 leading-relaxed mb-6">
-                  The <strong className="text-white">Data Attribution and Origin Network</strong> provides cryptographic verification 
-                  of data ownership and consent — the foundation for ethical AI training.
+                  The <strong className="text-white">Digital Asset Ownership Network</strong> is now live. Visit daon.network to read the docs and register at app.daon.network to claim cryptographic verification of your data ownership and consent.
                 </p>
                 
                 <ul className="space-y-3 text-sm text-white/80 mb-6">
@@ -232,15 +262,26 @@ export default function HomePage() {
                   </li>
                 </ul>
 
-                <a 
-                  href="https://daon.network" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600/80 backdrop-blur-sm text-white rounded-xl hover:bg-blue-600 transition-colors font-medium"
-                >
-                  Visit DAON Network
-                  <LibIcon icon="ExternalLink" size="sm" />
-                </a>
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    href="https://daon.network"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 border border-white/30 text-white rounded-xl hover:bg-white/10 transition-colors font-medium"
+                  >
+                    Read the Docs
+                    <LibIcon icon="ExternalLink" size="sm" />
+                  </a>
+                  <a
+                    href="https://app.daon.network"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600/80 backdrop-blur-sm text-white rounded-xl hover:bg-blue-600 transition-colors font-medium"
+                  >
+                    Register Your Data
+                    <LibIcon icon="ExternalLink" size="sm" />
+                  </a>
+                </div>
               </div>
             </div>
 
