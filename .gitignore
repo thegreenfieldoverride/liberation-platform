@@ -82,3 +82,6 @@ apps/small-bets/dev-dist/
 
 # Small Bets PWA, copied into the web app's public dir at build time
 apps/web/public/small-bets/
+
+# macOS duplicate-file artifacts ("filename 2.ext")
+*[[:space:]]2.*

@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { LiberationIcons, LibIcon, IconSizes } from './LiberationIcons';
+import { LiberationIcons, LibIcon, IconSizes } from '@greenfieldoverride/liberation-ui';
 
 export const IconShowcase: React.FC = () => {
   const iconNames = Object.keys(LiberationIcons) as Array<keyof typeof LiberationIcons>;

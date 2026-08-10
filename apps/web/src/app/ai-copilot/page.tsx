@@ -3,7 +3,7 @@
 import { AICoPilot, LiberationDashboard, LiberationDataCollector } from '@greenfieldoverride/ai-copilot/react';
 import type { LiberationPlan, LiberationContext } from '@greenfieldoverride/types';
 import { useState, useEffect } from 'react';
-import { LibIcon } from '../../components/icons/LiberationIcons';
+import { LibIcon } from '@greenfieldoverride/liberation-ui';
 import { useLiberationJourney } from '../../hooks/useLiberationJourney';
 
 export default function AICoPilotPage() {

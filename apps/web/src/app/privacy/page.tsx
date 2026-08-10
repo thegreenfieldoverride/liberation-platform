@@ -1,4 +1,4 @@
-import { LibIcon } from '../../components/icons/LiberationIcons';
+import { LibIcon } from '@greenfieldoverride/liberation-ui';
 
 export default function PrivacyPage() {
   return (

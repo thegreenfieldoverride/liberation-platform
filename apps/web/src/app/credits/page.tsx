@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LibIcon } from '../../components/icons/LiberationIcons';
+import { LibIcon } from '@greenfieldoverride/liberation-ui';
 
 export default function CreditsPage() {
   return (

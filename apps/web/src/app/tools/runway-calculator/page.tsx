@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import type { ExpenseCategory, RunwayCalculation } from '@greenfieldoverride/types';
 import Link from 'next/link';
-import { LibIcon } from '../../../components/icons/LiberationIcons';
+import { LibIcon } from '@greenfieldoverride/liberation-ui';
 import { KofiButton } from '@greenfieldoverride/liberation-ui';
 import { useLiberationJourney } from '@/hooks/useLiberationJourney';
 import { trackToolUsed } from '@/lib/analytics';

@@ -12,7 +12,7 @@ import {
   calculatePhaseCompletion 
 } from '../../../../../packages/shared-types/src/liberation-milestones';
 import { useLiberationJourney } from '@/hooks/useLiberationJourney';
-import { LiberationIcons } from '@/components/icons/LiberationIcons';
+import { LiberationIcons } from '@greenfieldoverride/liberation-ui';
 
 interface LiberationJourneyWidgetProps {
   className?: string;
