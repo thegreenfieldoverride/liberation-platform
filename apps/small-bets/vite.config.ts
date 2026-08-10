@@ -10,7 +10,13 @@ const core = fileURLToPath(
   new URL('../../packages/small-bets-portfolio/src/core/index.ts', import.meta.url)
 );
 
+// Served as static files under /small-bets/ by the existing web app, which
+// needs no new infrastructure. When this tool moves to its own subdomain,
+// this becomes '/' and the postbuild copy goes away.
+const BASE = '/small-bets/';
+
 export default defineConfig({
+  base: BASE,
   resolve: {
     alias: {
       '@greenfieldoverride/small-bets-portfolio/core': core,
@@ -29,7 +35,9 @@ export default defineConfig({
         theme_color: '#0f172a',
         background_color: '#0f172a',
         display: 'standalone',
-        start_url: '/',
+        id: BASE,
+        scope: BASE,
+        start_url: BASE,
         // SVG only for now. Raster maskable icons should be added before this
         // is offered as installable in earnest — referencing PNGs that don't
         // exist yet would just ship a broken manifest.

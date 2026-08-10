@@ -27,6 +27,20 @@ const nextConfig = {
     '@greenfieldoverride/values-vocation-matcher'
   ],
   
+  // The Small Bets PWA is copied into public/small-bets at build time. Next
+  // serves files from public/ but does not resolve a directory to its
+  // index.html, so /small-bets would 404 without this. skipTrailingSlashRedirect
+  // keeps /small-bets/ intact rather than bouncing it to /small-bets, which
+  // would land outside the service worker's /small-bets/ scope.
+  skipTrailingSlashRedirect: true,
+
+  async rewrites() {
+    return [
+      { source: '/small-bets', destination: '/small-bets/index.html' },
+      { source: '/small-bets/', destination: '/small-bets/index.html' },
+    ];
+  },
+
   // Security headers
   async headers() {
     return [
