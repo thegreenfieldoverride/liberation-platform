@@ -35,6 +35,9 @@ importers:
       '@fontsource-variable/inter':
         specifier: ^5.3.0
         version: 5.3.0
+      '@greenfieldoverride/analytics-client':
+        specifier: workspace:*
+        version: link:../../packages/analytics-client
       '@greenfieldoverride/small-bets-portfolio':
         specifier: workspace:*
         version: link:../../packages/small-bets-portfolio
@@ -90,6 +93,9 @@ importers:
       '@greenfieldoverride/ai-copilot':
         specifier: workspace:*
         version: link:../../packages/ai-copilot
+      '@greenfieldoverride/analytics-client':
+        specifier: workspace:*
+        version: link:../../packages/analytics-client
       '@greenfieldoverride/cognitive-debt-assessment':
         specifier: workspace:*
         version: link:../../packages/cognitive-debt-assessment
@@ -194,6 +200,12 @@ importers:
       '@types/react':
         specifier: ^18.2.0
         version: 18.3.25
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
+  packages/analytics-client:
+    devDependencies:
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
