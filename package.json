@@ -2,6 +2,7 @@
   "name": "@greenfieldoverride/liberation-platform",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@10.18.0",
   "description": "AI-powered liberation tools and platform for breaking free from corporate exploitation",
   "workspaces": [
     "packages/*",
