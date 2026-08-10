@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "postbuild": "rm -rf ../web/public/small-bets && mkdir -p ../web/public/small-bets && cp -R dist/. ../web/public/small-bets/",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },

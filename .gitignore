@@ -79,3 +79,6 @@ grafana_data/
 # Vite PWA build output
 apps/small-bets/dist/
 apps/small-bets/dev-dist/
+
+# Small Bets PWA, copied into the web app's public dir at build time
+apps/web/public/small-bets/
