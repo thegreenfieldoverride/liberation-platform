@@ -132,27 +132,6 @@ session; not something to do under security pressure.
 
 ## Housekeeping
 
-- [ ] **`LibIcon` exists twice, and the naive fix regresses two things.**
-
-      ```
-      apps/web/src/components/icons/LiberationIcons.tsx   233 lines   19 imports
-      packages/liberation-ui/src/icons/LibIcon.tsx        197 lines    2 imports
-      ```
-
-      Both define the same 40 icons with the same props — zero drift in
-      coverage. But the *local* copy is the evolved one: it adds a
-      `try/catch` render guard with a sized fallback, and wraps output in
-      `ClientOnly` (28 lines, `apps/web/src/components/ClientOnly.tsx`) to
-      avoid hydration mismatch under SSR. Deleting the local copy and
-      re-pointing at the package would silently drop both.
-
-      Correct order: port the guard and `ClientOnly` into `liberation-ui`,
-      export `LiberationIcons` and `IconSizes` alongside `LibIcon` (consumers
-      import all three), re-point the 19 imports, then delete the local file.
-      Worth doing carefully — it is used across live tool pages.
-
-      Note that `ClientOnly` only matters under SSR. Once a tool is a PWA it
-      is dead weight there, so this interacts with the Next migration.
 
 - [ ] **`SESSION_STATE.md` is from November 2025** and describes a deployment
       that finished long ago. Either delete it or make it a live document.
