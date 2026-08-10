@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { trackLadderOpened, trackPageView, trackProfileSelected } from './lib/analytics';
 import {
   BET_CATALOG,
   EXECUTIVE_FUNCTION_FRICTION,
@@ -50,13 +51,24 @@ export default function App() {
   const friction: FrictionProfile = PROFILES[profileKey].profile;
   const ranked = useMemo(() => suggestBets([], friction, BET_CATALOG.length), [friction]);
 
+  useEffect(() => {
+    trackPageView();
+  }, []);
+
   function chooseProfile(key: ProfileKey) {
     setProfileKey(key);
+    trackProfileSelected(key);
     try {
       localStorage.setItem(STORAGE_KEY, key);
     } catch {
       /* private mode — the app still works, it just won't remember */
     }
+  }
+
+  function toggleEntry(id: string) {
+    const opening = expanded !== id;
+    setExpanded(opening ? id : null);
+    if (opening) trackLadderOpened(id);
   }
 
   return (
@@ -71,10 +83,15 @@ export default function App() {
           </p>
         </header>
 
+        {/* This used to read "we don't store, track, or share anything", which
+            stopped being true the moment analytics existed. Saying it precisely
+            is worth more than saying it strongly. */}
         <div className="mb-8 rounded-lg border border-green-200 bg-green-50 p-4">
-          <p className="text-sm text-green-800">
-            🔒 <strong className="font-medium">Your data is yours.</strong> Everything stays
-            in your browser. We don&rsquo;t store, track, or share anything.
+          <p className="text-sm leading-relaxed text-green-800">
+            🔒 <strong className="font-medium">Your data is yours.</strong> Nothing you enter
+            leaves this device — not your profile, not your bets, not a single number. We
+            count anonymous page views and which ladders get opened, never linked to you or
+            to each other, and we honour Do Not Track.
           </p>
         </div>
 
@@ -119,7 +136,7 @@ export default function App() {
                 rationale={rationale}
                 friction={friction}
                 open={expanded === entry.id}
-                onToggle={() => setExpanded(expanded === entry.id ? null : entry.id)}
+                onToggle={() => toggleEntry(entry.id)}
               />
             </li>
           ))}
