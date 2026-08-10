@@ -1,0 +1,4 @@
+[submodule "liberation-guardian"]
+	path = liberation-guardian
+	url = https://github.com/thegreenfieldoverride/guardian.git
+	branch = main
