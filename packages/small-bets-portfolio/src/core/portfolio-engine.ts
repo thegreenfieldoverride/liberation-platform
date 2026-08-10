@@ -166,10 +166,10 @@ export class PortfolioEngine {
    * Suggest optimal portfolio allocation
    */
   static suggestAllocation(
-    currentPortfolio: SmallBetsPortfolio,
-    targetMonthlyIncome: number,
-    riskTolerance: 'low' | 'medium' | 'high',
-    availableHours: number
+    _currentPortfolio: SmallBetsPortfolio,
+    _targetMonthlyIncome: number,
+    _riskTolerance: 'low' | 'medium' | 'high',
+    _availableHours: number
   ): Array<{
     action: 'increase' | 'decrease' | 'maintain' | 'start' | 'stop';
     betId?: string;
@@ -257,7 +257,7 @@ export class PortfolioEngine {
     return Math.max(1, Math.min(risk, 10));
   }
 
-  private static assessDiversificationBenefit(bet: SmallBet): number {
+  private static assessDiversificationBenefit(_bet: SmallBet): number {
     // Would compare against other bets in portfolio
     return 5; // Placeholder
   }
@@ -394,7 +394,7 @@ export class PortfolioEngine {
     });
     
     // Identify low-effort passive income bets worth nurturing
-    betAnalyses.forEach(({ bet, analysis }) => {
+    betAnalyses.forEach(({ bet }) => {
       const daysSinceStart = Math.floor(
         (Date.now() - new Date(bet.startDate).getTime()) / (1000 * 60 * 60 * 24)
       );
@@ -438,7 +438,7 @@ export class PortfolioEngine {
   }
 
   private static identifyOpportunities(
-    betAnalyses: Array<{ bet: SmallBet; analysis: BetAnalysis }>,
+    _betAnalyses: Array<{ bet: SmallBet; analysis: BetAnalysis }>,
     portfolio: SmallBetsPortfolio,
     friction: FrictionProfile = NEUTRAL_FRICTION
   ): PortfolioInsights['opportunities'] {
@@ -462,7 +462,7 @@ export class PortfolioEngine {
   }
 
   private static identifyWarnings(
-    betAnalyses: Array<{ bet: SmallBet; analysis: BetAnalysis }>,
+    _betAnalyses: Array<{ bet: SmallBet; analysis: BetAnalysis }>,
     portfolio: SmallBetsPortfolio
   ): PortfolioInsights['warnings'] {
     const warnings: PortfolioInsights['warnings'] = [];

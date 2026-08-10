@@ -648,21 +648,26 @@ export function suggestBets(
   const existingIds = new Set(existing.flatMap(b => b.tags ?? []));
 
   const scored = BET_CATALOG.filter(entry => !existingIds.has(entry.id)).map(entry => {
-    // Score every rung, then recommend the cheapest one the person can begin.
-    const rungs = entry.ladder.map(rung => ({
-      rung,
-      activation: scoreActivation(rung.initiations, friction),
-    }));
-    const best = rungs.reduce((a, b) => (b.activation.score < a.activation.score ? b : a));
+    // The entry point is the FIRST rung, not the cheapest-scoring one.
+    //
+    // Ladders are authored as an ordered progression, and later rungs are only
+    // cheap because they assume everything below them is already done —
+    // wholesale accounts list three steps, but those three steps presuppose
+    // product, capacity and a track record you don't have from a standing
+    // start. Picking the global minimum recommends the top of the ladder to
+    // someone standing on the floor, which is exactly the advice that makes
+    // people feel broken.
+    const entryRung = entry.ladder[0];
+    const activation = scoreActivation(entryRung.initiations, friction);
 
     const exposureWeight = entry.aiExposure === 'low' ? 0 : entry.aiExposure === 'medium' ? 12 : 30;
-    const rank = best.activation.score + exposureWeight;
+    const rank = activation.score + exposureWeight;
 
     return {
       entry,
-      recommendedRung: best.rung,
-      activation: best.activation,
-      rationale: buildRationale(entry, best.rung, best.activation.band),
+      recommendedRung: entryRung,
+      activation,
+      rationale: buildRationale(entry, entryRung, activation.band),
       rank,
     };
   });
