@@ -5,6 +5,12 @@ packages:
 overrides:
   esbuild@<=0.24.2: '>=0.25.0'
   js-yaml@<4.1.1: '>=4.1.1'
+  # Arbitrary code execution (GHSA-xq3m-2v4x-88gg), reached via
+  # ai-copilot > @xenova/transformers > onnxruntime-node. Same major, so this
+  # is a patch bump rather than a resolution change. The real fix is moving
+  # @xenova/transformers v2 to @huggingface/transformers v3, which drops these
+  # backends entirely — this unblocks the gate until then.
+  protobufjs@<7.5.5: '>=7.5.5'
   next@>=0.9.9 <14.2.24: '>=14.2.24'
   next@>=0.9.9 <14.2.31: '>=14.2.31'
   next@>=0.9.9 <14.2.32: '>=14.2.32'
