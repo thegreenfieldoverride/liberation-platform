@@ -4,6 +4,8 @@
  */
 
 import { SmallBet, SmallBetsPortfolio, CoreValue } from '@greenfieldoverride/types';
+import { BET_CATALOG, suggestBets, type CatalogSuggestion } from './catalog';
+import { type FrictionProfile, NEUTRAL_FRICTION } from './activation';
 
 export interface BetAnalysis {
   profitability: {
@@ -45,14 +47,17 @@ export interface PortfolioInsights {
     timeframe: string;
     effort: 'low' | 'medium' | 'high';
   }>;
-  opportunities: Array<{
-    category: SmallBet['category'];
-    rationale: string;
-    estimatedROI: number;
-    riskLevel: 'low' | 'medium' | 'high';
-  }>;
+  /**
+   * Catalog-backed suggestions. These used to be three hardcoded categories
+   * with invented returns ("content: 150% ROI"). Nobody knows your ROI in
+   * advance, and pretending otherwise is how a portfolio of small bets
+   * returns zero while the dashboard looks encouraging. What we can honestly
+   * report is AI exposure, a realistic time-to-first-dollar, and how hard the
+   * cheapest entry point is *for you*.
+   */
+  opportunities: CatalogSuggestion[];
   warnings: Array<{
-    type: 'concentration' | 'burnout' | 'values' | 'financial' | 'time';
+    type: 'concentration' | 'correlation' | 'burnout' | 'values' | 'financial' | 'time';
     severity: 'low' | 'medium' | 'high';
     description: string;
     suggestion: string;
@@ -122,7 +127,11 @@ export class PortfolioEngine {
   /**
    * Generate comprehensive portfolio insights
    */
-  static generateInsights(portfolio: SmallBetsPortfolio, userValues?: CoreValue[]): PortfolioInsights {
+  static generateInsights(
+    portfolio: SmallBetsPortfolio,
+    userValues?: CoreValue[],
+    friction: FrictionProfile = NEUTRAL_FRICTION
+  ): PortfolioInsights {
     const { bets } = portfolio;
     const betAnalyses = bets.map(bet => ({ bet, analysis: this.analyzeBet(bet) }));
 
@@ -137,7 +146,7 @@ export class PortfolioEngine {
 
     // Generate recommendations
     const recommendations = this.generateRecommendations(betAnalyses, portfolio);
-    const opportunities = this.identifyOpportunities(betAnalyses, portfolio);
+    const opportunities = this.identifyOpportunities(betAnalyses, portfolio, friction);
     const warnings = this.identifyWarnings(betAnalyses, portfolio);
 
     return {
@@ -157,10 +166,10 @@ export class PortfolioEngine {
    * Suggest optimal portfolio allocation
    */
   static suggestAllocation(
-    currentPortfolio: SmallBetsPortfolio,
-    targetMonthlyIncome: number,
-    riskTolerance: 'low' | 'medium' | 'high',
-    availableHours: number
+    _currentPortfolio: SmallBetsPortfolio,
+    _targetMonthlyIncome: number,
+    _riskTolerance: 'low' | 'medium' | 'high',
+    _availableHours: number
   ): Array<{
     action: 'increase' | 'decrease' | 'maintain' | 'start' | 'stop';
     betId?: string;
@@ -248,7 +257,7 @@ export class PortfolioEngine {
     return Math.max(1, Math.min(risk, 10));
   }
 
-  private static assessDiversificationBenefit(bet: SmallBet): number {
+  private static assessDiversificationBenefit(_bet: SmallBet): number {
     // Would compare against other bets in portfolio
     return 5; // Placeholder
   }
@@ -385,7 +394,7 @@ export class PortfolioEngine {
     });
     
     // Identify low-effort passive income bets worth nurturing
-    betAnalyses.forEach(({ bet, analysis }) => {
+    betAnalyses.forEach(({ bet }) => {
       const daysSinceStart = Math.floor(
         (Date.now() - new Date(bet.startDate).getTime()) / (1000 * 60 * 60 * 24)
       );
@@ -429,42 +438,62 @@ export class PortfolioEngine {
   }
 
   private static identifyOpportunities(
-    betAnalyses: Array<{ bet: SmallBet; analysis: BetAnalysis }>,
-    portfolio: SmallBetsPortfolio
+    _betAnalyses: Array<{ bet: SmallBet; analysis: BetAnalysis }>,
+    portfolio: SmallBetsPortfolio,
+    friction: FrictionProfile = NEUTRAL_FRICTION
   ): PortfolioInsights['opportunities'] {
-    const existingCategories = new Set(portfolio.bets.map(bet => bet.category));
-    const opportunities: PortfolioInsights['opportunities'] = [];
-    
-    const categoryOpportunities = [
-      {
-        category: 'content' as const,
-        rationale: 'High scalability and passive income potential',
-        estimatedROI: 150,
-        riskLevel: 'medium' as const
-      },
-      {
-        category: 'service' as const,
-        rationale: 'Lower risk and immediate income generation',
-        estimatedROI: 80,
-        riskLevel: 'low' as const
-      },
-      {
-        category: 'product' as const,
-        rationale: 'High scalability but requires upfront investment',
-        estimatedROI: 200,
-        riskLevel: 'high' as const
-      }
-    ];
-    
-    return categoryOpportunities.filter(opp => !existingCategories.has(opp.category));
+    return suggestBets(
+      portfolio.bets.map(bet => ({ category: bet.category, tags: bet.tags })),
+      friction
+    );
+  }
+
+  /**
+   * Match a bet to its catalog entry via tags, so we can reason about what
+   * it is actually exposed to. Bets the user typed in freehand stay
+   * unclassified rather than being guessed at.
+   */
+  private static classifyBets(bets: SmallBet[]) {
+    const byId = new Map(BET_CATALOG.map(entry => [entry.id, entry]));
+    const classified = bets
+      .map(bet => ({ bet, entry: (bet.tags ?? []).map(t => byId.get(t)).find(Boolean) }))
+      .filter((x): x is { bet: SmallBet; entry: NonNullable<typeof x.entry> } => !!x.entry);
+    return classified;
   }
 
   private static identifyWarnings(
-    betAnalyses: Array<{ bet: SmallBet; analysis: BetAnalysis }>,
+    _betAnalyses: Array<{ bet: SmallBet; analysis: BetAnalysis }>,
     portfolio: SmallBetsPortfolio
   ): PortfolioInsights['warnings'] {
     const warnings: PortfolioInsights['warnings'] = [];
-    
+
+    // Correlated failure modes.
+    //
+    // Diversification across *categories* means nothing if every bet dies to
+    // the same cause. Freelance writing, generic design, stock content and
+    // copy-paste print-on-demand did not fail independently — the deliverable
+    // was commoditised out from under all of them at once. Spreading across
+    // four of those is one leveraged bet wearing a costume, and category
+    // counting will happily call it diversified.
+    const classified = this.classifyBets(portfolio.bets);
+    const highExposure = classified.filter(c => c.entry.aiExposure === 'high');
+
+    if (classified.length >= 2 && highExposure.length / classified.length > 0.6) {
+      warnings.push({
+        type: 'correlation',
+        severity: 'high',
+        description:
+          `${highExposure.length} of your ${classified.length} classifiable bets (` +
+          `${highExposure.map(c => c.entry.name).join(', ')}) share one failure mode: ` +
+          `the deliverable itself is being commoditised by AI. These will not fail ` +
+          `independently — they fail together, for the same reason, at the same time.`,
+        suggestion:
+          'This is not a diversified portfolio, whatever the category spread says. ' +
+          'Add at least one low-exposure bet — something needing a body, a licence, ' +
+          'or a standing relationship — before adding anything else.'
+      });
+    }
+
     // Check for concentration risk
     const categoryCount = new Map<string, number>();
     portfolio.bets.forEach(bet => {
