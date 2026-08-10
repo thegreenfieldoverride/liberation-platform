@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   calculateRealHourlyWage,
   calculateWageLiberation,
@@ -54,7 +54,16 @@ export function RealHourlyWageCalculator({
     monthlyRealIncome: 0,
     totalMonthlyHours: 0
   });
-  const [liberationAnalysis, setLiberationAnalysis] = useState<WageLiberation | null>(null);
+  // Derived from inputs, not stored. Holding this in state and setting it from
+  // the effect below made the effect depend on its own output: a fresh object
+  // every run re-triggered the effect forever.
+  const liberationAnalysis = useMemo<WageLiberation | null>(
+    () =>
+      annualSalary > 0 && showLiberationFeatures
+        ? calculateWageLiberation({ annualSalary, workHours, workCosts })
+        : null,
+    [annualSalary, workHours, workCosts, showLiberationFeatures]
+  );
   const [activeTab, setActiveTab] = useState<'reality' | 'scenarios' | 'balance' | 'liberation'>('reality');
   const [hasRecordedCalculation, setHasRecordedCalculation] = useState<boolean>(false);
 
@@ -65,12 +74,6 @@ export function RealHourlyWageCalculator({
     setCalculation(newCalculation);
     onCalculationChange?.(newCalculation);
     
-    // Calculate liberation analysis if salary is provided
-    if (annualSalary > 0 && showLiberationFeatures) {
-      const liberation = calculateWageLiberation(inputs);
-      setLiberationAnalysis(liberation);
-    }
-
     // Track milestones for liberation journey
     if (typeof window !== 'undefined' && window.liberationJourney) {
       const hasCompletedCalculation = annualSalary > 0 && newCalculation.realHourlyWage > 0;
@@ -128,7 +131,7 @@ export function RealHourlyWageCalculator({
         detail: liberationData
       }));
     }
-  }, [annualSalary, workHours, workCosts, onCalculationChange, showLiberationFeatures, liberationAnalysis, hasRecordedCalculation]);
+  }, [annualSalary, workHours, workCosts, onCalculationChange, showLiberationFeatures, hasRecordedCalculation]);
 
   const parseNumericValue = (value: string): number => {
     // Remove commas, dollar signs, and other non-numeric characters except decimal points
