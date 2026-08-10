@@ -1,4 +1,13 @@
 import type { Metadata } from 'next';
+
+// Self-hosted, no runtime request to Google. Both faces are SIL Open Font
+// License, so redistribution is explicitly permitted. The variable build of
+// Inter covers 300-700 in a single file rather than five static weights.
+import '@fontsource-variable/inter';
+import '@fontsource/source-serif-4/400.css';
+import '@fontsource/source-serif-4/400-italic.css';
+import '@fontsource/source-serif-4/600.css';
+
 import '../styles/globals.css';
 import { Navigation } from '../components/Navigation';
 import { Footer } from '../components/Footer';
@@ -49,19 +58,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link 
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Charter:ital,wght@0,400;0,700;1,400&family=Lyon+Display:wght@400;700&display=swap" 
-          rel="stylesheet" 
-        />
-        <style dangerouslySetInnerHTML={{
-          __html: `
-            @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap');
-          `
-        }} />
-      </head>
       <body className="font-sans antialiased min-h-screen flex flex-col">
         <ErrorBoundary>
           <AnalyticsPageView />
