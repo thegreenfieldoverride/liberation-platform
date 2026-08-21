@@ -32,8 +32,8 @@ export default defineConfig({
         short_name: 'Small Bets',
         description:
           'Activation-energy scoring for income experiments. Everything stays on your device.',
-        theme_color: '#0f172a',
-        background_color: '#0f172a',
+        theme_color: '#f9fafb',
+        background_color: '#f9fafb',
         display: 'standalone',
         id: BASE,
         scope: BASE,
