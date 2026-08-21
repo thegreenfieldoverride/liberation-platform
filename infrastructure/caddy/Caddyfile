@@ -1,0 +1,119 @@
+greenfieldoverride.com {
+    reverse_proxy localhost:3000
+    
+    log {
+        output file /mnt/analytics-volume/logs/caddy/main-platform.log {
+            roll_size 100MB
+            roll_keep 20
+            roll_keep_for 2160h
+        }
+        format json
+        level INFO
+    }
+    
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+}
+
+staging.greenfieldoverride.com {
+    reverse_proxy localhost:3001
+    
+    log {
+        output file /mnt/analytics-volume/logs/caddy/staging.log {
+            roll_size 50MB
+            roll_keep 10
+            roll_keep_for 720h
+        }
+        format json
+        level INFO
+    }
+    
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+}
+
+analytics.greenfieldoverride.com {
+    reverse_proxy localhost:8080
+    
+    log {
+        output file /mnt/analytics-volume/logs/caddy/analytics.log {
+            roll_size 100MB
+            roll_keep 20
+            roll_keep_for 2160h
+        }
+        format json
+        level INFO
+    }
+    
+    # CORS: reflect only known origins.
+    #
+    # This was Access-Control-Allow-Origin "*" together with
+    # Allow-Credentials "true" — a combination browsers reject outright, so
+    # the credentials flag never did anything. The wildcard did: any site on
+    # the internet could POST events into this API, and that database is the
+    # only honest record of who visits.
+    #
+    # Origins mirror ALLOWED_ORIGINS on the analytics container.
+    @cors_origin header_regexp origin Origin ^https://(greenfieldoverride\.com|staging\.greenfieldoverride\.com|writewithstrata\.app)$
+    header @cors_origin {
+        Access-Control-Allow-Origin "{re.origin.0}"
+        Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+        Access-Control-Allow-Credentials "true"
+        Access-Control-Max-Age "86400"
+        # Responses differ by Origin, so caches must key on it.
+        Vary Origin
+    }
+
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+        
+        Cache-Control "no-cache, no-store, must-revalidate"
+        Pragma "no-cache"
+        Expires "0"
+    }
+    
+    # Preflight, answered only for the same known origins. An unknown origin
+    # gets a 204 with no CORS headers, which is the correct refusal.
+    @cors_preflight {
+        method OPTIONS
+        header_regexp origin Origin ^https://(greenfieldoverride\.com|staging\.greenfieldoverride\.com|writewithstrata\.app)$
+    }
+    handle @cors_preflight {
+        header Access-Control-Allow-Origin "{re.origin.0}"
+        header Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        header Access-Control-Allow-Headers "Content-Type, Authorization"
+        header Access-Control-Allow-Credentials "true"
+        header Access-Control-Max-Age "86400"
+        header Vary Origin
+        respond 204
+    }
+}
+
+# WWW redirect for main domain
+www.greenfieldoverride.com {
+    redir https://greenfieldoverride.com{uri} permanent
+}
+
+# Optional: WWW redirects for subdomains (if needed)
+www.analytics.greenfieldoverride.com {
+    redir https://analytics.greenfieldoverride.com{uri} permanent
+}
+
+www.staging.greenfieldoverride.com {
+    redir https://staging.greenfieldoverride.com{uri} permanent
+}

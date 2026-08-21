@@ -1,0 +1,201 @@
+name: 📬 Deploy Listmonk
+
+# Manual only, like deploy-guardian. Infrastructure services deploy
+# independently of the platform so a newsletter change cannot take the site
+# down, and a site deploy cannot take the mailing list down.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - production
+          - staging
+        default: production
+      listmonk_version:
+        description: 'Listmonk image tag (pinned — never use latest)'
+        required: true
+        default: 'v6.2.0'
+        type: string
+
+env:
+  # Pinned deliberately. A floating ":latest" is what silently broke CI for
+  # three months when pnpm shipped a major, and it is not worth repeating for
+  # a service that owns the mailing list.
+  CONTAINER_NAME: liberation-listmonk
+  LISTMONK_PORT: 9001
+  DB_NAME: listmonk
+  DB_USER: listmonk
+
+jobs:
+  deploy-listmonk:
+    name: 📬 Deploy Listmonk to ${{ github.event.inputs.environment }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+
+      - name: Preflight — required secrets
+        env:
+          H: ${{ secrets.HETZNER_HOST }}
+          U: ${{ secrets.HETZNER_USER }}
+          DBP: ${{ secrets.LISTMONK_DB_PASSWORD }}
+          ADMP: ${{ secrets.LISTMONK_ADMIN_PASSWORD }}
+        run: |
+          missing=""
+          [ -n "$H" ]    || missing="$missing HETZNER_HOST"
+          [ -n "$U" ]    || missing="$missing HETZNER_USER"
+          [ -n "$DBP" ]  || missing="$missing LISTMONK_DB_PASSWORD"
+          [ -n "$ADMP" ] || missing="$missing LISTMONK_ADMIN_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing"
+            exit 1
+          fi
+          echo "✅ all required secrets present"
+
+      - name: Deploy Listmonk
+        env:
+          HOST: ${{ secrets.HETZNER_HOST }}
+          USER: ${{ secrets.HETZNER_USER }}
+          DB_PASSWORD: ${{ secrets.LISTMONK_DB_PASSWORD }}
+          ADMIN_PASSWORD: ${{ secrets.LISTMONK_ADMIN_PASSWORD }}
+          VERSION: ${{ github.event.inputs.listmonk_version }}
+        run: |
+          # accept-new rather than an ssh-keyscan step: keyscan is itself
+          # trust-on-first-use, and the keyscan step in the analytics repo
+          # failed silently for months because ~/.ssh did not exist.
+          # Secrets travel over stdin, not as part of the remote command:
+          # anything on the command line is visible in the remote process list.
+          {
+            printf "DB_PASSWORD=%q\n"    "$DB_PASSWORD"
+            printf "ADMIN_PASSWORD=%q\n" "$ADMIN_PASSWORD"
+            printf "VERSION=%q\n"        "$VERSION"
+            cat <<'REMOTE'
+          set -euo pipefail
+
+          CONTAINER=liberation-listmonk
+          PORT=9001
+          DB_NAME=listmonk
+          DB_USER=listmonk
+          NETWORK=liberation-platform-network
+
+          echo "📬 Deploying listmonk ${VERSION}"
+
+          docker network create "$NETWORK" 2>/dev/null || true
+
+          # --- database ------------------------------------------------------
+          # Idempotent: listmonk needs its own database and role inside the
+          # existing liberation-postgres, not a share of liberation_analytics.
+          echo "🗄️  ensuring database and role exist..."
+          docker exec liberation-postgres psql -U liberation -tAc \
+            "SELECT 1 FROM pg_roles WHERE rolname='${DB_USER}'" | grep -q 1 || \
+            docker exec liberation-postgres psql -U liberation -c \
+              "CREATE ROLE ${DB_USER} LOGIN PASSWORD '${DB_PASSWORD}'"
+
+          docker exec liberation-postgres psql -U liberation -tAc \
+            "SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'" | grep -q 1 || \
+            docker exec liberation-postgres createdb -U liberation -O "${DB_USER}" "${DB_NAME}"
+
+          # --- persistent uploads --------------------------------------------
+          # On the host, not in the container layer. The analytics database
+          # spent ten months one redeploy away from deletion for want of this.
+          sudo mkdir -p /mnt/analytics-volume/listmonk/uploads
+          sudo chown -R 1000:1000 /mnt/analytics-volume/listmonk
+
+          # --- replace ONLY this container -----------------------------------
+          # Scoped by name on purpose. The analytics deploy removes
+          # "liberation-analytics" unconditionally even when deploying staging,
+          # which took production down earlier today.
+          docker stop "$CONTAINER" 2>/dev/null || true
+          docker rm   "$CONTAINER" 2>/dev/null || true
+
+          docker pull "listmonk/listmonk:${VERSION}"
+
+          # First run needs --install to create the schema; subsequent runs
+          # need --upgrade. Both are idempotent with --yes.
+          if docker exec liberation-postgres psql -U liberation -d "${DB_NAME}" -tAc \
+               "SELECT to_regclass('public.subscribers')" | grep -q subscribers; then
+            INIT_CMD="--upgrade --yes"
+            echo "📦 existing schema found — upgrading"
+          else
+            INIT_CMD="--install --yes"
+            echo "📦 fresh database — installing schema"
+          fi
+
+          docker run --rm \
+            --network "$NETWORK" \
+            -e LISTMONK_db__host=liberation-postgres \
+            -e LISTMONK_db__port=5432 \
+            -e LISTMONK_db__user="${DB_USER}" \
+            -e LISTMONK_db__password="${DB_PASSWORD}" \
+            -e LISTMONK_db__database="${DB_NAME}" \
+            -e LISTMONK_db__ssl_mode=disable \
+            "listmonk/listmonk:${VERSION}" ./listmonk ${INIT_CMD}
+
+          docker run -d \
+            --name "$CONTAINER" \
+            --restart unless-stopped \
+            --network "$NETWORK" \
+            -p 127.0.0.1:${PORT}:9000 \
+            -v /mnt/analytics-volume/listmonk/uploads:/listmonk/uploads \
+            -e LISTMONK_app__address=0.0.0.0:9000 \
+            -e LISTMONK_db__host=liberation-postgres \
+            -e LISTMONK_db__port=5432 \
+            -e LISTMONK_db__user="${DB_USER}" \
+            -e LISTMONK_db__password="${DB_PASSWORD}" \
+            -e LISTMONK_db__database="${DB_NAME}" \
+            -e LISTMONK_db__ssl_mode=disable \
+            -e LISTMONK_ADMIN_USER=admin \
+            -e LISTMONK_ADMIN_PASSWORD="${ADMIN_PASSWORD}" \
+            "listmonk/listmonk:${VERSION}"
+
+          echo "⏳ waiting for listmonk..."
+          for i in $(seq 1 30); do
+            if curl -fsS "http://127.0.0.1:${PORT}/health" >/dev/null 2>&1; then
+              echo "✅ listmonk healthy after ${i}s"
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "❌ listmonk did not become healthy"
+          docker logs --tail 40 "$CONTAINER" || true
+          exit 1
+          REMOTE
+          } | ssh -o StrictHostKeyChecking=accept-new "$USER@$HOST" "bash -s"
+
+      - name: Summary
+        if: always()
+        env:
+          # workflow_dispatch inputs are user-supplied; keep them out of the
+          # command line and let the shell quote them.
+          VERSION: ${{ github.event.inputs.listmonk_version }}
+          STATUS: ${{ job.status }}
+        run: |
+          if [ "$STATUS" = "success" ]; then
+            echo "✅ Listmonk $VERSION deployed"
+            echo ""
+            echo "Bound to 127.0.0.1:9001 — not exposed publicly."
+            echo "Add a Caddy site block to reach it, e.g.:"
+            echo ""
+            echo "  lists.greenfieldoverride.com {"
+            echo "      reverse_proxy localhost:9001"
+            echo "  }"
+            echo ""
+            echo "SMTP: point listmonk at liberation-postfix:587."
+            echo "mynetworks covers the Docker range, so no auth is needed and"
+            echo "the rate limits do not apply to it."
+          else
+            echo "💥 Listmonk deployment failed — see the step log above"
+          fi
