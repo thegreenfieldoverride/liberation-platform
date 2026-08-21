@@ -1,0 +1,250 @@
+name: ✉️ Deploy Postfix
+
+# Manual only, like Caddy, Guardian and listmonk. This is the mail server:
+# a bad deploy does not show up as a 500, it shows up as mail silently not
+# being delivered, or worse, being delivered unsigned.
+#
+# Why this workflow exists at all: postfix was the one service with no
+# pipeline. The running container was built by hand on 2025-12-09 and never
+# rebuilt, so every edit to main.cf since then has been inert. The SASL rate
+# limits merged in #44 were sitting in git while the live server ran
+# smtpd_client_auth_rate_limit = 0.
+#
+# Credentials deliberately do NOT live in GitHub secrets. SMTP_AUTH_USER and
+# SMTP_AUTH_PASSWORD already exist on the box in /etc/liberation/postfix.env
+# (root-only, 0600) and are passed with --env-file. Copying working mail
+# credentials into a second system just to redeploy is a downgrade.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type DEPLOY to confirm — this restarts the mail server'
+        required: true
+        default: ''
+      deploy_with_queued_mail:
+        description: 'Proceed even if mail is queued (it will be delayed, not lost)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  CONTAINER: liberation-postfix
+  IMAGE: liberation-postfix
+  DKIM_VOLUME: postfix-dkim
+  NETWORK: liberation-platform-network
+  ENV_FILE: /etc/liberation/postfix.env
+
+jobs:
+  deploy-postfix:
+    name: ✉️ Rebuild and redeploy postfix
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+
+    steps:
+      - name: Confirm
+        env:
+          CONFIRM: ${{ github.event.inputs.confirm }}
+        run: |
+          if [ "$CONFIRM" != "DEPLOY" ]; then
+            echo "::error::Type DEPLOY to confirm. Got: '$CONFIRM'"
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+
+      - name: Preflight — secrets present
+        env:
+          H: ${{ secrets.HETZNER_HOST }}
+          U: ${{ secrets.HETZNER_USER }}
+        run: |
+          missing=""
+          [ -n "$H" ] || missing="$missing HETZNER_HOST"
+          [ -n "$U" ] || missing="$missing HETZNER_USER"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing"
+            exit 1
+          fi
+
+      - name: Ship build context
+        env:
+          HOST: ${{ secrets.HETZNER_HOST }}
+          USER: ${{ secrets.HETZNER_USER }}
+        run: |
+          # 56K of Dockerfile, config and scripts. Small enough to send as a
+          # tar over the existing SSH connection; no registry, no extra
+          # credentials, and the context that gets built is exactly the
+          # commit under test.
+          tar -C infrastructure/docker/images -czf - postfix \
+            | ssh -o StrictHostKeyChecking=accept-new "$USER@$HOST" \
+                'set -e
+                 rm -rf /tmp/postfix-build && mkdir -p /tmp/postfix-build
+                 tar -C /tmp/postfix-build -xzf -
+                 find /tmp/postfix-build -type f | wc -l | xargs echo "  files received:"'
+
+      - name: Deploy
+        env:
+          HOST: ${{ secrets.HETZNER_HOST }}
+          USER: ${{ secrets.HETZNER_USER }}
+          SHA: ${{ github.sha }}
+          ALLOW_QUEUED: ${{ github.event.inputs.deploy_with_queued_mail }}
+        run: |
+          {
+            printf "SHA=%q\n"          "$SHA"
+            printf "ALLOW_QUEUED=%q\n" "$ALLOW_QUEUED"
+            cat <<'REMOTE'
+          set -euo pipefail
+
+          CONTAINER=liberation-postfix
+          IMAGE=liberation-postfix
+          ENV_FILE=/etc/liberation/postfix.env
+          NETWORK=liberation-platform-network
+          TAG="${SHA:0:12}"
+
+          # --- preflight -----------------------------------------------------
+          if ! sudo test -f "$ENV_FILE"; then
+            echo "❌ $ENV_FILE is missing. It holds MAIL_DOMAIN, MAIL_HOSTNAME,"
+            echo "   SERVER_IP, SMTP_AUTH_USER and SMTP_AUTH_PASSWORD (0600, root)."
+            exit 1
+          fi
+          for k in MAIL_DOMAIN MAIL_HOSTNAME SERVER_IP SMTP_AUTH_USER SMTP_AUTH_PASSWORD; do
+            sudo grep -qE "^${k}=.+" "$ENV_FILE" || { echo "❌ $ENV_FILE missing or empty: $k"; exit 1; }
+          done
+          echo "✅ env file complete"
+
+          if ! docker volume inspect postfix-dkim >/dev/null 2>&1; then
+            echo "❌ postfix-dkim volume missing — the DKIM private keys live there."
+            echo "   Rebuilding without it regenerates keys and breaks signing for"
+            echo "   every domain until DNS is updated. Refusing."
+            exit 1
+          fi
+          echo "✅ DKIM volume present"
+
+          # Mail in flight is delayed by a restart, not lost — postfix retries.
+          # Still worth stopping for, because "delayed" during a send is a
+          # support problem you would rather choose than discover.
+          QUEUED=$(docker exec "$CONTAINER" sh -c \
+            'find /var/spool/postfix/deferred /var/spool/postfix/active /var/spool/postfix/incoming -type f 2>/dev/null | wc -l' \
+            2>/dev/null || echo 0)
+          echo "📮 queued messages: $QUEUED"
+          if [ "$QUEUED" -gt 0 ] && [ "$ALLOW_QUEUED" != "true" ]; then
+            echo "❌ mail is queued. Re-run with deploy_with_queued_mail=true to proceed."
+            exit 1
+          fi
+
+          # --- build ---------------------------------------------------------
+          echo "🔨 building ${IMAGE}:${TAG}"
+          docker build -t "${IMAGE}:${TAG}" /tmp/postfix-build/postfix
+
+          # Keep whatever is currently running as the rollback target, by digest
+          # rather than by tag, so a repeated tag cannot point at the new build.
+          ROLLBACK_ID=$(docker inspect "$CONTAINER" --format '{{.Image}}' 2>/dev/null || echo "")
+          echo "🔖 rollback image: ${ROLLBACK_ID:-none}"
+
+          start_container() {
+            local img="$1"
+            docker run -d \
+              --name "$CONTAINER" \
+              --restart unless-stopped \
+              --network "$NETWORK" \
+              --hostname mail.daon.network \
+              --env-file "$ENV_FILE" \
+              -p 465:465 -p 587:587 -p 9154:9154 \
+              -v postfix-dkim:/etc/opendkim/keys \
+              "$img" >/dev/null
+          }
+
+          docker stop "$CONTAINER" >/dev/null 2>&1 || true
+          docker rm   "$CONTAINER" >/dev/null 2>&1 || true
+
+          echo "🚀 starting ${IMAGE}:${TAG}"
+          start_container "${IMAGE}:${TAG}"
+
+          # --- verify --------------------------------------------------------
+          # "Container is running" is not the bar. Postfix will happily run
+          # while refusing to sign mail.
+          ok=1
+          for i in $(seq 1 30); do
+            docker exec "$CONTAINER" postconf -h myhostname >/dev/null 2>&1 && break
+            sleep 1
+          done
+
+          check() { # name expected actual
+            if [ "$2" = "$3" ]; then printf '  ✅ %-34s %s\n' "$1" "$3"
+            else printf '  ❌ %-34s expected %s, got %s\n' "$1" "$2" "$3"; ok=0; fi
+          }
+
+          check "smtpd_client_auth_rate_limit" "10" \
+            "$(docker exec "$CONTAINER" postconf -h smtpd_client_auth_rate_limit 2>/dev/null)"
+          check "smtpd_soft_error_limit" "3" \
+            "$(docker exec "$CONTAINER" postconf -h smtpd_soft_error_limit 2>/dev/null)"
+
+          SIGNED=$(docker exec "$CONTAINER" sh -c 'wc -l < /etc/opendkim/SigningTable' 2>/dev/null || echo 0)
+          check "DKIM domains signed" "3" "$SIGNED"
+
+          for d in daon.network greenfieldoverride.com writewithstrata.app; do
+            if docker exec "$CONTAINER" test -f "/etc/opendkim/keys/$d/liberation.private"; then
+              printf '  ✅ %-34s key intact\n' "$d"
+            else
+              printf '  ❌ %-34s KEY MISSING\n' "$d"; ok=0
+            fi
+          done
+
+          if docker exec "$CONTAINER" sh -c 'pgrep opendkim >/dev/null'; then
+            printf '  ✅ %-34s running\n' "opendkim"
+          else
+            printf '  ❌ %-34s not running\n' "opendkim"; ok=0
+          fi
+
+          BANNER=$(docker exec "$CONTAINER" sh -c \
+            'printf "QUIT\r\n" | timeout 5 nc 127.0.0.1 587 2>/dev/null | head -1' || echo "")
+          case "$BANNER" in
+            220*) printf '  ✅ %-34s %s\n' "SMTP 587 banner" "$(echo "$BANNER" | tr -d '\r')" ;;
+            *)    printf '  ❌ %-34s no 220 greeting\n' "SMTP 587 banner"; ok=0 ;;
+          esac
+
+          # --- rollback ------------------------------------------------------
+          if [ "$ok" -ne 1 ]; then
+            echo ""
+            echo "💥 verification failed — rolling back"
+            docker logs --tail 40 "$CONTAINER" || true
+            docker stop "$CONTAINER" >/dev/null 2>&1 || true
+            docker rm   "$CONTAINER" >/dev/null 2>&1 || true
+            if [ -n "$ROLLBACK_ID" ]; then
+              start_container "$ROLLBACK_ID"
+              echo "↩️  restored previous image $ROLLBACK_ID"
+              sleep 5
+              docker ps --filter "name=$CONTAINER" --format '  {{.Names}} {{.Status}}'
+            else
+              echo "⚠️  no previous image recorded — postfix is DOWN, fix by hand"
+            fi
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ postfix ${TAG} deployed and verified"
+          rm -rf /tmp/postfix-build
+          REMOTE
+          } | ssh -o StrictHostKeyChecking=accept-new "$USER@$HOST" "bash -s"
+
+      - name: Summary
+        if: always()
+        env:
+          STATUS: ${{ job.status }}
+        run: |
+          if [ "$STATUS" = "success" ]; then
+            echo "✅ Postfix rebuilt from this commit and verified"
+            echo ""
+            echo "Checked: SASL rate limits applied, all three DKIM keys intact,"
+            echo "opendkim running, and 587 answering with a 220 greeting."
+          else
+            echo "💥 Deploy failed — the previous image was restored automatically."
+            echo "If the log says 'no previous image recorded', postfix is down."
+          fi
