@@ -100,11 +100,14 @@ www.greenfieldoverride.com {
     redir https://greenfieldoverride.com{uri} permanent
 }
 
-# Optional: WWW redirects for subdomains (if needed)
-www.analytics.greenfieldoverride.com {
-    redir https://analytics.greenfieldoverride.com{uri} permanent
-}
-
-www.staging.greenfieldoverride.com {
-    redir https://staging.greenfieldoverride.com{uri} permanent
-}
+# Removed: www.analytics and www.staging redirects.
+#
+# Neither name has ever had a DNS record. Caddy still tried to obtain a
+# certificate for both on every load, ACME returned NXDOMAIN, and certmagic
+# retried on a 300s backoff. systemd's reload timeout fired mid-retry, killed
+# the reload process, and took the deploying SSH session with it (exit 255) —
+# leaving caddy stuck in "reloading" while serving the previous config.
+#
+# A vhost for a name that does not resolve is not inert. It is a reload that
+# fails later, during an unrelated deploy. If either name is ever wanted, add
+# the DNS record first, then the block.
