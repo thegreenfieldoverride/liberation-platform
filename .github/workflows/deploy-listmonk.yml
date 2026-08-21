@@ -64,6 +64,30 @@ jobs:
           fi
           echo "✅ all required secrets present"
 
+      - name: Ship static assets
+        env:
+          HOST: ${{ secrets.HETZNER_HOST }}
+          USER: ${{ secrets.HETZNER_USER }}
+        run: |
+          # The custom opt-in email templates and brand logos live in the
+          # repo and must reach the server before the container starts.
+          # Without this a fresh box gets --static-dir pointing at an empty
+          # directory: listmonk falls back to its built-in templates and the
+          # branding disappears with no error anywhere.
+          # Two directories, two destinations. email-templates are read via
+          # --static-dir; the logos must land in listmonk's media path, which
+          # is what {root_url}/uploads/ serves and what the templates
+          # reference. Shipping the logos under static/ would put them at a
+          # URL nothing resolves.
+          tar -C infrastructure/listmonk -czf - static uploads \
+            | ssh -o StrictHostKeyChecking=accept-new "$USER@$HOST" \
+                'set -e
+                 sudo mkdir -p /mnt/analytics-volume/listmonk
+                 sudo tar -C /mnt/analytics-volume/listmonk -xzf -
+                 sudo chown -R 1000:1000 /mnt/analytics-volume/listmonk/static
+                 echo "  templates: $(ls /mnt/analytics-volume/listmonk/static/email-templates | tr "\n" " ")"
+                 echo "  logos:     $(ls /mnt/analytics-volume/listmonk/static/uploads | tr "\n" " ")"'
+
       - name: Deploy Listmonk
         env:
           HOST: ${{ secrets.HETZNER_HOST }}
@@ -130,6 +154,7 @@ jobs:
           # On the host, not in the container layer. The analytics database
           # spent ten months one redeploy away from deletion for want of this.
           sudo mkdir -p /mnt/analytics-volume/listmonk/uploads
+          sudo mkdir -p /mnt/analytics-volume/listmonk/static/email-templates
           sudo chown -R 1000:1000 /mnt/analytics-volume/listmonk
 
           # --- replace ONLY this container -----------------------------------
@@ -168,6 +193,7 @@ jobs:
             --network "$DB_NETWORK" \
             -p 127.0.0.1:${PORT}:9000 \
             -v /mnt/analytics-volume/listmonk/uploads:/listmonk/uploads \
+            -v /mnt/analytics-volume/listmonk/static:/listmonk/static \
             -e LISTMONK_app__address=0.0.0.0:9000 \
             -e LISTMONK_db__host=liberation-postgres \
             -e LISTMONK_db__port=5432 \
@@ -177,7 +203,8 @@ jobs:
             -e LISTMONK_db__ssl_mode=disable \
             -e LISTMONK_ADMIN_USER=admin \
             -e LISTMONK_ADMIN_PASSWORD="${ADMIN_PASSWORD}" \
-            "listmonk/listmonk:${VERSION}"
+            "listmonk/listmonk:${VERSION}" \
+            ./listmonk --static-dir=/listmonk/static
 
           # Second network for SMTP. --network can only be given once at run
           # time, so the mail network is attached afterwards.
