@@ -110,6 +110,25 @@ docker run --rm -v postfix-dkim:/keys:ro alpine:3.20 tar -C /keys -cz . \
 tar -tzf "${DEST}/postfix-dkim.tar.gz" >/dev/null || { log "DKIM archive unreadable"; false; }
 log "  $(tar -tzf "${DEST}/postfix-dkim.tar.gz" | grep -c '\.private$') private keys"
 
+# --- analytics DuckDB ------------------------------------------------------
+# Omitted from the first version of this script, which backed up postgres and
+# skipped the database the whole exercise was about. Nine months of traffic
+# data had no copy at all.
+#
+# Both files are captured in one tar, deliberately. DuckDB allows a single
+# writer and the analytics service holds the file open, so it cannot be
+# quiesced or opened read-only from here. Copying the database without its
+# write-ahead log restores whatever was last checkpointed and silently drops
+# everything since; the pair together lets DuckDB replay on open.
+if [ -f /mnt/analytics-volume/data/analytics.db ]; then
+    log "archiving analytics DuckDB"
+    tar -C /mnt/analytics-volume/data -czf "${DEST}/analytics-duckdb.tar.gz" \
+        analytics.db analytics.db.wal 2>/dev/null || \
+        tar -C /mnt/analytics-volume/data -czf "${DEST}/analytics-duckdb.tar.gz" analytics.db
+    tar -tzf "${DEST}/analytics-duckdb.tar.gz" >/dev/null || { log "DuckDB archive unreadable"; false; }
+    log "  $(du -h "${DEST}/analytics-duckdb.tar.gz" | cut -f1), $(tar -tzf "${DEST}/analytics-duckdb.tar.gz" | wc -l) files"
+fi
+
 # --- listmonk uploads ------------------------------------------------------
 if [ -d /mnt/analytics-volume/listmonk/uploads ]; then
     log "archiving listmonk uploads"

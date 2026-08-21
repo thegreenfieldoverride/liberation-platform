@@ -28,7 +28,7 @@ ALERT_FROM="${ALERT_FROM:-noreply@greenfieldoverride.com}"
 POSTFIX_CONTAINER="${POSTFIX_CONTAINER:-liberation-postfix}"
 ALERT_COOLDOWN="${ALERT_COOLDOWN:-21600}"   # 6h between repeats
 DISK_WARN_PCT="${DISK_WARN_PCT:-85}"
-WAL_WARN_MB="${WAL_WARN_MB:-100}"
+WAL_RATIO_WARN="${WAL_RATIO_WARN:-50}"   # WAL as a % of the db file
 QUEUE_WARN="${QUEUE_WARN:-25}"
 
 mkdir -p "$STATE_DIR"
@@ -103,12 +103,22 @@ if docker ps --filter "name=^liberation-postfix$" -q | grep -q .; then
 fi
 
 # --- DuckDB write-ahead log ------------------------------------------------
-# An un-checkpointed WAL means the data is not in the database file. A backup
-# of the .db alone would restore almost nothing.
+# An un-checkpointed WAL means the data is not in the database file.
+#
+# The first version of this check warned above a fixed 100MB. That was the
+# right idea calibrated wrong: the WAL sat at 14MB holding *every* row while
+# the database file was 12KB, and the check stayed silent. Size alone says
+# nothing — what matters is how much of the data is only in the log.
 WAL=/mnt/analytics-volume/data/analytics.db.wal
-if [ -f "$WAL" ]; then
-    mb=$(( $(stat -c %s "$WAL") / 1048576 ))
-    [ "$mb" -gt "$WAL_WARN_MB" ] && fail "analytics WAL is ${mb}MB and un-checkpointed"
+DB=/mnt/analytics-volume/data/analytics.db
+if [ -f "$WAL" ] && [ -f "$DB" ]; then
+    wal_sz=$(stat -c %s "$WAL")
+    db_sz=$(stat -c %s "$DB")
+    if [ "$db_sz" -gt 0 ] && [ "$wal_sz" -gt 1048576 ]; then
+        ratio=$(( wal_sz * 100 / db_sz ))
+        [ "$ratio" -gt "$WAL_RATIO_WARN" ] && \
+            fail "analytics WAL is ${ratio}% the size of the database file ($(( wal_sz / 1048576 ))MB vs $(( db_sz / 1048576 ))MB) — un-checkpointed"
+    fi
 fi
 
 # --- report ----------------------------------------------------------------
