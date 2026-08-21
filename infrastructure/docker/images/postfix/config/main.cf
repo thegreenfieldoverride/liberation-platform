@@ -98,6 +98,22 @@ smtpd_client_connection_rate_limit = 60
 smtpd_client_message_rate_limit = 100
 smtpd_client_recipient_rate_limit = 500
 
+# Authentication rate limiting.
+#
+# This was absent, and its absence is what let a single host attempt ~19,800
+# SASL logins against non-existent accounts. The other limits above cap
+# connections and messages; none of them cap failed *auth* attempts, which is
+# the only thing a credential-stuffing run cares about.
+#
+# Overridden at runtime from RATE_LIMIT_PER_MINUTE by entrypoint.sh.
+smtpd_client_auth_rate_limit = 10
+
+# Hang up sooner on clients generating errors, and make each error cost more.
+# Defaults (10 / 1s) are generous enough that a brute-forcer barely notices.
+smtpd_soft_error_limit = 3
+smtpd_hard_error_limit = 10
+smtpd_error_sleep_time = 5s
+
 # Prevent enumeration attacks
 disable_vrfy_command = yes
 smtpd_helo_required = yes
