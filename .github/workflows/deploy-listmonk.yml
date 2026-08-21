@@ -88,11 +88,24 @@ jobs:
           PORT=9001
           DB_NAME=listmonk
           DB_USER=listmonk
-          NETWORK=liberation-platform-network
+          # listmonk needs BOTH networks and is the only container that does.
+          # postgres sits alone on liberation-network with redis; postfix, which
+          # listmonk needs for SMTP, is on liberation-platform-network. There is
+          # no single network that reaches both.
+          DB_NETWORK=liberation-network
+          MAIL_NETWORK=liberation-platform-network
 
           echo "📬 Deploying listmonk ${VERSION}"
 
-          docker network create "$NETWORK" 2>/dev/null || true
+          # Verify, do not create. "docker network create" on a typo'd or
+          # missing name silently succeeds with an empty network, and the
+          # failure then surfaces much later as an unresolvable DB hostname —
+          # which is exactly how the previous deploy failed.
+          for n in "$DB_NETWORK" "$MAIL_NETWORK"; do
+            if ! docker network inspect "$n" >/dev/null 2>&1; then
+              echo "❌ network $n does not exist"; exit 1
+            fi
+          done
 
           # --- database ------------------------------------------------------
           # Idempotent: listmonk needs its own database and role inside the
@@ -140,7 +153,7 @@ jobs:
           fi
 
           docker run --rm \
-            --network "$NETWORK" \
+            --network "$DB_NETWORK" \
             -e LISTMONK_db__host=liberation-postgres \
             -e LISTMONK_db__port=5432 \
             -e LISTMONK_db__user="${DB_USER}" \
@@ -152,7 +165,7 @@ jobs:
           docker run -d \
             --name "$CONTAINER" \
             --restart unless-stopped \
-            --network "$NETWORK" \
+            --network "$DB_NETWORK" \
             -p 127.0.0.1:${PORT}:9000 \
             -v /mnt/analytics-volume/listmonk/uploads:/listmonk/uploads \
             -e LISTMONK_app__address=0.0.0.0:9000 \
@@ -165,6 +178,10 @@ jobs:
             -e LISTMONK_ADMIN_USER=admin \
             -e LISTMONK_ADMIN_PASSWORD="${ADMIN_PASSWORD}" \
             "listmonk/listmonk:${VERSION}"
+
+          # Second network for SMTP. --network can only be given once at run
+          # time, so the mail network is attached afterwards.
+          docker network connect "$MAIL_NETWORK" "$CONTAINER"
 
           echo "⏳ waiting for listmonk..."
           for i in $(seq 1 30); do
