@@ -58,7 +58,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
 
-      - name: Push config, validate remotely, reload with rollback
+      - name: Push config, preflight, reload with rollback
         env:
           HOST: ${{ secrets.HETZNER_HOST }}
           USER: ${{ secrets.HETZNER_USER }}
@@ -74,24 +74,97 @@ jobs:
 
           STAMP=$(date +%Y%m%d-%H%M%S)
           LIVE=/etc/caddy/Caddyfile
+          INCOMING=/tmp/Caddyfile.incoming
           BACKUP=/etc/caddy/Caddyfile.$STAMP
 
-          echo "📋 backing up current config to $BACKUP"
-          sudo cp "$LIVE" "$BACKUP"
+          # ---------------------------------------------------------------
+          # Preflight. Every check below exists because it failed in
+          # production on 2026-08-21 and cost an hour of a site being down.
+          # All of it runs BEFORE the live file is touched.
+          # ---------------------------------------------------------------
 
-          echo "🔍 validating incoming config on the server"
-          sudo cp /tmp/Caddyfile.incoming "$LIVE"
-          if ! sudo caddy validate --config "$LIVE" --adapter caddyfile; then
-            echo "::error::Incoming config failed validation on the server — restoring"
-            sudo cp "$BACKUP" "$LIVE"
+          # 1. Validate the incoming file where it lies. The previous version
+          #    copied it over $LIVE first and validated in place, so a bad
+          #    config was briefly live and a failure meant restoring from
+          #    backup rather than never having changed anything.
+          echo "🔍 validating incoming config"
+          if ! sudo caddy validate --config "$INCOMING" --adapter caddyfile 2>&1 | tail -3; then
+            echo "::error::Incoming config failed validation. Live config untouched."
             exit 1
           fi
 
+          # 2. Every vhost must resolve. Caddy tries ACME for each named site
+          #    on load; a name with no DNS record returns NXDOMAIN, certmagic
+          #    retries on a 300s backoff, systemd's reload timeout fires
+          #    mid-retry and kills the reload — which severs this very SSH
+          #    session with exit 255, so the rollback below never runs.
+          echo "🌐 checking DNS for every vhost"
+          missing=""
+          for host in $(grep -oE '^[a-z0-9][a-z0-9.-]*\.[a-z]{2,} \{' "$INCOMING" | sed 's/ {//'); do
+            if [ -z "$(dig +short A "$host" @1.1.1.1)" ] && [ -z "$(dig +short AAAA "$host" @1.1.1.1)" ]; then
+              missing="$missing $host"
+            else
+              echo "  ✅ $host"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::These vhosts have no DNS record:$missing"
+            echo "A vhost for a name that does not resolve stalls every future reload."
+            echo "Add the DNS record first, or remove the block. Live config untouched."
+            exit 1
+          fi
+
+          # 3. Pre-create every log file as caddy:caddy.
+          #    "caddy validate" opens its log writers. Run under sudo, it
+          #    CREATES any missing log file owned by root — and the caddy
+          #    process, running as user caddy, then cannot open its own log.
+          #    The reload fails with "permission denied" long after the
+          #    validate that caused it appeared to succeed.
+          echo "📝 ensuring log files are writable by caddy"
+          for logfile in $(grep -oE 'output file [^ ]+' "$INCOMING" | awk '{print $3}'); do
+            sudo mkdir -p "$(dirname "$logfile")"
+            sudo touch "$logfile"
+            sudo chown caddy:caddy "$logfile"
+            sudo chown caddy:caddy "$(dirname "$logfile")"
+            echo "  ✅ $logfile"
+          done
+
+          # 4. Refuse to start from a wedged state. A reload issued while the
+          #    service is already stuck "reloading" just queues another
+          #    timeout.
+          state=$(systemctl is-active caddy || true)
+          if [ "$state" = "reloading" ]; then
+            echo "::error::caddy is stuck in 'reloading' from a previous attempt."
+            echo "Run: sudo systemctl restart caddy   then re-dispatch."
+            exit 1
+          fi
+          echo "✅ preflight passed (service: $state)"
+
+          # ---------------------------------------------------------------
+          # Apply
+          # ---------------------------------------------------------------
+          echo "📋 backing up live config to $BACKUP"
+          sudo cp "$LIVE" "$BACKUP"
+          sudo cp "$INCOMING" "$LIVE"
+          sudo chown root:root "$LIVE" && sudo chmod 644 "$LIVE"
+
           echo "🔄 reloading caddy"
-          if ! sudo systemctl reload caddy; then
-            echo "::error::Reload failed — restoring previous config"
+          # Bounded, so a hang is a clean failure here rather than a killed
+          # reload that takes this SSH session down with it.
+          reload_rc=0
+          sudo timeout 60 systemctl reload caddy || reload_rc=$?
+
+          if [ "$reload_rc" -eq 124 ]; then
+            # Timed out. The config passed validation and every name resolves,
+            # so the new config is not the suspect — the service is. Restart
+            # rather than rolling back correct work.
+            echo "⚠️  reload timed out; restarting caddy instead of reverting"
+            sudo systemctl restart caddy || true
+            sleep 5
+          elif [ "$reload_rc" -ne 0 ]; then
+            echo "::error::Reload failed (rc=$reload_rc) — restoring previous config"
             sudo cp "$BACKUP" "$LIVE"
-            sudo systemctl reload caddy || sudo systemctl restart caddy
+            sudo timeout 60 systemctl reload caddy || sudo systemctl restart caddy
             exit 1
           fi
 
@@ -100,9 +173,7 @@ jobs:
             exit 0
           fi
 
-          # A config can be valid, reload cleanly, and still serve nothing —
-          # e.g. a route pointed at a port with no listener. Verify the site
-          # actually answers before calling this a success.
+          # A config can be valid, reload cleanly, and still serve nothing.
           echo "🧪 smoke testing https://greenfieldoverride.com"
           ok=false
           for i in $(seq 1 15); do
@@ -114,14 +185,13 @@ jobs:
           if [ "$ok" != "true" ]; then
             echo "::error::Site did not return 200 after reload (last: $code) — rolling back"
             sudo cp "$BACKUP" "$LIVE"
-            sudo systemctl reload caddy
+            sudo timeout 60 systemctl reload caddy || sudo systemctl restart caddy
             exit 1
           fi
 
           echo "✅ caddy reloaded and greenfieldoverride.com returns 200"
           echo "   previous config retained at $BACKUP"
 
-          # Keep the five most recent dated backups; drop the rest.
           ls -1t /etc/caddy/Caddyfile.20* 2>/dev/null | tail -n +6 | sudo xargs -r rm -f
           REMOTE
           } | ssh -o StrictHostKeyChecking=accept-new "$USER@$HOST" "bash -s"
