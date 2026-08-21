@@ -1,0 +1,46 @@
+{{ define "subscriber-optin" }}
+{{ template "header" . }}
+
+{{/* One logo, for the list actually subscribed to. Driven by list tags
+     rather than names, so renaming a list in the UI cannot silently break
+     the branding. Falls back to no logo rather than the wrong one. */}}
+{{ $logo := "" }}
+{{ $brand := "" }}
+{{ range $l := .Lists }}
+    {{ range $t := $l.Tags }}
+        {{ if eq $t "strata" }}{{ $logo = "strata" }}{{ $brand = "Write with Strata" }}{{ end }}
+        {{ if eq $t "daon" }}{{ $logo = "daon" }}{{ $brand = "DAON Network" }}{{ end }}
+        {{ if eq $t "greenfield" }}{{ $logo = "greenfield" }}{{ $brand = "The Greenfield Override" }}{{ end }}
+    {{ end }}
+{{ end }}
+
+{{ if $logo }}
+<div class="brand">
+    <img src="https://lists.greenfieldoverride.com/uploads/{{ $logo }}.png" width="72" height="72" alt="{{ $brand }}" />
+    <div class="name">{{ $brand }}</div>
+</div>
+{{ end }}
+
+<h2>Confirm your subscription</h2>
+
+<p>Hi {{ .Subscriber.FirstName }},</p>
+
+<p>You asked to receive:</p>
+<ul>
+    {{ range $i, $l := .Lists }}
+        {{ if eq .Type "public" }}<li>{{ .Name }}</li>{{ else }}<li>A private list</li>{{ end }}
+    {{ end }}
+</ul>
+
+<p>Confirm below and you're on. Do nothing and you aren't — we won't email you again.</p>
+
+<p>
+    <a href="{{ .OptinURL }}" class="button">Confirm subscription</a>
+</p>
+
+<p style="font-size: 13px; color: #6B655C;">
+    <a href="{{ .UnsubURL }}?manage=true">Manage or remove this address</a>
+</p>
+
+{{ template "footer" }}
+{{ end }}
