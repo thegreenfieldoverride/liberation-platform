@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { LibIcon } from '../../components/icons/LiberationIcons';
+import { LibIcon } from '@greenfieldoverride/liberation-ui';
 import { SaveInsightButton } from './components/SaveInsightButton';
 import { InsightsDashboard } from './components/InsightsDashboard';
 

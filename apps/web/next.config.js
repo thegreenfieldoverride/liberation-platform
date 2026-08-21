@@ -17,7 +17,8 @@ const nextConfig = {
   
   // Transpile workspace packages
   transpilePackages: [
-    '@greenfieldoverride/runway-calculator', 
+    '@greenfieldoverride/analytics-client',
+    '@greenfieldoverride/runway-calculator',
     '@greenfieldoverride/real-hourly-wage',
     '@greenfieldoverride/cognitive-debt-assessment',
     '@greenfieldoverride/ai-copilot',

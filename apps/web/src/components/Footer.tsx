@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { LibIcon } from './icons/LiberationIcons';
+import { LibIcon } from '@greenfieldoverride/liberation-ui';
 import { KofiButton } from '@greenfieldoverride/liberation-ui';
 
 export function Footer() {

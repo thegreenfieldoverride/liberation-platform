@@ -19,6 +19,7 @@
     "@google/generative-ai": "^0.24.1",
     "@greenfield-override/insight-engine": "workspace:*",
     "@greenfieldoverride/ai-copilot": "workspace:*",
+    "@greenfieldoverride/analytics-client": "workspace:*",
     "@greenfieldoverride/cognitive-debt-assessment": "workspace:*",
     "@greenfieldoverride/real-hourly-wage": "workspace:*",
     "@greenfieldoverride/runway-calculator": "workspace:*",

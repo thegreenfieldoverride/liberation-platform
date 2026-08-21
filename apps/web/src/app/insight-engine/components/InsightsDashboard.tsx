@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { LibIcon } from '../../../components/icons/LiberationIcons';
+import { LibIcon } from '@greenfieldoverride/liberation-ui';
 
 interface SavedInsight {
   id: string;

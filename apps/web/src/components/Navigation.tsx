@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LibIcon } from './icons/LiberationIcons';
+import { LibIcon } from '@greenfieldoverride/liberation-ui';
 import { MariposaLogo } from './icons/MariposaLogo';
 
 export function Navigation() {

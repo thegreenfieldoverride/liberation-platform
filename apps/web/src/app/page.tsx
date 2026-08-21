@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { LibIcon } from '../components/icons/LiberationIcons';
+import { LibIcon } from '@greenfieldoverride/liberation-ui';
 
 export default function HomePage() {
   const [scrollY, setScrollY] = useState(0);

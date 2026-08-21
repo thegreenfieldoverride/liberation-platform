@@ -7,11 +7,16 @@
 // @funding https://ko-fi.com/greenfieldoverride
 
 // Core Components
-export { LibIcon } from './icons/LibIcon';
+// The app kept its own copy of these for a long time, and that copy was the
+// one that got the fixes — a try/catch render guard and a ClientOnly wrapper
+// against hydration mismatch. That version now lives here, so there is one.
+export { LibIcon, LiberationIcons, AnimatedIcon, IconSizes } from './icons/LibIcon';
+export type { IconSize } from './icons/LibIcon';
 export { KofiButton } from './support/KofiButton';
 
 // Utilities
 export { cn } from './utils/cn';
+export { ClientOnly } from './utils/ClientOnly';
 
 // Types
 export type { LibIconType, LibIconSize } from './icons/types';

@@ -29,7 +29,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "rollup -c -w",
+    "dev": "tsc --watch",
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
@@ -40,13 +40,11 @@
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
-    "rollup": "^4.0.0",
-    "rollup-plugin-typescript2": "^0.36.0",
     "typescript": "^5.0.0"
   },
   "keywords": [
     "values-assessment",
-    "career-alignment", 
+    "career-alignment",
     "purpose-driven-work",
     "vocation-matching",
     "greenfield-override"

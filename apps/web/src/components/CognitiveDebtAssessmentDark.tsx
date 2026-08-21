@@ -8,7 +8,7 @@ import {
   getCategoryDisplayName,
   getCategoryDescription
 } from '@greenfieldoverride/cognitive-debt-assessment/core';
-import { LibIcon } from './icons/LiberationIcons';
+import { LibIcon } from '@greenfieldoverride/liberation-ui';
 
 export interface CognitiveDebtAssessmentDarkProps {
   onResult?: (result: CognitiveDebtResult) => void;

@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { ClientOnly } from '../utils/ClientOnly';
 import {
   // Navigation & Actions
   Menu,
@@ -134,33 +135,45 @@ export const AnimatedIcon: React.FC<{
   'aria-label'?: string;
   animation?: 'pulse' | 'spin' | 'bounce' | 'float';
 }> = ({ icon, animation, className = '', ...props }) => {
-  const IconComponent = LiberationIcons[icon];
-  
-  if (!IconComponent) {
-    console.warn(`Icon "${String(icon)}" not found in LiberationIcons`);
+  try {
+    const IconComponent = LiberationIcons[icon];
+    
+    if (!IconComponent) {
+      console.warn(`Icon "${String(icon)}" not found in LiberationIcons`);
+      // Return a simple div fallback
+      return (
+        <div 
+          className={`inline-block w-4 h-4 bg-white/60 rounded ${className}`}
+          aria-label={props['aria-label'] || `${String(icon)} icon`}
+        />
+      );
+    }
+    
+    const animationClasses = {
+      pulse: 'animate-pulse',
+      spin: 'animate-spin',
+      bounce: 'animate-bounce',
+      float: 'float'
+    };
+    
+    const animationClass = animation ? animationClasses[animation] : '';
+    
+    return (
+      <IconComponent 
+        {...props} 
+        className={`text-current ${className} ${animationClass}`.trim()} 
+      />
+    );
+  } catch (error) {
+    console.error(`Error rendering icon ${String(icon)}:`, error);
+    // Return a simple fallback that won't break rendering
     return (
       <div 
-        className={`inline-block w-4 h-4 bg-gray-200 rounded ${className}`}
+        className={`inline-block w-4 h-4 bg-white/60 rounded ${className}`}
         aria-label={props['aria-label'] || `${String(icon)} icon`}
       />
     );
   }
-  
-  const animationClasses = {
-    pulse: 'animate-pulse',
-    spin: 'animate-spin',
-    bounce: 'animate-bounce',
-    float: 'animate-bounce'
-  };
-  
-  const animationClass = animation ? animationClasses[animation] : '';
-  
-  return (
-    <IconComponent 
-      {...props} 
-      className={`text-current ${className} ${animationClass}`.trim()} 
-    />
-  );
 };
 
 // Preset icon sizes for consistency
@@ -184,15 +197,38 @@ export const LibIcon: React.FC<{
   'aria-label'?: string;
   animation?: 'pulse' | 'spin' | 'bounce' | 'float';
 }> = ({ icon, size = 'md', className = '', animation, ...props }) => {
+  // Ensure we have a valid size
   const iconSize = IconSizes[size] || IconSizes.md;
   
-  return (
-    <AnimatedIcon
-      icon={icon}
-      size={iconSize}
-      className={className}
-      animation={animation}
-      {...props}
-    />
-  );
+  try {
+    return (
+      <ClientOnly 
+        fallback={
+          <div 
+            className={`inline-block bg-white/60 rounded ${className}`}
+            style={{ width: iconSize, height: iconSize }}
+            aria-label={props['aria-label'] || `${String(icon)} icon loading`}
+          />
+        }
+      >
+        <AnimatedIcon
+          icon={icon}
+          size={iconSize}
+          className={className}
+          animation={animation}
+          {...props}
+        />
+      </ClientOnly>
+    );
+  } catch (error) {
+    // Fallback for any icon rendering errors
+    console.warn(`Failed to render icon ${String(icon)}:`, error);
+    return (
+      <div 
+        className={`inline-block bg-white/60 rounded ${className}`}
+        style={{ width: iconSize, height: iconSize }}
+        aria-label={props['aria-label'] || `${String(icon)} icon error`}
+      />
+    );
+  }
 };

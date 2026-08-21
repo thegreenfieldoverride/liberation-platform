@@ -132,6 +132,7 @@ session; not something to do under security pressure.
 
 ## Housekeeping
 
+
 - [ ] **`SESSION_STATE.md` is from November 2025** and describes a deployment
       that finished long ago. Either delete it or make it a live document.
 

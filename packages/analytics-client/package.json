@@ -1,0 +1,29 @@
+{
+  "name": "@greenfieldoverride/analytics-client",
+  "version": "1.0.0",
+  "description": "Privacy-preserving analytics client — measure the movement, not the individual",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "echo \"Tests not yet implemented\""
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "analytics",
+    "privacy",
+    "liberation",
+    "do-not-track"
+  ],
+  "license": "LIBERATION"
+}

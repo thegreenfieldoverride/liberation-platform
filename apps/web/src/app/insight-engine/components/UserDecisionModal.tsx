@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { LibIcon } from '../../../components/icons/LiberationIcons';
+import { LibIcon } from '@greenfieldoverride/liberation-ui';
 import { useLiberationJourney } from '@/hooks/useLiberationJourney';
 interface UserDecisionModalProps {
   isOpen: boolean;
