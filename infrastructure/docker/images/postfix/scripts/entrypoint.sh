@@ -30,6 +30,23 @@ echo "Configuring Postfix..."
 sed -i "s/^myhostname = .*/myhostname = ${MAIL_HOSTNAME}/" /etc/postfix/main.cf
 sed -i "s/^mydomain = .*/mydomain = ${MAIL_DOMAIN}/" /etc/postfix/main.cf
 
+# RATE_LIMIT_PER_MINUTE and RATE_LIMIT_PER_HOUR have been declared in
+# base.yml, production.yml, development.yml and the README since this image
+# was written, and nothing has ever read them. They are wired up here so the
+# values in those files mean what they appear to mean.
+RATE_LIMIT_PER_MINUTE="${RATE_LIMIT_PER_MINUTE:-60}"
+RATE_LIMIT_PER_HOUR="${RATE_LIMIT_PER_HOUR:-500}"
+# Failed logins are capped far below the message rate: a legitimate client
+# authenticates once and reuses the session, so a low ceiling costs real
+# senders nothing and costs a brute-forcer everything.
+AUTH_RATE_LIMIT="${AUTH_RATE_LIMIT:-10}"
+
+sed -i "s/^smtpd_client_message_rate_limit = .*/smtpd_client_message_rate_limit = ${RATE_LIMIT_PER_MINUTE}/" /etc/postfix/main.cf
+sed -i "s/^smtpd_client_recipient_rate_limit = .*/smtpd_client_recipient_rate_limit = ${RATE_LIMIT_PER_HOUR}/" /etc/postfix/main.cf
+sed -i "s/^smtpd_client_auth_rate_limit = .*/smtpd_client_auth_rate_limit = ${AUTH_RATE_LIMIT}/" /etc/postfix/main.cf
+
+echo "  rate limits: ${RATE_LIMIT_PER_MINUTE}/min messages, ${RATE_LIMIT_PER_HOUR}/hr recipients, ${AUTH_RATE_LIMIT}/min auth attempts"
+
 # =============================================================================
 # TLS CERTIFICATES
 # =============================================================================
