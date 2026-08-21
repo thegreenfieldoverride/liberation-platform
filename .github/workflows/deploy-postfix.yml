@@ -150,7 +150,11 @@ jobs:
 
           start_container() {
             local img="$1"
-            docker run -d \
+            # sudo: --env-file is read by the docker CLI as the invoking user,
+            # and /etc/liberation/postfix.env is 0600 root:root. Without this
+            # the run fails "permission denied" after the old container has
+            # already been removed.
+            sudo docker run -d \
               --name "$CONTAINER" \
               --restart unless-stopped \
               --network "$NETWORK" \
@@ -165,7 +169,18 @@ jobs:
           docker rm   "$CONTAINER" >/dev/null 2>&1 || true
 
           echo "🚀 starting ${IMAGE}:${TAG}"
-          start_container "${IMAGE}:${TAG}"
+          if ! start_container "${IMAGE}:${TAG}"; then
+            echo "💥 new container failed to start — restoring previous image"
+            docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
+            if [ -n "$ROLLBACK_ID" ] && start_container "$ROLLBACK_ID"; then
+              echo "↩️  restored $ROLLBACK_ID"
+              sleep 5
+              docker ps --filter "name=$CONTAINER" --format '  {{.Names}} {{.Status}}'
+            else
+              echo "⚠️  could not restore — postfix is DOWN, fix by hand"
+            fi
+            exit 1
+          fi
 
           # --- verify --------------------------------------------------------
           # "Container is running" is not the bar. Postfix will happily run
