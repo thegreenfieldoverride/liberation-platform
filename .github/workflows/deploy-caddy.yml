@@ -1,0 +1,141 @@
+name: 🔀 Deploy Caddy Config
+
+# Manual dispatch only, like every other infrastructure gate.
+#
+# This file fronts every public domain on the box — the platform, staging,
+# analytics, strategist. A syntax error takes all of them down at once, so
+# this workflow validates twice (locally, then on the server), keeps a dated
+# backup, and rolls back automatically if the reload does not result in a
+# working site.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type DEPLOY to confirm — this affects every domain'
+        required: true
+        default: ''
+        type: string
+      skip_smoke_test:
+        description: 'Skip post-reload smoke test (not recommended)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  validate:
+    name: ✅ Validate Caddyfile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Confirmation gate
+        env:
+          CONFIRM: ${{ github.event.inputs.confirm }}
+        run: |
+          if [ "$CONFIRM" != "DEPLOY" ]; then
+            echo "::error::Confirmation not given. Type DEPLOY to proceed."
+            exit 1
+          fi
+
+      - name: Validate syntax with Caddy
+        run: |
+          docker run --rm -v "$PWD/infrastructure/caddy:/etc/caddy:ro" \
+            caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+          echo "✅ Caddyfile is syntactically valid"
+
+  deploy:
+    name: 🔀 Deploy to server
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+
+      - name: Push config, validate remotely, reload with rollback
+        env:
+          HOST: ${{ secrets.HETZNER_HOST }}
+          USER: ${{ secrets.HETZNER_USER }}
+          SKIP_SMOKE: ${{ github.event.inputs.skip_smoke_test }}
+        run: |
+          scp -o StrictHostKeyChecking=accept-new \
+            infrastructure/caddy/Caddyfile "$USER@$HOST:/tmp/Caddyfile.incoming"
+
+          {
+            printf "SKIP_SMOKE=%q\n" "$SKIP_SMOKE"
+            cat <<'REMOTE'
+          set -euo pipefail
+
+          STAMP=$(date +%Y%m%d-%H%M%S)
+          LIVE=/etc/caddy/Caddyfile
+          BACKUP=/etc/caddy/Caddyfile.$STAMP
+
+          echo "📋 backing up current config to $BACKUP"
+          sudo cp "$LIVE" "$BACKUP"
+
+          echo "🔍 validating incoming config on the server"
+          sudo cp /tmp/Caddyfile.incoming "$LIVE"
+          if ! sudo caddy validate --config "$LIVE" --adapter caddyfile; then
+            echo "::error::Incoming config failed validation on the server — restoring"
+            sudo cp "$BACKUP" "$LIVE"
+            exit 1
+          fi
+
+          echo "🔄 reloading caddy"
+          if ! sudo systemctl reload caddy; then
+            echo "::error::Reload failed — restoring previous config"
+            sudo cp "$BACKUP" "$LIVE"
+            sudo systemctl reload caddy || sudo systemctl restart caddy
+            exit 1
+          fi
+
+          if [ "$SKIP_SMOKE" = "true" ]; then
+            echo "⚠️  smoke test skipped by request"
+            exit 0
+          fi
+
+          # A config can be valid, reload cleanly, and still serve nothing —
+          # e.g. a route pointed at a port with no listener. Verify the site
+          # actually answers before calling this a success.
+          echo "🧪 smoke testing https://greenfieldoverride.com"
+          ok=false
+          for i in $(seq 1 15); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 https://greenfieldoverride.com || echo 000)
+            if [ "$code" = "200" ]; then ok=true; break; fi
+            sleep 2
+          done
+
+          if [ "$ok" != "true" ]; then
+            echo "::error::Site did not return 200 after reload (last: $code) — rolling back"
+            sudo cp "$BACKUP" "$LIVE"
+            sudo systemctl reload caddy
+            exit 1
+          fi
+
+          echo "✅ caddy reloaded and greenfieldoverride.com returns 200"
+          echo "   previous config retained at $BACKUP"
+
+          # Keep the five most recent dated backups; drop the rest.
+          ls -1t /etc/caddy/Caddyfile.20* 2>/dev/null | tail -n +6 | sudo xargs -r rm -f
+          REMOTE
+          } | ssh -o StrictHostKeyChecking=accept-new "$USER@$HOST" "bash -s"
+
+      - name: Summary
+        if: always()
+        env:
+          STATUS: ${{ job.status }}
+        run: |
+          if [ "$STATUS" = "success" ]; then
+            echo "✅ Caddy config deployed and verified"
+            echo "   Remember: the live file is now in sync with"
+            echo "   infrastructure/caddy/Caddyfile — keep it that way."
+          else
+            echo "💥 Deploy failed. The previous config was restored automatically."
+            echo "   Check https://greenfieldoverride.com before doing anything else."
+          fi
