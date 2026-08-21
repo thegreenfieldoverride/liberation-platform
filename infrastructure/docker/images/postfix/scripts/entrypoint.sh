@@ -117,53 +117,63 @@ EOF
 # =============================================================================
 # DKIM SETUP
 # =============================================================================
+#
+# One key per signing domain.
+#
+# Previously every domain was signed with the daon.network key, so mail from
+# greenfieldoverride.com carried d=daon.network. That signature is valid but
+# not *aligned*, and DMARC only counts aligned signatures — so those messages
+# passed on SPF alone, with no DKIM to fall back on if they were ever
+# forwarded. daon.network was fine; everything else was quietly relying on a
+# single mechanism.
+#
+# geekish.us is deliberately absent: its mail is hosted at IONOS, so this
+# server should not be signing for it at all.
+DKIM_DOMAINS="${DKIM_DOMAINS:-${MAIL_DOMAIN} greenfieldoverride.com writewithstrata.app}"
+
 if [ "${DKIM_ENABLED}" = "true" ]; then
-    echo "Configuring DKIM signing..."
-    
-    DKIM_KEY_DIR="/etc/opendkim/keys/${MAIL_DOMAIN}"
-    mkdir -p "${DKIM_KEY_DIR}"
-    
-    # Generate DKIM key if it doesn't exist
-    if [ ! -f "${DKIM_KEY_DIR}/${DKIM_SELECTOR}.private" ]; then
-        echo "Generating DKIM key pair..."
-        opendkim-genkey -D "${DKIM_KEY_DIR}" -d "${MAIL_DOMAIN}" -s "${DKIM_SELECTOR}" -b 2048
-        chown -R opendkim:opendkim "${DKIM_KEY_DIR}"
-        chmod 600 "${DKIM_KEY_DIR}/${DKIM_SELECTOR}.private"
-        
-        echo ""
-        echo "========================================"
-        echo "IMPORTANT: Add this DNS TXT record to ${MAIL_DOMAIN}:"
-        echo "========================================"
-        echo ""
-        echo "Record Name: ${DKIM_SELECTOR}._domainkey.${MAIL_DOMAIN}"
-        echo ""
-        echo "Record Value:"
-        cat "${DKIM_KEY_DIR}/${DKIM_SELECTOR}.txt" | grep -o '".*"' | tr -d '"' | tr -d '\n'
-        echo ""
-        echo ""
-        echo "========================================"
-        echo ""
-    else
-        echo "DKIM key already exists"
-    fi
-    
-    # Update OpenDKIM configuration
+    echo "Configuring DKIM signing for: ${DKIM_DOMAINS}"
+
+    : > /etc/opendkim/SigningTable
+    : > /etc/opendkim/KeyTable
+
+    for d in ${DKIM_DOMAINS}; do
+        key_dir="/etc/opendkim/keys/${d}"
+        mkdir -p "${key_dir}"
+
+        if [ ! -f "${key_dir}/${DKIM_SELECTOR}.private" ]; then
+            echo "Generating DKIM key for ${d}..."
+            opendkim-genkey -D "${key_dir}" -d "${d}" -s "${DKIM_SELECTOR}" -b 2048
+            chmod 600 "${key_dir}/${DKIM_SELECTOR}.private"
+
+            echo ""
+            echo "========================================"
+            echo "DNS TXT RECORD REQUIRED FOR ${d}"
+            echo "========================================"
+            echo "Name:  ${DKIM_SELECTOR}._domainkey.${d}"
+            echo "Value:"
+            grep -o '".*"' "${key_dir}/${DKIM_SELECTOR}.txt" | tr -d '"' | tr -d '\n'
+            echo ""
+            echo "========================================"
+            echo ""
+        else
+            echo "  ${d}: key already present"
+        fi
+
+        # Each domain signs with its own key, so d= matches the From: header
+        # and DMARC alignment holds.
+        echo "*@${d} ${DKIM_SELECTOR}._domainkey.${d}" >> /etc/opendkim/SigningTable
+        echo "${DKIM_SELECTOR}._domainkey.${d} ${d}:${DKIM_SELECTOR}:${key_dir}/${DKIM_SELECTOR}.private" >> /etc/opendkim/KeyTable
+    done
+
+    # opendkim.conf's single Domain/Selector/KeyFile trio is only consulted
+    # when no tables are configured; the tables above take precedence. Kept
+    # pointing at the primary domain so a misconfiguration degrades to
+    # something sane rather than to nothing.
     sed -i "s/^Domain.*/Domain ${MAIL_DOMAIN}/" /etc/opendkim/opendkim.conf
     sed -i "s/^Selector.*/Selector ${DKIM_SELECTOR}/" /etc/opendkim/opendkim.conf
-    sed -i "s|^KeyFile.*|KeyFile ${DKIM_KEY_DIR}/${DKIM_SELECTOR}.private|" /etc/opendkim/opendkim.conf
-    
-    # Create signing table
-    cat > /etc/opendkim/SigningTable << EOF
-*@${MAIL_DOMAIN} ${DKIM_SELECTOR}._domainkey.${MAIL_DOMAIN}
-*@greenfieldoverride.com ${DKIM_SELECTOR}._domainkey.${MAIL_DOMAIN}
-*@geekish.us ${DKIM_SELECTOR}._domainkey.${MAIL_DOMAIN}
-EOF
-    
-    # Create key table
-    cat > /etc/opendkim/KeyTable << EOF
-${DKIM_SELECTOR}._domainkey.${MAIL_DOMAIN} ${MAIL_DOMAIN}:${DKIM_SELECTOR}:${DKIM_KEY_DIR}/${DKIM_SELECTOR}.private
-EOF
-    
+    sed -i "s|^KeyFile.*|KeyFile /etc/opendkim/keys/${MAIL_DOMAIN}/${DKIM_SELECTOR}.private|" /etc/opendkim/opendkim.conf
+
     chown -R opendkim:opendkim /etc/opendkim
     
 else
