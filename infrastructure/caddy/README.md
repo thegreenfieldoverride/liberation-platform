@@ -38,28 +38,47 @@ hostname that only ever errors is worse than one that does not resolve.
 Its DNS A record still exists and should be removed too, otherwise the name
 resolves to a server with no route for it.
 
-## Adding listmonk
+## listmonk
 
-The deploy workflow binds listmonk to `127.0.0.1:9001`, deliberately not
-public. To expose it:
+`lists.greenfieldoverride.com` proxies to listmonk on `127.0.0.1:9001`. The
+container still binds only to loopback; Caddy is the sole public path in.
 
-```caddy
-lists.greenfieldoverride.com {
-    reverse_proxy localhost:9001
+**Three things must be true before this works, in this order:**
 
-    log {
-        output file /mnt/analytics-volume/logs/caddy/listmonk.log {
-            roll_size 50MB
-            roll_keep 10
-        }
-        format json
-    }
-}
-```
+1. A DNS record for `lists.greenfieldoverride.com` → `5.161.47.48`. Caddy
+   cannot obtain a certificate for a name that does not resolve, and will
+   retry ACME on a backoff until it does.
+2. This config deployed via `🔀 Deploy Caddy Config`.
+3. listmonk's `app.root_url` set to `https://lists.greenfieldoverride.com`
+   in **Settings → General**. It ships as `http://localhost:9000`, and every
+   unsubscribe, archive and click-tracking link in every campaign is built
+   from it. Sending before changing it mails out `localhost` links.
 
-The admin UI has no IP restriction of its own, so anything reachable here is
-protected only by the listmonk login. Consider a `@internal` matcher or basic
-auth in front of `/admin` if it is ever exposed beyond you.
+One hostname serves both the admin UI and the subscriber-facing pages. They
+cannot be split across two hostnames — listmonk generates all of its links
+from the single `root_url`, so a second vhost would produce links pointing
+back at the first.
+
+### The admin UI is protected only by the listmonk login
+
+There is no IP restriction and no rate limiting on that form. This box sees
+constant credential-guessing traffic, so treat the listmonk password the way
+you would an SSH key.
+
+Two hardening options, neither applied here:
+
+- **Skip the public path entirely for admin work.** The container is on
+  loopback, so `ssh -L 9001:127.0.0.1:9001 <host>` reaches
+  `http://localhost:9001/admin` without going through Caddy at all. This
+  works today and requires no configuration.
+- **Basic auth in front of `/admin`.** Do *not* put the hash in this file —
+  this repository is public and a bcrypt hash in git is offline-crackable.
+  Use `basic_auth { admin {env.LISTMONK_BASIC_HASH} }` and set the variable
+  in Caddy's systemd unit on the server.
+
+A fail2ban jail against `listmonk.log` would fit the pattern already used for
+SSH and SMTP, and is the better long-term answer than a second password
+prompt. The dedicated log above exists so that jail has something to read.
 
 ## Why the rollback is not optional
 
