@@ -9,9 +9,20 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        // Self-hosted via @fontsource, no runtime request to Google.
+        // 'Inter Variable' is the variable build; plain 'Inter' stays as a
+        // fallback for anyone with it installed locally.
+        sans: ['Inter Variable', 'Inter', 'system-ui', 'sans-serif'],
+        // Charter and Georgia are local-only fallbacks, which is fine — the
+        // problem was requesting Charter from Google, where it does not exist.
         serif: ['Source Serif 4', 'Charter', 'Georgia', 'serif'],
-        display: ['Lyon Display', 'Inter', 'system-ui', 'sans-serif'],
+        // Was ['Lyon Display', ...]. Lyon is a commercial Commercial Type face
+        // that Google Fonts never served, so every `font-display` usage has
+        // rendered as Inter since the site launched. Pointing this at Inter
+        // makes the config honest; it changes nothing visually. If a *web*
+        // licence for Lyon is confirmed (separate from a desktop licence),
+        // self-host the woff2s and put it back at the front of this stack.
+        display: ['Inter Variable', 'Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
         // Empathetic color palette for users in crisis
