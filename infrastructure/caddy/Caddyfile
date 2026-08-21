@@ -74,6 +74,27 @@ analytics.greenfieldoverride.com {
     
 }
 
+lists.greenfieldoverride.com {
+    reverse_proxy localhost:9001
+
+    log {
+        output file /mnt/analytics-volume/logs/caddy/listmonk.log {
+            roll_size 50MB
+            roll_keep 10
+        }
+        format json
+    }
+
+    header {
+        X-Content-Type-Options nosniff
+        # SAMEORIGIN rather than DENY: listmonk's own admin UI frames its
+        # campaign preview, which DENY breaks.
+        X-Frame-Options SAMEORIGIN
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+}
+
 # WWW redirect for main domain
 www.greenfieldoverride.com {
     redir https://greenfieldoverride.com{uri} permanent
