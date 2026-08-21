@@ -43,6 +43,11 @@ staging.greenfieldoverride.com {
 }
 
 analytics.greenfieldoverride.com {
+    # CORS is handled entirely by the analytics service via ALLOWED_ORIGINS.
+    # Caddy previously set its own headers on top, which produced two
+    # Access-Control-Allow-Origin headers on every allowed-origin response —
+    # and per the Fetch spec more than one fails the CORS check outright.
+    # One source of truth; change origins in the container env, not here.
     reverse_proxy localhost:8080
     
     log {
@@ -55,26 +60,6 @@ analytics.greenfieldoverride.com {
         level INFO
     }
     
-    # CORS: reflect only known origins.
-    #
-    # This was Access-Control-Allow-Origin "*" together with
-    # Allow-Credentials "true" — a combination browsers reject outright, so
-    # the credentials flag never did anything. The wildcard did: any site on
-    # the internet could POST events into this API, and that database is the
-    # only honest record of who visits.
-    #
-    # Origins mirror ALLOWED_ORIGINS on the analytics container.
-    @cors_origin header_regexp origin Origin ^https://(greenfieldoverride\.com|staging\.greenfieldoverride\.com|writewithstrata\.app)$
-    header @cors_origin {
-        Access-Control-Allow-Origin "{re.origin.0}"
-        Access-Control-Allow-Methods "GET, POST, OPTIONS"
-        Access-Control-Allow-Headers "Content-Type, Authorization"
-        Access-Control-Allow-Credentials "true"
-        Access-Control-Max-Age "86400"
-        # Responses differ by Origin, so caches must key on it.
-        Vary Origin
-    }
-
     header {
         X-Content-Type-Options nosniff
         X-Frame-Options SAMEORIGIN
@@ -87,21 +72,6 @@ analytics.greenfieldoverride.com {
         Expires "0"
     }
     
-    # Preflight, answered only for the same known origins. An unknown origin
-    # gets a 204 with no CORS headers, which is the correct refusal.
-    @cors_preflight {
-        method OPTIONS
-        header_regexp origin Origin ^https://(greenfieldoverride\.com|staging\.greenfieldoverride\.com|writewithstrata\.app)$
-    }
-    handle @cors_preflight {
-        header Access-Control-Allow-Origin "{re.origin.0}"
-        header Access-Control-Allow-Methods "GET, POST, OPTIONS"
-        header Access-Control-Allow-Headers "Content-Type, Authorization"
-        header Access-Control-Allow-Credentials "true"
-        header Access-Control-Max-Age "86400"
-        header Vary Origin
-        respond 204
-    }
 }
 
 # WWW redirect for main domain
