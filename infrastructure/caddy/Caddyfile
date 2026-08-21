@@ -55,13 +55,27 @@ analytics.greenfieldoverride.com {
         level INFO
     }
     
-    header {
-        Access-Control-Allow-Origin "*"
-        Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT"
-        Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+    # CORS: reflect only known origins.
+    #
+    # This was Access-Control-Allow-Origin "*" together with
+    # Allow-Credentials "true" — a combination browsers reject outright, so
+    # the credentials flag never did anything. The wildcard did: any site on
+    # the internet could POST events into this API, and that database is the
+    # only honest record of who visits.
+    #
+    # Origins mirror ALLOWED_ORIGINS on the analytics container.
+    @cors_origin header_regexp origin Origin ^https://(greenfieldoverride\.com|staging\.greenfieldoverride\.com|writewithstrata\.app)$
+    header @cors_origin {
+        Access-Control-Allow-Origin "{re.origin.0}"
+        Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
         Access-Control-Allow-Credentials "true"
         Access-Control-Max-Age "86400"
-        
+        # Responses differ by Origin, so caches must key on it.
+        Vary Origin
+    }
+
+    header {
         X-Content-Type-Options nosniff
         X-Frame-Options SAMEORIGIN
         X-XSS-Protection "1; mode=block"
@@ -73,13 +87,19 @@ analytics.greenfieldoverride.com {
         Expires "0"
     }
     
-    @cors_preflight method OPTIONS
+    # Preflight, answered only for the same known origins. An unknown origin
+    # gets a 204 with no CORS headers, which is the correct refusal.
+    @cors_preflight {
+        method OPTIONS
+        header_regexp origin Origin ^https://(greenfieldoverride\.com|staging\.greenfieldoverride\.com|writewithstrata\.app)$
+    }
     handle @cors_preflight {
-        header Access-Control-Allow-Origin "*"
-        header Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT"
-        header Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+        header Access-Control-Allow-Origin "{re.origin.0}"
+        header Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        header Access-Control-Allow-Headers "Content-Type, Authorization"
         header Access-Control-Allow-Credentials "true"
         header Access-Control-Max-Age "86400"
+        header Vary Origin
         respond 204
     }
 }
