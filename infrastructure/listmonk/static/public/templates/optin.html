@@ -1,0 +1,49 @@
+{{ define "optin" }}
+{{ template "header" .}}
+
+{{/* Same tag-driven mapping as the opt-in email, for the same reason: renaming
+     a list must not silently change branding, and an untagged list gets no
+     logo rather than the wrong one. */}}
+{{ $logo := "" }}{{ $brand := "" }}
+{{ range $l := .Data.Lists }}
+    {{ range $t := $l.Tags }}
+        {{ if eq $t "strata" }}{{ $logo = "strata" }}{{ $brand = "Write with Strata" }}{{ end }}
+        {{ if eq $t "daon" }}{{ $logo = "daon" }}{{ $brand = "DAON Network" }}{{ end }}
+        {{ if eq $t "greenfield" }}{{ $logo = "greenfield" }}{{ $brand = "The Greenfield Override" }}{{ end }}
+    {{ end }}
+{{ end }}
+{{ if $logo }}
+<div class="gf-brand">
+    <img src="{{ $.RootURL }}/uploads/{{ $logo }}.png" width="64" height="64" alt="{{ $brand }}" />
+    <div>{{ $brand }}</div>
+</div>
+{{ end }}
+
+<section>
+    <h2>{{ L.T "public.confirmSubTitle" }}</h2>
+    <p>
+        {{ L.T "public.confirmSubInfo" }}
+    </p>
+
+    <form method="post" class="optin-form">
+        <ul>
+            {{ range $i, $l := .Data.Lists }}
+                <input type="hidden" name="l" value="{{ $l.UUID }}" />
+                {{ if eq $l.Type "public" }}
+                    <li>{{ $l.Name }}</li>
+                {{ else }}
+                    <li>{{ L.Ts "public.subPrivateList" }}</li>
+                {{ end }}
+            {{ end }}
+        </ul>
+        <p>
+            <input type="hidden" name="confirm" value="true" />
+            <button type="submit" class="button" id="btn-unsub">
+                {{ L.Ts "public.confirmSub" }}
+            </button>
+        </p>
+    </form>
+</section>
+
+{{ template "footer" .}}
+{{ end }}
