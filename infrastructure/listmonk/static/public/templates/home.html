@@ -1,0 +1,30 @@
+{{ define "home" }}
+{{ template "header" .}}
+
+{{/* The stock page is a Login button pointing at /admin, which advertises the
+     admin console to anyone who visits. Replaced with something that explains
+     what this domain is. Admin is reachable directly at /admin, and via an SSH
+     tunnel to 127.0.0.1:9001 without touching the public internet at all. */}}
+
+<section class="gf-intro">
+	<h1>Mailing lists</h1>
+
+	<p>This is where the mailing lists live for The Greenfield Override,
+	the DAON Network, and Write with Strata. One place, separate lists —
+	subscribing to one does not subscribe you to the others.</p>
+
+	{{ if .EnablePublicSubPage }}
+		<p><a href="{{ .RootURL }}/subscription/form" class="button">Subscribe to a list</a></p>
+	{{ end }}
+
+	{{ if .EnablePublicArchive }}
+		<p><a href="{{ .RootURL }}/archive">Read past messages</a></p>
+	{{ end }}
+
+	<p>Already subscribed? Every message we send carries a link to manage or
+	remove your address. You never need an account, and there is nothing to log
+	into.</p>
+</section>
+
+{{ template "footer" .}}
+{{ end }}
