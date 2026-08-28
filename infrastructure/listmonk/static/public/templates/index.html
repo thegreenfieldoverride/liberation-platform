@@ -20,7 +20,11 @@
 	<link href="/public/custom.css?v={{ .AssetVersion }}" rel="stylesheet" type="text/css">
 	<style>
 		body { background: #F7F6F3; color: #2A2723; }
-		.header .logo img { max-height: 64px; width: auto; }
+		.gf-header { text-align: center; padding: 1.25rem 0; }
+		.gf-header a { font-weight: 600; font-size: 1.05rem; color: #2A2723; text-decoration: none; }
+		.gf-brand { text-align: center; margin-bottom: 1rem; }
+		.gf-brand img { width: 64px; height: 64px; }
+		.gf-brand div { font-size: .9rem; font-weight: 600; padding-top: .35rem; }
 		.gf-intro { max-width: 34rem; margin: 0 auto; line-height: 1.6; }
 		.gf-intro h1 { font-size: 1.5rem; margin-bottom: .75rem; }
 		.gf-lists { list-style: none; padding: 0; margin: 1.25rem 0; }
@@ -38,16 +42,19 @@
 </head>
 <body>
     <div class="container wrap">
-		<header class="header">
-			<div class="logo">
-				<a href="{{ if .EnablePublicSubPage }}{{ .RootURL}}/subscription/form{{ end }}">
-				{{ if ne .LogoURL "" }}
-					<img src="{{ .LogoURL }}" alt="{{ .Data.Title }}" />
-				{{ else }}
-					<img src="/public/static/logo.svg?v={{ .AssetVersion }}" alt="{{ .Data.Title }}" />
-				{{ end }}
-				</a>
-			</div>
+		{{/* Deliberately no brand logo here.
+
+		     This header renders on every public page, including message.html
+		     ("Confirmed", "Subscribed"), which receives only a title and a
+		     message — no list, so no way to know which of the three projects
+		     the visitor subscribed to. A global logo therefore shows one
+		     brand's mark to subscribers of the other two, which is worse than
+		     showing none.
+
+		     Pages that DO know the list — optin.html — render the correct logo
+		     themselves. */}}
+		<header class="header gf-header">
+			<a href="{{ if .EnablePublicSubPage }}{{ .RootURL}}/subscription/form{{ end }}">{{ .SiteName }}</a>
 		</header>
 {{ end }}
 
