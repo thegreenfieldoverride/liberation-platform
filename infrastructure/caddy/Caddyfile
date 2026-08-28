@@ -75,7 +75,45 @@ analytics.greenfieldoverride.com {
 }
 
 lists.greenfieldoverride.com {
-    reverse_proxy localhost:9001
+    # CORS for the public subscription API only.
+    #
+    # listmonk answers POST /api/public/subscription but returns 404 for the
+    # OPTIONS preflight, so a browser form on another origin never gets as far
+    # as the POST. Caddy answers the preflight; listmonk handles the request.
+    #
+    # listmonk emits no CORS headers of its own — verified, 0 on every origin —
+    # so Caddy is the single source here. That is deliberately unlike the
+    # analytics vhost, where Caddy and the service both set them and produced
+    # two Access-Control-Allow-Origin headers, which the Fetch spec rejects
+    # outright.
+    #
+    # Scoped to /api/public/* and to known origins. The admin UI and every
+    # other path are untouched and get no CORS headers at all.
+    @cors_origin header_regexp origin Origin ^https://(writewithstrata\.app|greenfieldoverride\.com|daon\.network)$
+
+    @public_preflight {
+        method OPTIONS
+        path /api/public/*
+        header_regexp origin Origin ^https://(writewithstrata\.app|greenfieldoverride\.com|daon\.network)$
+    }
+    handle @public_preflight {
+        header Access-Control-Allow-Origin "{re.origin.0}"
+        header Access-Control-Allow-Methods "POST, OPTIONS"
+        header Access-Control-Allow-Headers "Content-Type"
+        header Access-Control-Max-Age "86400"
+        header Vary Origin
+        respond 204
+    }
+
+    handle /api/public/* {
+        header @cors_origin Access-Control-Allow-Origin "{re.origin.0}"
+        header @cors_origin Vary Origin
+        reverse_proxy localhost:9001
+    }
+
+    handle {
+        reverse_proxy localhost:9001
+    }
 
     log {
         output file /mnt/analytics-volume/logs/caddy/listmonk.log {
