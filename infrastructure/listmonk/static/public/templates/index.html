@@ -1,0 +1,63 @@
+{{ define "header" }}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />	
+	{{/* listmonk hardcodes .Data.Title as the literal string "listmonk" on the
+	     home route, producing "listmonk - <site name>" on the page most people
+	     land on. Suppress it there; keep it everywhere else, where it is a real
+	     page name like "Subscribe". */}}
+	<title>{{ if eq .Data.Title "listmonk" }}{{ .SiteName }}{{ else }}{{ .Data.Title }} - {{ .SiteName }}{{ end }}</title>
+	<meta name="description" content="{{ .Data.Description }}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+
+	{{ if .EnablePublicArchive }}
+		<link rel="alternate" type="application/rss+xml" title="{{ L.T "public.archiveTitle" }} - {{ .SiteName }}"
+			href="{{ .RootURL }}/archive.xml" />
+	{{ end }}
+
+	<link href="/public/static/style.css?v={{ .AssetVersion }}" rel="stylesheet" type="text/css" />
+	<link href="/public/custom.css?v={{ .AssetVersion }}" rel="stylesheet" type="text/css">
+	<style>
+		body { background: #F7F6F3; color: #2A2723; }
+		.header .logo img { max-height: 64px; width: auto; }
+		.gf-intro { max-width: 34rem; margin: 0 auto; line-height: 1.6; }
+		.gf-intro h1 { font-size: 1.5rem; margin-bottom: .75rem; }
+		.gf-lists { list-style: none; padding: 0; margin: 1.25rem 0; }
+		.gf-lists li { padding: .35rem 0; }
+		.gf-footer { max-width: 34rem; margin: 2rem auto 0; font-size: .8rem;
+			line-height: 1.5; color: #6B655C; border-top: 1px solid #EDEAE4; padding-top: 1rem; }
+	</style>
+	<script src="/public/custom.js?v={{ .AssetVersion }}" async defer></script>
+
+	{{ if ne .FaviconURL "" }}
+		<link rel="icon" href="{{ .FaviconURL }}" type="image/x-icon" />
+	{{ else }}
+		<link rel="icon" href="/public/static/favicon.png?v={{ .AssetVersion }}" type="image/png" />
+	{{ end }}
+</head>
+<body>
+    <div class="container wrap">
+		<header class="header">
+			<div class="logo">
+				<a href="{{ if .EnablePublicSubPage }}{{ .RootURL}}/subscription/form{{ end }}">
+				{{ if ne .LogoURL "" }}
+					<img src="{{ .LogoURL }}" alt="{{ .Data.Title }}" />
+				{{ else }}
+					<img src="/public/static/logo.svg?v={{ .AssetVersion }}" alt="{{ .Data.Title }}" />
+				{{ end }}
+				</a>
+			</div>
+		</header>
+{{ end }}
+
+{{ define "footer" }}
+	</div>
+	
+	<footer class="container gf-footer">
+		<p>We use your address only for what you asked for. We do not sell it, share it,
+		or use it to train anything. When a list has served its purpose, it is deleted.</p>
+	</footer>
+</body>
+</html>
+{{ end }}
