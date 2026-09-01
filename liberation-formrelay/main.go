@@ -386,6 +386,22 @@ func buildMessage(from string, form Form, sub Submission) ([]byte, error) {
 	fmt.Fprintf(&b, "Subject: %s\r\n", subject)
 	fmt.Fprintf(&b, "Date: %s\r\n", sub.Received.Format(time.RFC1123Z))
 
+	// Message-ID has to be ours. Postfix runs with always_add_missing_headers
+	// = no and will not supply one, and a message without it is both a spam
+	// signal to Gmail and unthreadable in every client. It is also in
+	// opendkim's SignHeaders list, so supplying it puts one more header under
+	// the signature instead of leaving a signed absence.
+	idb := make([]byte, 8)
+	if _, err := rand.Read(idb); err != nil {
+		return nil, fmt.Errorf("message-id: %w", err)
+	}
+	domain := from
+	if at := strings.LastIndex(from, "@"); at >= 0 {
+		domain = from[at+1:]
+	}
+	fmt.Fprintf(&b, "Message-ID: <%s.%s@%s>\r\n",
+		sub.Received.Format("20060102150405"), hex.EncodeToString(idb), header(domain))
+
 	// Reply-To carries the submitter so you can just hit reply. It must not
 	// be the From: — sending as a domain we do not sign breaks DKIM alignment
 	// and lands the mail in spam, which is the failure this replaces.

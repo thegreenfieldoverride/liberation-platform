@@ -157,6 +157,45 @@ func TestDeliversAndSpools(t *testing.T) {
 	}
 }
 
+// Postfix has always_add_missing_headers = no, so if we do not write a
+// Message-ID the mail goes out without one — a spam signal to Gmail and
+// unthreadable everywhere. Verified against the live server: the first
+// delivered message logged "message-id=<>".
+func TestMessageIDPresentAndUnique(t *testing.T) {
+	addr, received := fakeSMTP(t)
+	s := newTestServer(t, addr, nil)
+
+	seen := map[string]bool{}
+	for i := 0; i < 2; i++ {
+		post(s, "/f/abc123", validFields(), nil)
+		msg := <-received
+
+		var id string
+		for _, line := range strings.Split(msg, "\r\n") {
+			if strings.HasPrefix(line, "Message-ID: ") {
+				id = strings.TrimPrefix(line, "Message-ID: ")
+			}
+			if line == "" {
+				break // headers end
+			}
+		}
+		if id == "" {
+			t.Fatalf("no Message-ID header:\n%s", msg)
+		}
+		if !strings.HasPrefix(id, "<") || !strings.HasSuffix(id, ">") {
+			t.Errorf("Message-ID is not angle-addr: %q", id)
+		}
+		// The domain must be ours, not the submitter's.
+		if !strings.HasSuffix(id, "@greenfieldoverride.com>") {
+			t.Errorf("Message-ID domain should come from MAIL_FROM, got %q", id)
+		}
+		if seen[id] {
+			t.Errorf("Message-ID reused across submissions: %q", id)
+		}
+		seen[id] = true
+	}
+}
+
 // The submitter must never become the From:. Sending as a domain we do not
 // sign breaks DKIM alignment, which is the spam-filing failure this replaces.
 func TestSubmitterIsReplyToNotFrom(t *testing.T) {
