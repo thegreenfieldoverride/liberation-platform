@@ -1,0 +1,238 @@
+name: 📮 Deploy Form Relay
+
+# Manual only, like Caddy, Guardian, listmonk and postfix. This one accepts
+# mail-bearing traffic from the public internet and hands it to the mail
+# server; a bad deploy is silently dropped contact forms, which nobody
+# reports because the person who tried has no way to tell you.
+#
+# Config deliberately does NOT live in this repo or in GitHub secrets.
+# /etc/liberation/formrelay.env (root-only, 0600) holds the id -> recipient
+# map and is passed with --env-file, the same arrangement as postfix.env.
+# The entire point of this service is that recipient addresses are not
+# published; committing them here would reinstate the problem it fixes.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type DEPLOY to confirm'
+        required: true
+        default: ''
+
+env:
+  CONTAINER: liberation-formrelay
+  IMAGE: liberation-formrelay
+  NETWORK: liberation-platform-network
+  ENV_FILE: /etc/liberation/formrelay.env
+  SPOOL_VOLUME: formrelay-spool
+
+jobs:
+  deploy-formrelay:
+    name: 📮 Rebuild and redeploy the form relay
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+
+    steps:
+      - name: Confirm
+        env:
+          CONFIRM: ${{ github.event.inputs.confirm }}
+        run: |
+          if [ "$CONFIRM" != "DEPLOY" ]; then
+            echo "::error::Type DEPLOY to confirm. Got: '$CONFIRM'"
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Vet and test
+        # The spam filters and the header-injection guard are the parts most
+        # likely to be quietly broken by a refactor, and the least likely to
+        # be noticed in production. Fail here rather than on the box.
+        working-directory: liberation-formrelay
+        run: |
+          go vet ./...
+          go test ./...
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+
+      - name: Preflight — secrets present
+        env:
+          H: ${{ secrets.HETZNER_HOST }}
+          U: ${{ secrets.HETZNER_USER }}
+        run: |
+          missing=""
+          [ -n "$H" ] || missing="$missing HETZNER_HOST"
+          [ -n "$U" ] || missing="$missing HETZNER_USER"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing"
+            exit 1
+          fi
+
+      - name: Ship build context
+        env:
+          HOST: ${{ secrets.HETZNER_HOST }}
+          USER: ${{ secrets.HETZNER_USER }}
+        run: |
+          tar -C . -czf - liberation-formrelay \
+            | ssh -o StrictHostKeyChecking=accept-new "$USER@$HOST" \
+                'set -e
+                 rm -rf /tmp/formrelay-build && mkdir -p /tmp/formrelay-build
+                 tar -C /tmp/formrelay-build -xzf -
+                 find /tmp/formrelay-build -type f | wc -l | xargs echo "  files received:"'
+
+      - name: Deploy
+        env:
+          HOST: ${{ secrets.HETZNER_HOST }}
+          USER: ${{ secrets.HETZNER_USER }}
+          SHA: ${{ github.sha }}
+        run: |
+          {
+            printf "SHA=%q\n" "$SHA"
+            cat <<'REMOTE'
+          set -euo pipefail
+
+          CONTAINER=liberation-formrelay
+          IMAGE=liberation-formrelay
+          ENV_FILE=/etc/liberation/formrelay.env
+          NETWORK=liberation-platform-network
+          SPOOL_VOLUME=formrelay-spool
+          TAG="${SHA:0:12}"
+
+          # --- preflight -----------------------------------------------------
+          if ! sudo test -f "$ENV_FILE"; then
+            echo "❌ $ENV_FILE is missing. It holds FORM_RELAY_FORMS (the"
+            echo "   id -> recipient map), MAIL_FROM and RELAY_TOKEN. Create it"
+            echo "   0600 root:root from liberation-formrelay/formrelay.env.example."
+            exit 1
+          fi
+          for k in FORM_RELAY_FORMS MAIL_FROM; do
+            sudo grep -qE "^${k}=.+" "$ENV_FILE" || { echo "❌ $ENV_FILE missing or empty: $k"; exit 1; }
+          done
+          if ! sudo grep -qE '^RELAY_TOKEN=.+' "$ENV_FILE"; then
+            echo "⚠️  RELAY_TOKEN is unset — forms.greenfieldoverride.com will accept"
+            echo "   posts that did not come through the site's own origin."
+          fi
+          echo "✅ env file present"
+
+          # The spool is the durability guarantee: submissions land there before
+          # any mail is attempted. Losing it loses the only copy of anything
+          # postfix could not deliver.
+          docker volume inspect "$SPOOL_VOLUME" >/dev/null 2>&1 || docker volume create "$SPOOL_VOLUME" >/dev/null
+          echo "✅ spool volume present"
+
+          # --- build ---------------------------------------------------------
+          echo "🔨 building ${IMAGE}:${TAG}"
+          docker build -t "${IMAGE}:${TAG}" /tmp/formrelay-build/liberation-formrelay
+
+          ROLLBACK_ID=$(docker inspect "$CONTAINER" --format '{{.Image}}' 2>/dev/null || echo "")
+          echo "🔖 rollback image: ${ROLLBACK_ID:-none}"
+
+          start_container() {
+            local img="$1"
+            # Bound to loopback: caddy proxies from localhost, and the port has
+            # no business being reachable on the public interface.
+            # sudo because --env-file is read by the docker CLI as the invoking
+            # user and the env file is 0600 root:root.
+            sudo docker run -d \
+              --name "$CONTAINER" \
+              --restart unless-stopped \
+              --network "$NETWORK" \
+              --env-file "$ENV_FILE" \
+              -p 127.0.0.1:8090:8090 \
+              -v "${SPOOL_VOLUME}:/var/spool/formrelay" \
+              "$img" >/dev/null
+          }
+
+          docker stop "$CONTAINER" >/dev/null 2>&1 || true
+          docker rm   "$CONTAINER" >/dev/null 2>&1 || true
+
+          echo "🚀 starting ${IMAGE}:${TAG}"
+          if ! start_container "${IMAGE}:${TAG}"; then
+            echo "💥 new container failed to start — restoring previous image"
+            docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
+            if [ -n "$ROLLBACK_ID" ] && start_container "$ROLLBACK_ID"; then
+              echo "↩️  restored $ROLLBACK_ID"
+            else
+              echo "⚠️  could not restore — the form relay is DOWN"
+            fi
+            exit 1
+          fi
+
+          # --- verify --------------------------------------------------------
+          # "Container is running" is not the bar. It will happily serve while
+          # unable to reach postfix, which is a silently dropped contact form.
+          ok=1
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8090/health >/dev/null 2>&1 && break
+            sleep 1
+          done
+
+          check() { # name expected actual
+            if [ "$2" = "$3" ]; then printf '  ✅ %-30s %s\n' "$1" "$3"
+            else printf '  ❌ %-30s expected %s, got %s\n' "$1" "$2" "$3"; ok=0; fi
+          }
+
+          HEALTH=$(curl -fsS http://127.0.0.1:8090/health 2>/dev/null || echo "")
+          case "$HEALTH" in
+            *'"status":"ok"'*) printf '  ✅ %-30s %s\n' "health" "$HEALTH" ;;
+            *) printf '  ❌ %-30s no healthy response\n' "health"; ok=0 ;;
+          esac
+
+          check "runs unprivileged" "10001" \
+            "$(docker exec "$CONTAINER" id -u 2>/dev/null)"
+
+          # An unknown form id must 404 rather than leak that the route exists.
+          check "unknown id is 404" "404" \
+            "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:8090/f/definitely-not-a-form 2>/dev/null)"
+
+          # Reaching postfix is the whole job. Check the socket, do not send.
+          if docker exec "$CONTAINER" sh -c 'nc -z -w 5 liberation-postfix 25' 2>/dev/null; then
+            printf '  ✅ %-30s reachable\n' "postfix:25"
+          else
+            printf '  ❌ %-30s unreachable from the container\n' "postfix:25"; ok=0
+          fi
+
+          if [ "$ok" -ne 1 ]; then
+            echo ""
+            echo "💥 verification failed — rolling back"
+            docker logs --tail 40 "$CONTAINER" || true
+            docker stop "$CONTAINER" >/dev/null 2>&1 || true
+            docker rm   "$CONTAINER" >/dev/null 2>&1 || true
+            if [ -n "$ROLLBACK_ID" ]; then
+              start_container "$ROLLBACK_ID"
+              echo "↩️  restored previous image $ROLLBACK_ID"
+            else
+              echo "⚠️  no previous image recorded — the form relay is DOWN"
+            fi
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ form relay ${TAG} deployed and verified"
+          rm -rf /tmp/formrelay-build
+          REMOTE
+          } | ssh -o StrictHostKeyChecking=accept-new "$USER@$HOST" "bash -s"
+
+      - name: Summary
+        if: always()
+        env:
+          STATUS: ${{ job.status }}
+        run: |
+          if [ "$STATUS" = "success" ]; then
+            echo "✅ Form relay rebuilt from this commit and verified"
+            echo ""
+            echo "Checked: health endpoint, unprivileged uid, unknown ids 404,"
+            echo "and postfix:25 reachable from inside the container."
+          else
+            echo "💥 Deploy failed — the previous image was restored automatically."
+          fi
