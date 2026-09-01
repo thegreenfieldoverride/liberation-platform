@@ -74,6 +74,38 @@ analytics.greenfieldoverride.com {
     
 }
 
+forms.greenfieldoverride.com {
+    # Contact form endpoint for the static sites on the other box. They post
+    # same-origin to their own /api/contact, and that box's caddy proxies here
+    # with an X-Relay-Token; the relay refuses anything without it, so a direct
+    # post to this hostname does not reach the mail path.
+    #
+    # No CORS headers here, deliberately. The relay owns them — same reason as
+    # the analytics block above. Two Access-Control-Allow-Origin headers fail
+    # the check outright.
+    #
+    # Loopback only on the upstream: the relay publishes to 127.0.0.1:8090 and
+    # has no business being reachable on the public interface directly.
+    reverse_proxy localhost:8090
+
+    log {
+        output file /mnt/analytics-volume/logs/caddy/forms.log {
+            roll_size 100MB
+            roll_keep 20
+            roll_keep_for 2160h
+        }
+        format json
+        level INFO
+    }
+
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+}
+
 lists.greenfieldoverride.com {
     # CORS for the public subscription API only.
     #
