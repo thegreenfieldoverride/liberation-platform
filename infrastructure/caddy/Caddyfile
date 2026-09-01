@@ -86,7 +86,18 @@ forms.greenfieldoverride.com {
     #
     # Loopback only on the upstream: the relay publishes to 127.0.0.1:8090 and
     # has no business being reachable on the public interface directly.
-    reverse_proxy localhost:8090
+    reverse_proxy localhost:8090 {
+        # Trust the web box's X-Forwarded-For. Caddy 2.7+ refuses to trust
+        # X-Forwarded-* from an undeclared proxy and overwrites the header with
+        # the immediate peer's address, so without this the relay saw only
+        # 204.168.191.68 for every submission. Box 2 does send the visitor's
+        # address correctly; it was being discarded one hop later.
+        #
+        # The consequence was not cosmetic: the relay's per-IP rate limit was
+        # keyed on the web box, making RATE_PER_HOUR a site-wide ceiling that
+        # one spammer could exhaust for every real visitor at once.
+        trusted_proxies 204.168.191.68
+    }
 
     log {
         output file /mnt/analytics-volume/logs/caddy/forms.log {
