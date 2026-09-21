@@ -31,7 +31,7 @@ jobs:
     
     steps:
       - name: Checkout platform repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set deployment variables
         run: |
@@ -41,7 +41,7 @@ jobs:
           echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
 
       - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.8.0
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
 
