@@ -103,6 +103,21 @@ session; not something to do under security pressure.
       is likely why it never did. This repo's working tree already carries the
       submodule pointer bumped to it, uncommitted.
 
+- [ ] **Two critical `next` advisories are suppressed, and that is a standing
+      liability.** `GHSA-p293-qw3h-jr36` and `GHSA-2xp9-vwfh-vxw4` are both
+      patched only in `>=15.5.24`, which the Next 15 decision below rules out.
+      Suppressed in `pnpm.auditConfig.ignoreGhsas` on reachability grounds —
+      the first is Windows-only and production is Linux; the second needed
+      `/_next/image`, which the docker target now disables outright rather than
+      arguing around. Rationale is recorded per-GHSA in `package.json`.
+
+      This is the first time the "stay on 14.2.35" decision has cost a
+      *critical* rather than a high, and the mitigation is deployment-shaped:
+      it holds only while production stays Linux and image optimization stays
+      off. If either changes, or a third critical lands with no reachability
+      argument, the PWA migration stops being a roadmap item and becomes the
+      remediation. Re-read this before adding a third entry to that list.
+
 - [ ] **`production` GitHub Environment has zero protection rules.** No
       required reviewer, no wait timer, no branch restriction — and
       `git_ref` accepts arbitrary refs, so an unreviewed branch can reach

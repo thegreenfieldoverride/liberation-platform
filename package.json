@@ -33,6 +33,17 @@
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   },
+  "pnpm": {
+    "auditConfig": {
+      "//": "Two critical next advisories patched only in >=15.5.24. BACKLOG.md holds the standing decision not to take Next 15: these tools are client-side calculators migrating to per-tool Vite PWAs, so the framework is being retired rather than upgraded. Suppressed on reachability, not convenience. Re-check both if the deployment shape changes.",
+      "// GHSA-p293-qw3h-jr36": "Unauthenticated RCE on windows-hosted servers. Production is Linux containers (node:24-alpine on Hetzner), so the vulnerable code path does not exist in this deployment.",
+      "// GHSA-2xp9-vwfh-vxw4": "Unauthenticated RCE in the Image Optimization API via AVIF. The /_next/image endpoint is now disabled outright in the docker target via images.unoptimized — see apps/web/next.config.js. Not an argument that it is unreachable; the endpoint is gone.",
+      "ignoreGhsas": [
+        "GHSA-p293-qw3h-jr36",
+        "GHSA-2xp9-vwfh-vxw4"
+      ]
+    }
+  },
   "keywords": [
     "financial-freedom",
     "burnout-recovery",
