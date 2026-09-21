@@ -7,7 +7,7 @@ cold, because most of them will be.
 stops a settled question from being re-opened every time the advisory count
 gets looked at.
 
-Last reviewed: 2026-08-10
+Last reviewed: 2026-09-21
 
 ---
 
@@ -55,23 +55,53 @@ session; not something to do under security pressure.
       `postcss`/`nanoid` — they disappear with the framework rather than
       needing individual triage. Tighten once the PWA migration lands.
 
-- [ ] **GitHub Actions Node 20 deprecation — hard deadline 2026-09-16.**
-      `actions/checkout@v4`, `actions/setup-node@v4`, `actions/cache@v3` and
-      `pnpm/action-setup@v2` are already being force-migrated to Node 24 and
-      leave the runners entirely on that date. Small PR; should not wait until
-      it is urgent.
+- [x] **GitHub Actions Node 20 deprecation** — done 2026-09-21 for this repo
+      and liberation-analytics, five days past the deadline. Worth recording
+      why it was worse than written above: `actions/cache@v3`,
+      `pnpm/action-setup@v2` and `webfactory/ssh-agent@v0.8.0` declare
+      `node16`, not node20. Bumped to the lowest major declaring node24
+      (checkout v5, setup-node v5, cache v5, action-setup v5, ssh-agent
+      v0.10.0, setup-go v6) rather than to latest, to clear the deadline
+      without three majors of unrelated behaviour change.
 
-- [ ] **Clear the dead `next@` overrides** in `pnpm-workspace.yaml`. All six
-      target versions below 14.2.35, which is what is pinned, so they are
-      no-ops accumulated from Dependabot. Noise that obscures the two
-      deliberate overrides.
+- [x] **Clear the dead `next@` overrides** — done 2026-09-21. Regenerating the
+      lockfile afterwards changed those six lines and nothing else, which is
+      the proof they were inert.
 
-- [ ] **Guardian has a stranded security commit.** `2787e65` — "fix: resolve
-      all 15 gosec security issues", January 2026 — sits on
-      `feat/auto-fix-execution-and-snyk-fast-path` and was never merged to
-      guardian's `main`. Same shape as the audit-gate commit orphaned by #28.
-      Check whether guardian's CI is broken the same way this repo's was
-      (floating `pnpm: latest` against a pinned Node).
+- [x] **Every toolchain install must be pinned — no exceptions.** Recorded
+      because this one cost three weeks. `platform.Dockerfile` ran a bare
+      `npm install -g pnpm` while `packageManager` and all three workflows
+      pinned 10.18.0. pnpm shipped a major that made `--prod` a valueless
+      flag, so `pnpm install --frozen-lockfile --production=false` failed on
+      every pull request from 2026-09-03. Because `✅ CI Success` requires the
+      Docker job, *all* merges were blocked, not just Docker builds — which is
+      why nothing landed for three weeks and the Node 20 deadline slipped.
+      The same class already burned listmonk and analytics. The rule is not
+      "pin pnpm"; it is that a floating version anywhere in a build is a
+      scheduled outage. Fixed 2026-09-21, along with `node:20-alpine` (EOL
+      April 2026) which the image never got bumped to 24 with everything else.
+
+- [ ] **Guardian: floating version refs, and the stranded security commit.**
+      The backlog asked whether guardian's CI was broken the same way this
+      repo's was. It is, and by the same mechanism:
+
+      - `golangci/golangci-lint-action@v4` with `version: latest`. golangci-lint
+        v2 requires a migrated config, and guardian's own history
+        (`fix: revert golangci config to v1 format (CI uses v1.64.8)`) says it
+        is still on v1 format. `latest` walked onto v2 and the config no longer
+        parses.
+      - `securego/gosec@master` — wholly unpinned.
+
+      Guardian's `main` has been red since 2026-01-20 and the run logs are now
+      expired (HTTP 410), so this is inferred from config, not observed. Pin
+      both, then re-run to confirm.
+
+      Downstream of that: `2787e65` — "fix: resolve all 15 gosec security
+      issues", January 2026 — still sits unmerged on
+      `feat/auto-fix-execution-and-snyk-fast-path`. Same shape as the
+      audit-gate commit orphaned by #28. It cannot land while CI is red, which
+      is likely why it never did. This repo's working tree already carries the
+      submodule pointer bumped to it, uncommitted.
 
 - [ ] **`production` GitHub Environment has zero protection rules.** No
       required reviewer, no wait timer, no branch restriction — and
@@ -130,10 +160,42 @@ session; not something to do under security pressure.
 - [ ] **Port a second tool to the PWA pattern** to prove it generalises.
       Runway Calculator is the natural candidate.
 
+## Build & release integrity
+
+- [ ] **`liberation-analytics/` is a separate git repo, and this repo also
+      tracks copies of its files.** It is not a submodule — `.gitmodules` lists
+      only `liberation-guardian`. The parent's copies are frozen at pre-fix
+      versions, so `git status` here reports work that is already committed,
+      merged and deployed over there as "modified". A `git restore` or a
+      branch switch in the parent would overwrite the nested repo's working
+      tree with stale code. Either `git rm -r --cached liberation-analytics`
+      plus a `.gitignore` entry, or convert it to a real submodule like
+      guardian. Until then, never `git add liberation-analytics/`.
+
+- [ ] **Drop the analytics stash.** `stash@{0}`, "stale working tree reverting
+      DUCKDB_PATH and known_hosts fixes". Applying it would undo shipped
+      fixes. It is kept only because nobody has looked at it.
+
+- [ ] **`js-yaml` override no longer covers the advisory.**
+      `js-yaml@<4.1.1: '>=4.1.1'` in `pnpm-workspace.yaml` was written for an
+      earlier advisory. Dependabot now reports the lowest non-vulnerable
+      version as 4.3.2 while the tree resolves no higher than 4.1.1, so the
+      security update fails on `main` every time it runs. Same for `sharp` and
+      `baseline-browser-mapping` — all three are `security_update_not_possible`
+      rather than broken CI. Needs the override pattern extended, or a
+      documented decision that it is unreachable.
+
 ## Housekeeping
 
-- [ ] **`SESSION_STATE.md` is from November 2025** and describes a deployment
-      that finished long ago. Either delete it or make it a live document.
+- [x] **`SESSION_STATE.md`** — deleted 2026-09-21. It was untracked and
+      described a November 2025 deployment as in progress.
+
+- [ ] **Untracked cruft in the working tree.** `.playwright-mcp/`,
+      `now-section.png`, `optin.html`, and two Finder-duplicated files
+      (`apps/web/.ladle/components 2.tsx`, `config 2.mjs`). Also
+      `apps/web/src/hooks/useAnalytics.ts`, untracked at 183 lines, though the
+      analytics simplification in #22 deleted that hook — check whether it is a
+      resurrected copy before anything imports it.
 
 - [ ] **Generated `*_COMPLETE.md` docs assert status they don't observe.**
       Both repos carry several. Git is the only non-editorialising record —
