@@ -2,12 +2,20 @@
 # Multi-stage build for optimal production image
 
 # Stage 1: Dependencies
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install pnpm
-RUN npm install -g pnpm
+#
+# Pinned, and it must stay in sync with "packageManager" in package.json and
+# with the `version:` given to pnpm/action-setup in .github/workflows/. This
+# was a bare `npm install -g pnpm`, so the image floated to whatever major was
+# current while every other surface stayed on 10.18.0. When pnpm made --prod a
+# valueless flag, the build below started failing with "unexpected value
+# 'false' for '--prod'" on every pull request — and because "✅ CI Success"
+# requires the Docker job, that blocked all merges rather than just this build.
+RUN npm install -g pnpm@10.18.0
 
 # Copy package files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -15,14 +23,18 @@ COPY packages/ ./packages/
 COPY apps/web/package.json ./apps/web/
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile --production=false
+#
+# No --production=false: NODE_ENV is not set to production until the builder
+# stage, so dev dependencies are installed by default. The flag was redundant
+# and was the exact spelling that broke.
+RUN pnpm install --frozen-lockfile
 
 # Stage 2: Build
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm — same pin as the deps stage above
+RUN npm install -g pnpm@10.18.0
 
 # Copy dependencies and source
 COPY --from=deps /app/node_modules ./node_modules
@@ -45,7 +57,7 @@ ENV DEPLOYMENT_TARGET=docker
 RUN pnpm build
 
 # Stage 3: Production runner
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

@@ -40,17 +40,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.inputs.git_ref || github.sha }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24'
+          # setup-node v5 turns on package-manager caching by itself whenever
+          # package.json has a "packageManager" field, and that cache probe
+          # shells out to pnpm — which is installed by the *next* step, so it
+          # fails with "Unable to locate executable file: pnpm". These jobs
+          # already cache the pnpm store explicitly below; this keeps v4's
+          # behaviour rather than restructuring the caching in a Node bump.
+          package-manager-cache: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v5
         with:
           version: 10.18.0
 
@@ -59,7 +66,7 @@ jobs:
         run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
       - name: Setup pnpm cache
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ${{ env.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -89,7 +96,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.inputs.git_ref || github.sha }}
 
@@ -112,7 +119,7 @@ jobs:
           echo "STRATEGY=${{ github.event.inputs.strategy || 'blue-green' }}" >> $GITHUB_ENV
 
       - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.8.0
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
 

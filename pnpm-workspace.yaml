@@ -15,9 +15,8 @@ overrides:
   # transformers' Node-side image preprocessing, which the browser bundle
   # never loads — but it is in the tree, so it is in the audit.
   sharp@<0.35.0: '>=0.35.0'
-  next@>=0.9.9 <14.2.24: '>=14.2.24'
-  next@>=0.9.9 <14.2.31: '>=14.2.31'
-  next@>=0.9.9 <14.2.32: '>=14.2.32'
-  next@>=13.0 <14.2.30: '>=14.2.30'
-  next@>=14.0.0 <14.2.21: '>=14.2.21'
-  next@>=14.0.0 <14.2.25: '>=14.2.25'
+  # Six next@ overrides were removed here. Every one had an upper bound at or
+  # below 14.2.32 while apps/web pins next at 14.2.35, so none of them could
+  # ever match — they were Dependabot sediment, and they obscured the two
+  # overrides above that are load-bearing. Individual 14.x advisories still get
+  # taken by bumping the pin; they do not need an override each.
