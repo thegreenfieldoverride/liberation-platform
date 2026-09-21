@@ -48,6 +48,13 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: '24'
+          # setup-node v5 turns on package-manager caching by itself whenever
+          # package.json has a "packageManager" field, and that cache probe
+          # shells out to pnpm — which is installed by the *next* step, so it
+          # fails with "Unable to locate executable file: pnpm". These jobs
+          # already cache the pnpm store explicitly below; this keeps v4's
+          # behaviour rather than restructuring the caching in a Node bump.
+          package-manager-cache: false
 
       - name: Install pnpm
         uses: pnpm/action-setup@v5
