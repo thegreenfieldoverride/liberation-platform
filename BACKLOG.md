@@ -81,27 +81,57 @@ session; not something to do under security pressure.
       scheduled outage. Fixed 2026-09-21, along with `node:20-alpine` (EOL
       April 2026) which the image never got bumped to 24 with everything else.
 
-- [ ] **Guardian: floating version refs, and the stranded security commit.**
-      The backlog asked whether guardian's CI was broken the same way this
-      repo's was. It is, and by the same mechanism:
+- [ ] **Guardian: floating version refs (latent, not currently breaking).**
+      An earlier revision of this entry claimed guardian's CI was broken the
+      same way this repo's was, inferred from config because the January run
+      logs had expired. That inference was wrong and is corrected here:
+      guardian/#2 was cut from `main` and every check passed — Build, Test,
+      Lint, Format, Security Scan, gosec. `main` is not red; its last run is
+      simply 8 months old and nothing has exercised CI since.
 
-      - `golangci/golangci-lint-action@v4` with `version: latest`. golangci-lint
-        v2 requires a migrated config, and guardian's own history
-        (`fix: revert golangci config to v1 format (CI uses v1.64.8)`) says it
-        is still on v1 format. `latest` walked onto v2 and the config no longer
-        parses.
+      The floating refs are still real and still worth pinning:
+
+      - `golangci/golangci-lint-action@v4` with `version: latest`, against a
+        config that guardian's own history says is v1 format
+        (`fix: revert golangci config to v1 format (CI uses v1.64.8)`).
       - `securego/gosec@master` — wholly unpinned.
 
-      Guardian's `main` has been red since 2026-01-20 and the run logs are now
-      expired (HTTP 410), so this is inferred from config, not observed. Pin
-      both, then re-run to confirm.
+      Both happen to resolve to something compatible today. That is luck with
+      an expiry date, and it is the same shape as the pnpm float that froze
+      this repo's merges for three weeks.
 
-      Downstream of that: `2787e65` — "fix: resolve all 15 gosec security
-      issues", January 2026 — still sits unmerged on
+      Separately: `2787e65` — "fix: resolve all 15 gosec security issues",
+      January 2026 — still sits unmerged on
       `feat/auto-fix-execution-and-snyk-fast-path`. Same shape as the
-      audit-gate commit orphaned by #28. It cannot land while CI is red, which
-      is likely why it never did. This repo's working tree already carries the
-      submodule pointer bumped to it, uncommitted.
+      audit-gate commit orphaned by #28. Since CI is not in fact broken, there
+      is no longer an obvious reason it cannot land. This repo's working tree
+      already carries the submodule pointer bumped to it, uncommitted.
+
+- [ ] **Guardian's auto-fix executor has a command-injection bypass.**
+      `internal/autofix/command_handler.go`: `Validate()` checks
+      `step.Parameters["command"]` against a prefix allowlist, but `Execute()`
+      runs `command + " " + args` through `sh -c` and `args` is never
+      validated. The allowlist being a *prefix* match means anything chained
+      after an allowed prefix with `;` or `&&` also rides along, and the
+      dangerous-pattern list only scans `command` (and misses `rm -rf ~`,
+      since its regex requires `/`). Above the exec sits
+      `// #nosec G204 - Command is validated against allowlist and dangerous
+      patterns in handler.Validate()` — gosec flagged this correctly and the
+      suppression asserts a guarantee the code does not provide. That
+      annotation is part of `2787e65` above.
+
+      Fix plans originate from model output: `internal/ai/triage.go` parses the
+      LLM's JSON into `AutoFixPlan.Steps` → `FixStep.Parameters`. The threat
+      model once this is wired is indirect prompt injection — an attacker
+      causes an error whose text reaches Sentry, the triage model reads it and
+      emits a fix plan, and `args` lands in `sh -c`.
+
+      **Not urgent: the executor is dead code.** `internal/events/processor.go`
+      has the call commented out behind a TODO and publishes events with
+      `"status": "ready_for_execution"`. This is a landmine for whoever
+      uncomments those two lines — which is exactly what
+      `feat/auto-fix-execution-and-snyk-fast-path` exists to do. Fix it before
+      that branch lands, not after.
 
 - [ ] **Two critical `next` advisories are suppressed, and that is a standing
       liability.** `GHSA-p293-qw3h-jr36` and `GHSA-2xp9-vwfh-vxw4` are both
@@ -211,6 +241,17 @@ session; not something to do under security pressure.
       `apps/web/src/hooks/useAnalytics.ts`, untracked at 183 lines, though the
       analytics simplification in #22 deleted that hook — check whether it is a
       resurrected copy before anything imports it.
+
+- [ ] **Guardian's `internal/events` is not testable as written, and that
+      hides the routing that matters.** `Processor` holds `*redis.Client` and
+      `*ai.TriageEngine` as concrete types constructed inside `NewProcessor`,
+      so there is no seam for a fake and every `ProcessEvent` branch reaches
+      `redisClient.XAdd`. guardian/#2 got the package to 1.1% and stopped
+      there deliberately. The consequence worth stating plainly: the triage
+      decision routing — auto-fix vs escalate-to-human vs ignore — is
+      unverified, and that routing decides whether an incident reaches a
+      person. Accepting interfaces for both collaborators is a small refactor
+      and unlocks the whole package.
 
 - [ ] **Generated `*_COMPLETE.md` docs assert status they don't observe.**
       Both repos carry several. Git is the only non-editorialising record —
